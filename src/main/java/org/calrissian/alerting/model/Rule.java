@@ -1,13 +1,18 @@
 package org.calrissian.alerting.model;
 
+import groovy.lang.GroovyClassLoader;
+import groovy.lang.GroovyObject;
 import org.calrissian.alerting.support.Criteria;
 import org.calrissian.alerting.support.Policy;
 import org.calrissian.alerting.support.TriggerFunction;
+import org.calrissian.alerting.support.WindowBufferItem;
 
 import java.io.Serializable;
 import java.util.List;
 
 public class Rule implements Serializable {
+
+    private static final String DEFAULT_IMPORTS = "import org.calrissian.alerting.support.WindowBufferItem;";
 
     String id;
 
@@ -23,7 +28,20 @@ public class Rule implements Serializable {
 
     List<String> groupBy;
 
-    TriggerFunction triggerFunction;
+    String groovyTriggerFunction;
+    transient GroovyObject triggerFunction;
+
+    public void initTriggerFunction() {
+
+        ClassLoader parent = Thread.currentThread().getContextClassLoader();
+        GroovyClassLoader loader = new GroovyClassLoader(parent);
+        Class groovyClass = loader.parseClass(groovyTriggerFunction);
+        try {
+            triggerFunction = (GroovyObject) groovyClass.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public Rule setId(String id) {
         this.id = id;
@@ -65,9 +83,13 @@ public class Rule implements Serializable {
         return this;
     }
 
-    public Rule setTriggerFunction(TriggerFunction triggerFunction) {
-        this.triggerFunction = triggerFunction;
+    public Rule setTriggerFunction(String groovyTriggerFunction) {
+        this.groovyTriggerFunction = DEFAULT_IMPORTS + groovyTriggerFunction;
         return this;
+    }
+
+    public Object invokeTriggerFunction(List<WindowBufferItem> events) {
+        return triggerFunction.invokeMethod("trigger", events);
     }
 
     public Criteria getCriteria() {
@@ -98,7 +120,7 @@ public class Rule implements Serializable {
         return groupBy;
     }
 
-    public TriggerFunction getTriggerFunction() {
+    public GroovyObject getTriggerFunctionGroovy() {
         return triggerFunction;
     }
 

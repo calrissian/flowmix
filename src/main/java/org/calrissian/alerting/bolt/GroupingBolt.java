@@ -38,8 +38,6 @@ public class GroupingBolt extends BaseRichBolt{
     @Override
     public void execute(Tuple tuple) {
 
-        System.out.println(tuple.getSourceStreamId());
-
         if(ruleStream.equals(tuple.getSourceStreamId())) {
             rules = (Set<Rule>)tuple.getValue(0);
         } else {

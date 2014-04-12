@@ -15,45 +15,37 @@ import org.calrissian.alerting.spout.MockEventGeneratorSpout;
 import org.calrissian.alerting.spout.RuleLoaderSpout;
 import org.calrissian.alerting.support.Criteria;
 import org.calrissian.alerting.support.Policy;
-import org.calrissian.alerting.support.TriggerFunction;
-import org.calrissian.alerting.support.WindowBufferItem;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class AlertingEngineTopology {
 
     public static final String RULE_STREAM = "ruleStream";
 
-    public static void main(String args[]) throws AlreadyAliveException, InvalidTopologyException {
+    public static void main(String args[]) throws AlreadyAliveException, InvalidTopologyException, IllegalAccessException, InstantiationException {
 
         Rule rule = new Rule()
                 .setCriteria(new Criteria() {
                     @Override
                     public boolean matches(Event event) {
-                        System.out.println("MATCHES FUNCTION CALLED: " + event);
                         return event.get("key2").getValue().equals("val2");
                     }
                 })
                 .setEnabled(true)
                 .setExpirationPolicy(Policy.COUNT)
-                .setExpirationThreshold(1)
+                .setExpirationThreshold(50)
                 .setGroupBy(Arrays.asList(new String[] { "key4", "key5" }))
                 .setTriggerPolicy(Policy.COUNT)
-                .setTriggerThreshold(1)
+                .setTriggerThreshold(50)
                 .setId("myRule")
-                .setTriggerFunction(new TriggerFunction() {
-                    @Override
-                    public boolean trigger(List<WindowBufferItem> events) {
-                        System.out.println("Trigger Function Called: " + events);
-                        return true;
-                    }
-                });
+                .setTriggerFunction(
+                    "def trigger(List<WindowBufferItem> events) { return true } "
+                );
 
 
         TopologyBuilder builder = new TopologyBuilder();
 
-        builder.setSpout("events", new MockEventGeneratorSpout());
+        builder.setSpout("events", new MockEventGeneratorSpout(10));
 
         builder.setSpout("ruleLoader", new RuleLoaderSpout(rule, RULE_STREAM));
 
@@ -70,7 +62,9 @@ public class AlertingEngineTopology {
         Config conf = new Config();
         conf.setNumWorkers(20);
         conf.setMaxSpoutPending(5000);
-        conf.setDebug(true);
+        conf.setDebug(false);
+
+
 
         LocalCluster cluster = new LocalCluster();
         cluster.submitTopology("mytopology", conf, topology);

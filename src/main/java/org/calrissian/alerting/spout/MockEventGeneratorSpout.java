@@ -19,6 +19,12 @@ public class MockEventGeneratorSpout extends BaseRichSpout{
 
     SpoutOutputCollector collector;
 
+    int sleepBetweenEvents = 0;
+
+    public MockEventGeneratorSpout(int sleepBetweenEvents) {
+        this.sleepBetweenEvents = sleepBetweenEvents;
+    }
+
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
         outputFieldsDeclarer.declare(new Fields("event"));
@@ -42,7 +48,7 @@ public class MockEventGeneratorSpout extends BaseRichSpout{
         collector.emit(new Values(singleton(event)));
 
         try {
-            Thread.sleep(2000);
+            Thread.sleep(sleepBetweenEvents);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

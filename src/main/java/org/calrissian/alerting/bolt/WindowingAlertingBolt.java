@@ -13,8 +13,6 @@ import org.calrissian.alerting.model.Event;
 import org.calrissian.alerting.model.Rule;
 import org.calrissian.alerting.support.Policy;
 import org.calrissian.alerting.support.SlidingWindowBuffer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -71,6 +69,7 @@ public class WindowingAlertingBolt extends BaseRichBolt {
                  */
                 if(rulesMap.get(rule.getId()) != null && !rulesMap.get(rule.getId()).equals(rule) || !rulesMap.containsKey(rule.getId())) {
                     rulesMap.put(rule.getId(), rule);
+                    rule.initTriggerFunction();
                     buffers.remove(rule.getId());
                 }
             }
@@ -101,7 +100,7 @@ public class WindowingAlertingBolt extends BaseRichBolt {
                         Map<String, SlidingWindowBuffer> buffersForRule = buffers.get(rule.getId());
                         if(buffersForRule != null) {
                             for (SlidingWindowBuffer buffer : buffersForRule.values()) {
-                                if (buffer.getTriggerTicks() == rule.getTriggerThreshold() && rule.getTriggerFunction().trigger(buffer.getEvents())) {
+                                if (buffer.getTriggerTicks() == rule.getTriggerThreshold() && (Boolean)rule.invokeTriggerFunction(buffer.getEvents())) {
                                     collector.emit(new Values(rule.getId(), buffer));
                                     System.out.println("Just emitted buffer: " + buffer);
                                     buffer.resetTriggerTicks();
@@ -160,10 +159,12 @@ public class WindowingAlertingBolt extends BaseRichBolt {
                 /**
                  * Perform count-based trigger if necessary
                  */
-                if (rule.getTriggerPolicy() == Policy.COUNT && buffer.size() == rule.getTriggerThreshold())
-                    if (rule.getTriggerFunction().trigger(buffer.getEvents())) {
+                if (rule.getTriggerPolicy() == Policy.COUNT && buffer.size() >= rule.getTriggerThreshold())
+                    if ((Boolean)rule.invokeTriggerFunction(buffer.getEvents())) {
                         collector.emit(new Values(ruleId, buffer));
-                        System.out.println("Just emitted buffer: " + buffer);
+
+                        if(buffer.size() % 50 == 0)
+                            System.out.println("Just emitted buffer: " + buffer);
                     }
             }
         }

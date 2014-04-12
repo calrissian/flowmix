@@ -33,12 +33,12 @@ public class AlertingEngineTopology {
                 })
                 .setEnabled(true)
                 .setExpirationPolicy(Policy.COUNT)
-                .setExpirationThreshold(50)
+                .setExpirationThreshold(1)
                 .setGroupBy(Arrays.asList(new String[] { "key4", "key5" }))
                 .setTriggerPolicy(Policy.COUNT)
-                .setTriggerThreshold(50)
+                .setTriggerThreshold(1)
                 .setTriggerFunction(
-                    "return true"
+                    "events.each {it-> System.out.println(it) }\n return true; "
                 );
 
 

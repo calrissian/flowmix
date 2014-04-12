@@ -162,9 +162,7 @@ public class WindowingAlertingBolt extends BaseRichBolt {
                 if (rule.getTriggerPolicy() == Policy.COUNT && buffer.size() >= rule.getTriggerThreshold())
                     if ((Boolean)rule.invokeTriggerFunction(buffer.getEvents())) {
                         collector.emit(new Values(ruleId, buffer));
-
-                        if(buffer.size() % 50 == 0)
-                            System.out.println("Just emitted buffer: " + buffer);
+                        System.out.println("Just emitted buffer: " + buffer);
                     }
             }
         }

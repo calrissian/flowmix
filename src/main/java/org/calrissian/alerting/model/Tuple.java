@@ -31,4 +31,13 @@ public class Tuple implements Serializable {
     public String getVisibility() {
         return visibility;
     }
+
+    @Override
+    public String toString() {
+        return "Tuple{" +
+                "key='" + key + '\'' +
+                ", value=" + value +
+                ", visibility='" + visibility + '\'' +
+                '}';
+    }
 }

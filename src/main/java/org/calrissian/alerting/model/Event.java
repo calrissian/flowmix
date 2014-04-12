@@ -49,4 +49,13 @@ public class Event implements Serializable {
     public Map<String, Set<Tuple>> getTuples() {
         return tuples;
     }
+
+    @Override
+    public String toString() {
+        return "Event{" +
+                "id='" + id + '\'' +
+                ", timestamp=" + timestamp +
+                ", tuples=" + tuples +
+                '}';
+    }
 }

@@ -23,8 +23,6 @@ import java.util.Set;
 
 public class WindowingAlertingBolt extends BaseRichBolt {
 
-    public static final Logger log = LoggerFactory.getLogger(WindowingAlertingBolt.class);
-
     String ruleStream;
     Map<String, Rule> rulesMap;
     Map<String, Map<String, SlidingWindowBuffer>> buffers;
@@ -51,9 +49,6 @@ public class WindowingAlertingBolt extends BaseRichBolt {
         if(ruleStream.equals(tuple.getSourceStreamId())) {
 
             Set<Rule> rules = (Set<Rule>) tuple.getValue(0);
-
-            System.out.println("Received rules: " + rules);
-
             Set<String> rulesToRemove = new HashSet<String>();
 
             // find deleted rules and remove them
@@ -83,16 +78,12 @@ public class WindowingAlertingBolt extends BaseRichBolt {
         } else if("__system".equals(tuple.getSourceComponent()) &&
                   "__tick".equals(tuple.getSourceStreamId())) {
 
-
-            System.out.println("WE HAVE " + rulesMap.size() + " RULES");
             /**
              * Don't bother evaluating if we don't even have any rules
              */
             if(rulesMap.size() > 0) {
 
                 for(Rule rule : rulesMap.values()) {
-
-                    System.out.println(rule.getTriggerPolicy());
 
                     /**
                      * If we need to age off any buffered items, let's do it here
@@ -106,8 +97,6 @@ public class WindowingAlertingBolt extends BaseRichBolt {
                      * If we need to trigger any time-based policies, let's do that here.
                      */
                     if(rule.getTriggerPolicy() == Policy.TIME) {
-
-                        System.out.println("We know our rule triggers by time");
 
                         Map<String, SlidingWindowBuffer> buffersForRule = buffers.get(rule.getId());
                         if(buffersForRule != null) {
@@ -161,7 +150,7 @@ public class WindowingAlertingBolt extends BaseRichBolt {
                     }
                 } else {
                     buffersForRule = new HashMap<String, SlidingWindowBuffer>();
-                    buffer = new SlidingWindowBuffer();
+                    buffer = new SlidingWindowBuffer(hash);
                     buffersForRule.put(hash, buffer);
                     buffers.put(rule.getId(), buffersForRule);
                 }
@@ -174,6 +163,7 @@ public class WindowingAlertingBolt extends BaseRichBolt {
                 if (rule.getTriggerPolicy() == Policy.COUNT && buffer.size() == rule.getTriggerThreshold())
                     if (rule.getTriggerFunction().trigger(buffer.getEvents())) {
                         collector.emit(new Values(ruleId, buffer));
+                        System.out.println("Just emitted buffer: " + buffer);
                     }
             }
         }

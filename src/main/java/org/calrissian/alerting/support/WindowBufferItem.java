@@ -19,4 +19,12 @@ public class WindowBufferItem {
     public long getTimestamp() {
         return timestamp;
     }
+
+    @Override
+    public String toString() {
+        return "WindowBufferItem{" +
+                "event=" + event +
+                ", timestamp=" + timestamp +
+                '}';
+    }
 }

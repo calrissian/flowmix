@@ -42,18 +42,14 @@ public class GroupingBolt extends BaseRichBolt{
 
         if(ruleStream.equals(tuple.getSourceStreamId())) {
             rules = (Set<Rule>)tuple.getValue(0);
-            System.out.println("RULES IN GROUPINGBOLT: " + rules);
         } else {
 
             Set<Event> events = (Set<Event>) tuple.getValue(0);
-            System.out.println("Recieved events: " + events);
-
             for(Event event : events) {
                 for(Rule rule : rules) {
                     if(rule.getCriteria().matches(event)) {
                         String hash = buildKeyIndexForEvent(event, rule.getGroupBy());
                         collector.emit(new Values(rule.getId(), hash, event));  //TODO: This could be batched
-                        System.out.println("Item passed criteria, emitting for rule: " + hash);
                     }
                 }
             }

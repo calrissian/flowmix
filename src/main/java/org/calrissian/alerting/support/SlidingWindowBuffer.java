@@ -27,8 +27,9 @@ public class SlidingWindowBuffer {
         events = new ArrayList<WindowBufferItem>(initialSize);
     }
 
-    public SlidingWindowBuffer() {
+    public SlidingWindowBuffer(String groupedIndex) {
         events = new ArrayList<WindowBufferItem>();
+        this.groupedIndex = groupedIndex;
     }
 
     public void add(Event event) {
@@ -40,7 +41,7 @@ public class SlidingWindowBuffer {
      */
     public void ageExpire(long thresholdInSeconds) {
         for(int i = 0; i < events.size(); i++) {
-            if((System.currentTimeMillis() - events.get(i).getTimestamp()) <= (thresholdInSeconds * 1000)) {
+            if((System.currentTimeMillis() - events.get(i).getTimestamp()) >= (thresholdInSeconds * 1000)) {
 
                 System.out.println("Expiring item with index: " + i);
                 events.remove(i);

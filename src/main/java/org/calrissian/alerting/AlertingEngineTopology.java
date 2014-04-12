@@ -37,10 +37,10 @@ public class AlertingEngineTopology {
                 })
                 .setEnabled(true)
                 .setExpirationPolicy(Policy.COUNT)
-                .setExpirationThreshold(5)
+                .setExpirationThreshold(1)
                 .setGroupBy(Arrays.asList(new String[] { "key4", "key5" }))
-                .setTriggerPolicy(Policy.TIME)
-                .setTriggerThreshold(10)
+                .setTriggerPolicy(Policy.COUNT)
+                .setTriggerThreshold(1)
                 .setId("myRule")
                 .setTriggerFunction(new TriggerFunction() {
                     @Override

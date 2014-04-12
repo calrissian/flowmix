@@ -140,4 +140,19 @@ public class Rule implements Serializable {
         result = 31 * result + (triggerFunction != null ? triggerFunction.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Rule{" +
+                "id='" + id + '\'' +
+                ", criteria=" + criteria +
+                ", enabled=" + enabled +
+                ", triggerPolicy=" + triggerPolicy +
+                ", expirationPolicy=" + expirationPolicy +
+                ", triggerThreshold=" + triggerThreshold +
+                ", expirationThreshold=" + expirationThreshold +
+                ", groupBy=" + groupBy +
+                ", triggerFunction=" + triggerFunction +
+                '}';
+    }
 }

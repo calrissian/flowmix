@@ -24,7 +24,7 @@ public class AlertingEngineTopology {
 
     public static void main(String args[]) throws AlreadyAliveException, InvalidTopologyException, IllegalAccessException, InstantiationException {
 
-        Rule rule = new Rule()
+        Rule rule = new Rule("myRule")
                 .setCriteria(new Criteria() {
                     @Override
                     public boolean matches(Event event) {
@@ -37,9 +37,8 @@ public class AlertingEngineTopology {
                 .setGroupBy(Arrays.asList(new String[] { "key4", "key5" }))
                 .setTriggerPolicy(Policy.COUNT)
                 .setTriggerThreshold(50)
-                .setId("myRule")
                 .setTriggerFunction(
-                    "def trigger(List<WindowBufferItem> events) { return true } "
+                    "return true"
                 );
 
 

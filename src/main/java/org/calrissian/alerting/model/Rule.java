@@ -4,7 +4,6 @@ import groovy.lang.GroovyClassLoader;
 import groovy.lang.GroovyObject;
 import org.calrissian.alerting.support.Criteria;
 import org.calrissian.alerting.support.Policy;
-import org.calrissian.alerting.support.TriggerFunction;
 import org.calrissian.alerting.support.WindowBufferItem;
 
 import java.io.Serializable;
@@ -12,7 +11,7 @@ import java.util.List;
 
 public class Rule implements Serializable {
 
-    private static final String DEFAULT_IMPORTS = "import org.calrissian.alerting.support.WindowBufferItem;";
+    private static final String TRIGGER_WRAPPER_BEGIN = "import org.calrissian.alerting.support.WindowBufferItem;";
 
     String id;
 
@@ -30,6 +29,10 @@ public class Rule implements Serializable {
 
     String groovyTriggerFunction;
     transient GroovyObject triggerFunction;
+
+    public Rule(String id) {
+        this.id = id;
+    }
 
     public void initTriggerFunction() {
 
@@ -84,7 +87,8 @@ public class Rule implements Serializable {
     }
 
     public Rule setTriggerFunction(String groovyTriggerFunction) {
-        this.groovyTriggerFunction = DEFAULT_IMPORTS + groovyTriggerFunction;
+        this.groovyTriggerFunction = TRIGGER_WRAPPER_BEGIN +
+                "class " + id + "{ def trigger(List<WindowBufferItem> events) {" + groovyTriggerFunction + "}}";
         return this;
     }
 

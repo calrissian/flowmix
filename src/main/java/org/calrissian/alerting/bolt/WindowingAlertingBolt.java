@@ -19,6 +19,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * A basic sliding window bolt that uses partitioned in-memory buffers. A trigger algorithm is applied to the buffers
+ * based on the the trigger policy. The window is kept to a specific size based on the eviction policy.
+ *
+ * This class is an attempt at porting over the Sliding Window from IBM's InfoSphere Streams:
+ * {@see http://pic.dhe.ibm.com/infocenter/streams/v3r2/index.jsp?topic=%2Fcom.ibm.swg.im.infosphere.streams.spl-language-specification.doc%2Fdoc%2Fslidingwindows.html}
+ *
+ * This class can also be used to implement a tumbling window, whereby COUNT policies are used both for eviction and triggering
+ * with the same threshold for each.
+ */
 public class WindowingAlertingBolt extends BaseRichBolt {
 
     String ruleStream;
@@ -85,11 +95,11 @@ public class WindowingAlertingBolt extends BaseRichBolt {
                 for(Rule rule : rulesMap.values()) {
 
                     /**
-                     * If we need to age off any buffered items, let's do it here
+                     * If we need to evict any buffered items, let's do it here
                      */
-                    if(rule.getExpirationPolicy() == Policy.TIME) {
+                    if(rule.getEvictionPolicy() == Policy.TIME) {
                         for(SlidingWindowBuffer buffer : buffers.get(rule.getId()).values())
-                            buffer.ageExpire(rule.getExpirationThreshold());
+                            buffer.timeEvict(rule.getEvictionThreshold());
                     }
 
                     /**
@@ -100,12 +110,12 @@ public class WindowingAlertingBolt extends BaseRichBolt {
                         Map<String, SlidingWindowBuffer> buffersForRule = buffers.get(rule.getId());
                         if(buffersForRule != null) {
                             for (SlidingWindowBuffer buffer : buffersForRule.values()) {
-                                if (buffer.getTriggerTicks() == rule.getTriggerThreshold() && (Boolean)rule.invokeTriggerFunction(buffer.getEvents())) {
+                                if (buffer.getEvictionTicks() == rule.getTriggerThreshold() && (Boolean)rule.invokeTriggerFunction(buffer.getEvents())) {
                                     collector.emit(new Values(rule.getId(), buffer));
                                     System.out.println("Just emitted buffer: " + buffer);
-                                    buffer.resetTriggerTicks();
+                                    buffer.resetEvictionTicks();
                                 } else {
-                                    buffer.incTriggerTicks();
+                                    buffer.incrEvictionTick();
                                 }
                             }
                         }
@@ -139,11 +149,11 @@ public class WindowingAlertingBolt extends BaseRichBolt {
                     buffer = buffersForRule.get(hash);
 
                     /**
-                     * Perform count-based expiration if necessary
+                     * Perform count-based eviction if necessary
                      */
                     if (buffer != null) {    // if we have a buffer already, process it
-                        if (rule.getExpirationPolicy() == Policy.COUNT) {
-                            if (buffer.size() == rule.getExpirationThreshold())
+                        if (rule.getEvictionPolicy() == Policy.COUNT) {
+                            if (buffer.size() == rule.getEvictionThreshold())
                                 buffer.expire();
                         }
                     }
@@ -159,11 +169,17 @@ public class WindowingAlertingBolt extends BaseRichBolt {
                 /**
                  * Perform count-based trigger if necessary
                  */
-                if (rule.getTriggerPolicy() == Policy.COUNT && buffer.size() >= rule.getTriggerThreshold())
+
+                if (rule.getTriggerPolicy() == Policy.COUNT)
+
+                    buffer.incrTriggerTicks();
+                    if(buffer.getTriggerTicks() == rule.getTriggerThreshold()) {
                     if ((Boolean)rule.invokeTriggerFunction(buffer.getEvents())) {
                         collector.emit(new Values(ruleId, buffer));
                         System.out.println("Just emitted buffer: " + buffer);
+                        buffer.resetTriggerTicks();
                     }
+                }
             }
         }
     }

@@ -22,24 +22,25 @@ public class AlertingEngineTopology {
 
     public static final String RULE_STREAM = "ruleStream";
 
-    public static void main(String args[]) throws AlreadyAliveException, InvalidTopologyException, IllegalAccessException, InstantiationException {
+    public static void main(String args[]) throws AlreadyAliveException,
+            InvalidTopologyException, IllegalAccessException, InstantiationException {
 
-        Rule rule = new Rule("myRule")
-                .setCriteria(new Criteria() {
-                    @Override
-                    public boolean matches(Event event) {
-                        return event.get("key2").getValue().equals("val2");
-                    }
-                })
-                .setEnabled(true)
-                .setExpirationPolicy(Policy.COUNT)
-                .setExpirationThreshold(1)
-                .setGroupBy(Arrays.asList(new String[] { "key4", "key5" }))
-                .setTriggerPolicy(Policy.COUNT)
-                .setTriggerThreshold(1)
-                .setTriggerFunction(
-                    "events.each {it-> System.out.println(it) }\n return true; "
-                );
+        Rule rule = new Rule("myRule")  // DONT forget to sanitize this- always
+            .setCriteria(new Criteria() {
+                @Override
+                public boolean matches(Event event) {
+                    return event.get("key2").getValue().equals("val2");
+                }
+            })
+            .setEnabled(true)
+            .setEvictionPolicy(Policy.TIME)
+            .setEvictionThreshold(5)
+            .setGroupBy(Arrays.asList(new String[] { "key4", "key5" }))
+            .setTriggerPolicy(Policy.COUNT)
+            .setTriggerThreshold(10)
+            .setTriggerFunction(
+                "return true;"
+            );
 
 
         TopologyBuilder builder = new TopologyBuilder();
@@ -62,8 +63,6 @@ public class AlertingEngineTopology {
         conf.setNumWorkers(20);
         conf.setMaxSpoutPending(5000);
         conf.setDebug(false);
-
-
 
         LocalCluster cluster = new LocalCluster();
         cluster.submitTopology("mytopology", conf, topology);

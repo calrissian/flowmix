@@ -10,7 +10,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 import static java.lang.System.currentTimeMillis;
-import static java.lang.System.exit;
 
 public class SlidingWindowBuffer {
 
@@ -19,7 +18,7 @@ public class SlidingWindowBuffer {
     private List<WindowBufferItem> events;     // using standard array list for proof of concept.
                                                // Circular buffer needs to be used after concept is proven
 
-    private int expirationTicks = 0;
+    private int evictionTicks = 0;
     private int triggerTicks = 0;
 
 
@@ -39,7 +38,7 @@ public class SlidingWindowBuffer {
     /**
      * Used for age-based expiration
      */
-    public void ageExpire(long thresholdInSeconds) {
+    public void timeEvict(long thresholdInSeconds) {
         for(int i = 0; i < events.size(); i++) {
             if((System.currentTimeMillis() - events.get(i).getTimestamp()) >= (thresholdInSeconds * 1000)) {
 
@@ -60,8 +59,21 @@ public class SlidingWindowBuffer {
         return triggerTicks;
     }
 
-    public void incTriggerTicks() {
+    public void incrTriggerTicks() {
         triggerTicks += 1;
+    }
+
+
+    public void resetEvictionTicks() {
+        evictionTicks = 0;
+    }
+
+    public int getEvictionTicks() {
+        return evictionTicks;
+    }
+
+    public void incrEvictionTick() {
+        evictionTicks += 1;
     }
 
     public String getGroupedIndex() {
@@ -114,8 +126,8 @@ public class SlidingWindowBuffer {
                 "groupedIndex='" + groupedIndex + '\'' +
                 ", size=" + events.size() +
                 ", events=" + events +
-                ", expirationTicks=" + expirationTicks +
-                ", triggerTicks=" + triggerTicks +
+                ", evictionTicks=" + evictionTicks +
+                ", evictionTicks=" + evictionTicks +
                 '}';
     }
 }

@@ -1,17 +1,18 @@
 package org.calrissian.alerting.model;
 
 import groovy.lang.GroovyClassLoader;
-import groovy.lang.GroovyObject;
-import org.calrissian.alerting.support.Criteria;
-import org.calrissian.alerting.support.Policy;
-import org.calrissian.alerting.support.WindowBufferItem;
+import org.calrissian.alerting.support.*;
 
 import java.io.Serializable;
 import java.util.List;
 
 public class Rule implements Serializable {
 
-    private static final String TRIGGER_WRAPPER_BEGIN = "import org.calrissian.alerting.support.WindowBufferItem;";
+    private static final String TRIGGER_WRAPPER_BEGIN = "import " + TriggerFunction.class.getName() + "; import " +
+           WindowBufferItem.class.getName() + "; import " + Tuple.class.getName() + ";";
+
+    private static final String GROUPING_WRAPPER_BEGIN = "import " + GroupFunction.class.getName() + "; import " +
+            Event.class.getName() + "; import " + Tuple.class.getName() + ";";
 
     String id;
 
@@ -20,15 +21,20 @@ public class Rule implements Serializable {
     boolean enabled;
 
     Policy triggerPolicy;
-    Policy expirationPolicy;
+    Policy evictionPolicy;
+
+    List<String> defaultImports;
 
     int triggerThreshold;
-    int expirationThreshold;
+    int evictionThreshold;
 
     List<String> groupBy;
 
+    String groovyGroupingFunction;
+    transient GroupFunction groupFunction;
+
     String groovyTriggerFunction;
-    transient GroovyObject triggerFunction;
+    transient TriggerFunction triggerFunction;
 
     public Rule(String id) {
         this.id = id;
@@ -40,7 +46,7 @@ public class Rule implements Serializable {
         GroovyClassLoader loader = new GroovyClassLoader(parent);
         Class groovyClass = loader.parseClass(groovyTriggerFunction);
         try {
-            triggerFunction = (GroovyObject) groovyClass.newInstance();
+            triggerFunction = (TriggerFunction) groovyClass.newInstance();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -48,6 +54,11 @@ public class Rule implements Serializable {
 
     public Rule setId(String id) {
         this.id = id;
+        return this;
+    }
+
+    public Rule setDefaultImports(List<String> defaultImports) {
+        this.defaultImports = defaultImports;
         return this;
     }
 
@@ -66,8 +77,8 @@ public class Rule implements Serializable {
         return this;
     }
 
-    public Rule setExpirationPolicy(Policy expirationPolicy) {
-        this.expirationPolicy = expirationPolicy;
+    public Rule setEvictionPolicy(Policy evictionPolicy) {
+        this.evictionPolicy = evictionPolicy;
         return this;
     }
 
@@ -76,8 +87,8 @@ public class Rule implements Serializable {
         return this;
     }
 
-    public Rule setExpirationThreshold(int expirationThreshold) {
-        this.expirationThreshold = expirationThreshold;
+    public Rule setEvictionThreshold(int evictionThreshold) {
+        this.evictionThreshold = evictionThreshold;
         return this;
     }
 
@@ -86,14 +97,30 @@ public class Rule implements Serializable {
         return this;
     }
 
+    /*
+        The groovy trigger function need only provide the block of code inside the {}'s of the trigger function.
+        That is, a trigger function that needs to do a foreach can just start with "events.each{}"
+     */
     public Rule setTriggerFunction(String groovyTriggerFunction) {
         this.groovyTriggerFunction = TRIGGER_WRAPPER_BEGIN +
-                "class " + id + "{ def trigger(List<WindowBufferItem> events) {" + groovyTriggerFunction + "}}";
+                "class " + id + " implements TriggerFunction { " +
+                    "boolean trigger(List<WindowBufferItem> events) {" +
+                        groovyTriggerFunction +
+                "}}";
+        return this;
+    }
+
+    public Rule setGroupFunction(String groovyGroupFunction) {
+        this.groovyGroupingFunction = TRIGGER_WRAPPER_BEGIN +
+                "class " + id + " implements TriggerFunction { " +
+                "boolean trigger(List<WindowBufferItem> events) {" +
+                groovyTriggerFunction +
+                "}}";
         return this;
     }
 
     public Object invokeTriggerFunction(List<WindowBufferItem> events) {
-        return triggerFunction.invokeMethod("trigger", events);
+        return triggerFunction.trigger(events);
     }
 
     public Criteria getCriteria() {
@@ -108,23 +135,23 @@ public class Rule implements Serializable {
         return triggerPolicy;
     }
 
-    public Policy getExpirationPolicy() {
-        return expirationPolicy;
+    public Policy getEvictionPolicy() {
+        return evictionPolicy;
     }
 
     public int getTriggerThreshold() {
         return triggerThreshold;
     }
 
-    public int getExpirationThreshold() {
-        return expirationThreshold;
+    public int getEvictionThreshold() {
+        return evictionThreshold;
     }
 
     public List<String> getGroupBy() {
         return groupBy;
     }
 
-    public GroovyObject getTriggerFunctionGroovy() {
+    public TriggerFunction getTriggerFunctionGroovy() {
         return triggerFunction;
     }
 
@@ -140,10 +167,10 @@ public class Rule implements Serializable {
         Rule rule = (Rule) o;
 
         if (enabled != rule.enabled) return false;
-        if (expirationThreshold != rule.expirationThreshold) return false;
+        if (evictionThreshold != rule.evictionThreshold) return false;
         if (triggerThreshold != rule.triggerThreshold) return false;
         if (criteria != null ? !criteria.equals(rule.criteria) : rule.criteria != null) return false;
-        if (expirationPolicy != rule.expirationPolicy) return false;
+        if (evictionPolicy != rule.evictionPolicy) return false;
         if (groupBy != null ? !groupBy.equals(rule.groupBy) : rule.groupBy != null) return false;
         if (id != null ? !id.equals(rule.id) : rule.id != null) return false;
         if (triggerFunction != null ? !triggerFunction.equals(rule.triggerFunction) : rule.triggerFunction != null)
@@ -159,9 +186,9 @@ public class Rule implements Serializable {
         result = 31 * result + (criteria != null ? criteria.hashCode() : 0);
         result = 31 * result + (enabled ? 1 : 0);
         result = 31 * result + (triggerPolicy != null ? triggerPolicy.hashCode() : 0);
-        result = 31 * result + (expirationPolicy != null ? expirationPolicy.hashCode() : 0);
+        result = 31 * result + (evictionPolicy != null ? evictionPolicy.hashCode() : 0);
         result = 31 * result + triggerThreshold;
-        result = 31 * result + expirationThreshold;
+        result = 31 * result + evictionThreshold;
         result = 31 * result + (groupBy != null ? groupBy.hashCode() : 0);
         result = 31 * result + (triggerFunction != null ? triggerFunction.hashCode() : 0);
         return result;
@@ -174,9 +201,9 @@ public class Rule implements Serializable {
                 ", criteria=" + criteria +
                 ", enabled=" + enabled +
                 ", triggerPolicy=" + triggerPolicy +
-                ", expirationPolicy=" + expirationPolicy +
+                ", evictionPolicy=" + evictionPolicy +
                 ", triggerThreshold=" + triggerThreshold +
-                ", expirationThreshold=" + expirationThreshold +
+                ", evictionThreshold=" + evictionThreshold +
                 ", groupBy=" + groupBy +
                 ", triggerFunction=" + triggerFunction +
                 '}';

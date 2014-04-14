@@ -3,7 +3,7 @@ storm-sliding-window-alerting
 
 An InfoSphere Streams-like Sliding Window Alerting Engine written on top of Apache Storm.
 
-This engine works on very weakly structure, schema-less objects called Events. The object looks like this:
+This engine works on very weakly structured objects called Events. An event, by default, only has to have an id and a timestamp. All other state is set through adding tuples, which are key/value objects. The object looks like this:
 
 ```java
 Event event = new Event("id", System.currentTimeMillis());
@@ -33,5 +33,9 @@ Rule rule = new Rule("testRule")
 ```
 
 Essentialy what this says is:
-- whenever I encounter an event that has a tuple with "key2" == "val2", add it to a sliding window along with all other events matching the criteria that have the same "key4" and "key5". At any point, the sliding window shouldn't have more than the last 5 events in it and a trigger function should be run every 1 second. The trigger function is a little passage of groovy code that gets passed the iterator of events in the sliding window so that it can introspect the window to determine whether or not a trigger needs to be called. When a trigger function returns true, that window's contents is output (an alert has been fired).
+- Whenever I encounter an event that has a tuple with "key2" == "val2", add it to a sliding window along with all other events matching the criteria that have the same values for both "key4" and "key5" tuples. 
+- At any point, the sliding window shouldn't have more than the last 5 events in it 
+- A trigger function should be run every 1 second. 
+- The trigger function is a little passage of groovy code that gets passed the iterator of events in the sliding window so that it can introspect the window to determine whether or not a trigger needs to be called. 
+- When a trigger function returns true, that window's contents is output (an alert has been fired).
 

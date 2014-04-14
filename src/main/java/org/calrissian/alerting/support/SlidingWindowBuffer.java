@@ -1,5 +1,6 @@
 package org.calrissian.alerting.support;
 
+import com.google.common.collect.EvictingQueue;
 import org.apache.commons.lang.StringUtils;
 import org.calrissian.alerting.model.Event;
 import org.calrissian.alerting.model.Tuple;
@@ -8,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import static java.lang.System.currentTimeMillis;
 
@@ -15,19 +17,20 @@ public class SlidingWindowBuffer {
 
     private String groupedIndex;        // a unique key given to the groupBy field/value combinations in the window buffer
 
-    private List<WindowBufferItem> events;     // using standard array list for proof of concept.
+    private Queue<WindowBufferItem> events;     // using standard array list for proof of concept.
                                                // Circular buffer needs to be used after concept is proven
-
-    private int evictionTicks = 0;
     private int triggerTicks = 0;
 
-
-    public SlidingWindowBuffer(int initialSize) {
-        events = new ArrayList<WindowBufferItem>(initialSize);
+    /**
+     * A sliding window buffer which automatically evicts by count
+     */
+    public SlidingWindowBuffer(String groupedIndex, int size) {
+        events = EvictingQueue.create(size);
+        this.groupedIndex = groupedIndex;
     }
 
     public SlidingWindowBuffer(String groupedIndex) {
-        events = new ArrayList<WindowBufferItem>();
+        events = new LinkedBlockingQueue<WindowBufferItem>();
         this.groupedIndex = groupedIndex;
     }
 
@@ -39,16 +42,8 @@ public class SlidingWindowBuffer {
      * Used for age-based expiration
      */
     public void timeEvict(long thresholdInSeconds) {
-        for(int i = 0; i < events.size(); i++) {
-            if((System.currentTimeMillis() - events.get(i).getTimestamp()) >= (thresholdInSeconds * 1000)) {
-
-                System.out.println("Expiring item with index: " + i);
-                events.remove(i);
-
-            }
-            else
-                break;
-        }
+        while((System.currentTimeMillis() - events.peek().getTimestamp()) >= (thresholdInSeconds * 1000))
+            events.poll();
     }
 
     public void resetTriggerTicks() {
@@ -63,24 +58,11 @@ public class SlidingWindowBuffer {
         triggerTicks += 1;
     }
 
-
-    public void resetEvictionTicks() {
-        evictionTicks = 0;
-    }
-
-    public int getEvictionTicks() {
-        return evictionTicks;
-    }
-
-    public void incrEvictionTick() {
-        evictionTicks += 1;
-    }
-
     public String getGroupedIndex() {
         return groupedIndex;
     }
 
-    public List<WindowBufferItem> getEvents() {
+    public Iterable<WindowBufferItem> getEvents() {
         return events;
     }
 
@@ -126,8 +108,7 @@ public class SlidingWindowBuffer {
                 "groupedIndex='" + groupedIndex + '\'' +
                 ", size=" + events.size() +
                 ", events=" + events +
-                ", evictionTicks=" + evictionTicks +
-                ", evictionTicks=" + evictionTicks +
+                ", triggertTicks=" + triggerTicks +
                 '}';
     }
 }

@@ -5,6 +5,6 @@ import java.util.List;
 
 public interface TriggerFunction extends Serializable {
 
-    boolean trigger(List<WindowBufferItem> events);
+    boolean trigger(Iterable<WindowBufferItem> events);
 
 }

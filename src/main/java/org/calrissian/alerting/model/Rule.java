@@ -4,6 +4,7 @@ import groovy.lang.GroovyClassLoader;
 import org.calrissian.alerting.support.*;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 
 public class Rule implements Serializable {
@@ -104,7 +105,7 @@ public class Rule implements Serializable {
     public Rule setTriggerFunction(String groovyTriggerFunction) {
         this.groovyTriggerFunction = TRIGGER_WRAPPER_BEGIN +
                 "class " + id + " implements TriggerFunction { " +
-                    "boolean trigger(List<WindowBufferItem> events) {" +
+                    "boolean trigger(Iterable<WindowBufferItem> events) {" +
                         groovyTriggerFunction +
                 "}}";
         return this;
@@ -119,7 +120,7 @@ public class Rule implements Serializable {
         return this;
     }
 
-    public Object invokeTriggerFunction(List<WindowBufferItem> events) {
+    public Object invokeTriggerFunction(Iterable<WindowBufferItem> events) {
         return triggerFunction.trigger(events);
     }
 

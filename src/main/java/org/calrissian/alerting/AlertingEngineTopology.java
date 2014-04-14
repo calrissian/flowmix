@@ -37,7 +37,7 @@ public class AlertingEngineTopology {
             .setEvictionThreshold(5)
             .setGroupBy(Arrays.asList(new String[] { "key4", "key5" }))
             .setTriggerPolicy(Policy.COUNT)
-            .setTriggerThreshold(10)
+            .setTriggerThreshold(1)
             .setTriggerFunction(
                 "return true;"
             );
@@ -45,7 +45,7 @@ public class AlertingEngineTopology {
 
         TopologyBuilder builder = new TopologyBuilder();
 
-        builder.setSpout("events", new MockEventGeneratorSpout(10));
+        builder.setSpout("events", new MockEventGeneratorSpout(1));
 
         builder.setSpout("ruleLoader", new RuleLoaderSpout(rule, RULE_STREAM));
 

@@ -1,8 +1,12 @@
 Storm Complex-Event Processing Alerting
 =============================
 
-An InfoSphere Streams-like Sliding Window Alerting Engine written on top of Apache Storm.
+This is a proof of concept to implement an InfoSphere Streams-like complex event processing engine written on top of Apache Storm.
 
+##Running the simulation: 
+For now, the simulation can be run right in your IDE by modifying the building of the Rule in  the AlertingToplogy class's main method. This will, by default, fire up a local storm cluster and print a message to the screen 
+
+##What is it?
 This engine works on very weakly structured objects called Events. An event, by default, only has to have an id and a timestamp. All other state is set through adding tuples, which are key/value objects. The object looks like this:
 
 ```java

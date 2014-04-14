@@ -1,4 +1,4 @@
-storm-sliding-window-alerting
+Storm Complex-Event Processing Alerting
 =============================
 
 An InfoSphere Streams-like Sliding Window Alerting Engine written on top of Apache Storm.

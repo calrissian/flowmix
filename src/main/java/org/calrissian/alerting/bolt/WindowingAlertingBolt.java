@@ -14,7 +14,7 @@ import com.google.common.cache.CacheBuilder;
 import org.calrissian.alerting.model.Event;
 import org.calrissian.alerting.model.Rule;
 import org.calrissian.alerting.support.Policy;
-import org.calrissian.alerting.support.SlidingWindowBuffer;
+import org.calrissian.alerting.support.WindowBuffer;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A basic sliding window bolt that uses partitioned in-memory buffers. A trigger algorithm is applied to the buffers
+ * A basic windowing bolt that uses partitioned in-memory deques. A trigger algorithm is applied to the buffers
  * based on the the trigger policy. The window is kept to a specific size based on the eviction policy.
  *
  * This class is an attempt at porting over the Sliding Window from IBM's InfoSphere Streams:
@@ -36,7 +36,7 @@ public class WindowingAlertingBolt extends BaseRichBolt {
 
     String ruleStream;
     Map<String, Rule> rulesMap;
-    Map<String, Cache<String, SlidingWindowBuffer>> buffers;
+    Map<String, Cache<String, WindowBuffer>> buffers;
 
     OutputCollector collector;
 
@@ -48,7 +48,7 @@ public class WindowingAlertingBolt extends BaseRichBolt {
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
         rulesMap = new HashMap<String, Rule>();
-        buffers = new HashMap<String, Cache<String, SlidingWindowBuffer>>();
+        buffers = new HashMap<String, Cache<String, WindowBuffer>>();
     }
 
     @Override
@@ -103,9 +103,9 @@ public class WindowingAlertingBolt extends BaseRichBolt {
                      */
                     if(rule.getTriggerPolicy() == Policy.TIME) {
 
-                        Cache<String, SlidingWindowBuffer> buffersForRule = buffers.get(rule.getId());
+                        Cache<String, WindowBuffer> buffersForRule = buffers.get(rule.getId());
                         if(buffersForRule != null) {
-                            for (SlidingWindowBuffer buffer : buffersForRule.asMap().values()) {
+                            for (WindowBuffer buffer : buffersForRule.asMap().values()) {
                                 if (buffer.getTriggerTicks() == rule.getTriggerThreshold() &&
                                         (Boolean)rule.invokeTriggerFunction(buffer.getEvents())) {
                                     collector.emit(new Values(rule.getId(), buffer));
@@ -140,8 +140,8 @@ public class WindowingAlertingBolt extends BaseRichBolt {
                 Event event = (Event) tuple.getValue(2);
 
                 Rule rule = rulesMap.get(ruleId);
-                Cache<String, SlidingWindowBuffer> buffersForRule = buffers.get(rule.getId());
-                SlidingWindowBuffer buffer;
+                Cache<String, WindowBuffer> buffersForRule = buffers.get(rule.getId());
+                WindowBuffer buffer;
                 if (buffersForRule != null) {
                     buffer = buffersForRule.getIfPresent(hash);
 
@@ -161,8 +161,8 @@ public class WindowingAlertingBolt extends BaseRichBolt {
                     }
                 } else {
                     buffersForRule = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).build(); // just in case we get some rogue data, we don't wan ti to sit for too long.
-                    buffer = rule.getEvictionPolicy() == Policy.TIME ? new SlidingWindowBuffer(hash) :
-                            new SlidingWindowBuffer(hash, rule.getEvictionThreshold());
+                    buffer = rule.getEvictionPolicy() == Policy.TIME ? new WindowBuffer(hash) :
+                            new WindowBuffer(hash, rule.getEvictionThreshold());
                     buffersForRule.put(hash, buffer);
                     buffers.put(rule.getId(), buffersForRule);
                 }

@@ -33,10 +33,10 @@ public class AlertingEngineTopology {
                 }
             })
             .setEnabled(true)
-            .setEvictionPolicy(Policy.TIME)
+            .setEvictionPolicy(Policy.COUNT)
             .setEvictionThreshold(5)
             .setGroupBy(Arrays.asList(new String[] { "key4", "key5" }))
-            .setTriggerPolicy(Policy.COUNT)
+            .setTriggerPolicy(Policy.TIME)
             .setTriggerThreshold(1)
             .setTriggerFunction(
                 "return true;"

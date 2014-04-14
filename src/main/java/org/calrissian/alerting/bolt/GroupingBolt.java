@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.calrissian.alerting.support.SlidingWindowBuffer.buildKeyIndexForEvent;
+import static org.calrissian.alerting.support.WindowBuffer.buildKeyIndexForEvent;
 
 public class GroupingBolt extends BaseRichBolt{
 

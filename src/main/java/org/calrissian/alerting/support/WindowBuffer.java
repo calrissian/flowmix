@@ -1,6 +1,7 @@
 package org.calrissian.alerting.support;
 
 import com.google.common.collect.EvictingQueue;
+import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.apache.commons.lang.StringUtils;
 import org.calrissian.alerting.model.Event;
 import org.calrissian.alerting.model.Tuple;
@@ -9,28 +10,28 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import static java.lang.System.currentTimeMillis;
 
-public class SlidingWindowBuffer {
+public class WindowBuffer {
 
     private String groupedIndex;        // a unique key given to the groupBy field/value combinations in the window buffer
 
-    private Queue<WindowBufferItem> events;     // using standard array list for proof of concept.
+    private Deque<WindowBufferItem> events;     // using standard array list for proof of concept.
                                                // Circular buffer needs to be used after concept is proven
     private int triggerTicks = 0;
 
     /**
      * A sliding window buffer which automatically evicts by count
      */
-    public SlidingWindowBuffer(String groupedIndex, int size) {
-        events = EvictingQueue.create(size);
+    public WindowBuffer(String groupedIndex, int size) {
+        events = new LimitingDeque<WindowBufferItem>(size);
         this.groupedIndex = groupedIndex;
     }
 
-    public SlidingWindowBuffer(String groupedIndex) {
-        events = new LinkedBlockingQueue<WindowBufferItem>();
+    public WindowBuffer(String groupedIndex) {
+        events = new LinkedBlockingDeque<WindowBufferItem>();
         this.groupedIndex = groupedIndex;
     }
 
@@ -61,6 +62,15 @@ public class SlidingWindowBuffer {
     public String getGroupedIndex() {
         return groupedIndex;
     }
+
+    /**
+     * Returns the difference(in millis) between the HEAD & TAIL timestamps.
+     */
+    public long timeRange() {
+        return events.getFirst().getTimestamp() - events.getLast().getTimestamp();
+    }
+
+
 
     public Iterable<WindowBufferItem> getEvents() {
         return events;
@@ -104,7 +114,7 @@ public class SlidingWindowBuffer {
 
     @Override
     public String toString() {
-        return "SlidingWindowBuffer{" +
+        return "WindowBuffer{" +
                 "groupedIndex='" + groupedIndex + '\'' +
                 ", size=" + events.size() +
                 ", events=" + events +

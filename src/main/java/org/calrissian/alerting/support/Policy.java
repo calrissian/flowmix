@@ -5,5 +5,5 @@ import java.io.Serializable;
 
 public enum Policy implements Serializable {
 
-    COUNT, TIME
+    COUNT, TIME, TIME_DIFF
 }

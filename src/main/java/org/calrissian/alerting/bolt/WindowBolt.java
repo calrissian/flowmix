@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * This class can also be used to implement a tumbling window, whereby COUNT policies are used both for eviction and triggering
  * with the same threshold for each.
  */
-public class WindowingAlertingBolt extends BaseRichBolt {
+public class WindowBolt extends BaseRichBolt {
 
     String ruleStream;
     Map<String, Rule> rulesMap;
@@ -40,7 +40,7 @@ public class WindowingAlertingBolt extends BaseRichBolt {
 
     OutputCollector collector;
 
-    public WindowingAlertingBolt(String ruleStream) {
+    public WindowBolt(String ruleStream) {
         this.ruleStream = ruleStream;
     }
 
@@ -106,6 +106,13 @@ public class WindowingAlertingBolt extends BaseRichBolt {
                         Cache<String, WindowBuffer> buffersForRule = buffers.get(rule.getId());
                         if(buffersForRule != null) {
                             for (WindowBuffer buffer : buffersForRule.asMap().values()) {
+
+                                /**
+                                 * If we need to evict any buffered items, let's do it here
+                                 */
+                                if(rule.getEvictionPolicy() == Policy.TIME)
+                                    buffer.timeEvict(rule.getEvictionThreshold());
+
                                 if (buffer.getTriggerTicks() == rule.getTriggerThreshold() &&
                                         (Boolean)rule.invokeTriggerFunction(buffer.getEvents())) {
                                     collector.emit(new Values(rule.getId(), buffer));

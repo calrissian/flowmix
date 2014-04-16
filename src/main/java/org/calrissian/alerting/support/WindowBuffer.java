@@ -67,10 +67,10 @@ public class WindowBuffer {
      * Returns the difference(in millis) between the HEAD & TAIL timestamps.
      */
     public long timeRange() {
-        return events.getFirst().getTimestamp() - events.getLast().getTimestamp();
+        if(events.size() <= 1)
+            return -1;
+        return events.getLast().getTimestamp() - events.getFirst().getTimestamp();
     }
-
-
 
     public Iterable<WindowBufferItem> getEvents() {
         return events;
@@ -110,6 +110,10 @@ public class WindowBuffer {
         for(byte b : hash)
             sb.append(String.format("%02x", b&0xff));
         return sb.toString();
+    }
+
+    public void clear() {
+        events.clear();
     }
 
     @Override

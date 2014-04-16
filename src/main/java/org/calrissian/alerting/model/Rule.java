@@ -4,7 +4,6 @@ import groovy.lang.GroovyClassLoader;
 import org.calrissian.alerting.support.*;
 
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.List;
 
 public class Rule implements Serializable {
@@ -29,7 +28,7 @@ public class Rule implements Serializable {
     int triggerThreshold;
     int evictionThreshold;
 
-    List<String> groupBy;
+    List<String> partitionBy;
 
     String groovyGroupingFunction;
     transient GroupFunction groupFunction;
@@ -93,8 +92,8 @@ public class Rule implements Serializable {
         return this;
     }
 
-    public Rule setGroupBy(List<String> groupBy) {
-        this.groupBy = groupBy;
+    public Rule setPartitionBy(List<String> partitionBy) {
+        this.partitionBy = partitionBy;
         return this;
     }
 
@@ -148,8 +147,8 @@ public class Rule implements Serializable {
         return evictionThreshold;
     }
 
-    public List<String> getGroupBy() {
-        return groupBy;
+    public List<String> getPartitionBy() {
+        return partitionBy;
     }
 
     public TriggerFunction getTriggerFunctionGroovy() {
@@ -172,7 +171,7 @@ public class Rule implements Serializable {
         if (triggerThreshold != rule.triggerThreshold) return false;
         if (criteria != null ? !criteria.equals(rule.criteria) : rule.criteria != null) return false;
         if (evictionPolicy != rule.evictionPolicy) return false;
-        if (groupBy != null ? !groupBy.equals(rule.groupBy) : rule.groupBy != null) return false;
+        if (partitionBy != null ? !partitionBy.equals(rule.partitionBy) : rule.partitionBy != null) return false;
         if (id != null ? !id.equals(rule.id) : rule.id != null) return false;
         if (triggerFunction != null ? !triggerFunction.equals(rule.triggerFunction) : rule.triggerFunction != null)
             return false;
@@ -190,7 +189,7 @@ public class Rule implements Serializable {
         result = 31 * result + (evictionPolicy != null ? evictionPolicy.hashCode() : 0);
         result = 31 * result + triggerThreshold;
         result = 31 * result + evictionThreshold;
-        result = 31 * result + (groupBy != null ? groupBy.hashCode() : 0);
+        result = 31 * result + (partitionBy != null ? partitionBy.hashCode() : 0);
         result = 31 * result + (triggerFunction != null ? triggerFunction.hashCode() : 0);
         return result;
     }
@@ -201,11 +200,11 @@ public class Rule implements Serializable {
                 "id='" + id + '\'' +
                 ", criteria=" + criteria +
                 ", enabled=" + enabled +
-                ", triggerPolicy=" + triggerPolicy +
+                ", activationPolicy=" + triggerPolicy +
                 ", evictionPolicy=" + evictionPolicy +
-                ", triggerThreshold=" + triggerThreshold +
+                ", activationThreshold=" + triggerThreshold +
                 ", evictionThreshold=" + evictionThreshold +
-                ", groupBy=" + groupBy +
+                ", partitionBy=" + partitionBy +
                 ", triggerFunction=" + triggerFunction +
                 '}';
     }

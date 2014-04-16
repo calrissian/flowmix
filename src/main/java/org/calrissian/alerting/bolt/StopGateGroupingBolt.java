@@ -10,6 +10,7 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import org.calrissian.alerting.model.Event;
 import org.calrissian.alerting.model.Rule;
+import org.calrissian.alerting.model.StopGateRule;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -17,34 +18,34 @@ import java.util.Set;
 
 import static org.calrissian.alerting.support.WindowBuffer.buildKeyIndexForEvent;
 
-public class GroupingBolt extends BaseRichBolt{
+public class StopGateGroupingBolt extends BaseRichBolt{
 
     String ruleStream;
 
-    Set<Rule> rules;
+    Set<StopGateRule> rules;
 
     OutputCollector collector;
 
-    public GroupingBolt(String ruleStream) {
+    public StopGateGroupingBolt(String ruleStream) {
         this.ruleStream = ruleStream;
     }
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
-        rules = new HashSet<Rule>();
+        rules = new HashSet<StopGateRule>();
     }
 
     @Override
     public void execute(Tuple tuple) {
 
         if(ruleStream.equals(tuple.getSourceStreamId())) {
-            rules = (Set<Rule>)tuple.getValue(0);
+            rules = (Set<StopGateRule>)tuple.getValue(0);
         } else {
 
             Set<Event> events = (Set<Event>) tuple.getValue(0);
             for(Event event : events) {
-                for(Rule rule : rules) {
+                for(StopGateRule rule : rules) {
                     if(rule.getCriteria().matches(event)) {
                         String hash = buildKeyIndexForEvent(event, rule.getPartitionBy());
                         collector.emit(new Values(rule.getId(), hash, event));  //TODO: This could be batched

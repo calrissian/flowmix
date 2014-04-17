@@ -26,13 +26,13 @@ Flow flow = new FlowBuilder()
     .id("myFlow")
     .name("My first flow")
     .description("This flow is just an example")
-    .addOps()
+    .flowOps()
         .filter().criteria(new CriteriaBuilder().eq("country", "USA").build()).end()
         .select().field("name").field("age").field("country").end()
         .partition().field("age").field("country").end()
         .aggregate().class(CountingAggregator.class).evict(Policy.COUNT, 1000).trigger(Policy.TIME, 30).end()
         .filter().criteria(new CriteriaBuilder().greaterThan("count", 50).build()).end()
-    .endOps()
+    .end()
 .createFlow();
 ```
 

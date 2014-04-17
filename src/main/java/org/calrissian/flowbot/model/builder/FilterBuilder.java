@@ -3,13 +3,12 @@ package org.calrissian.flowbot.model.builder;
 import org.calrissian.flowbot.model.FilterOp;
 import org.calrissian.flowbot.support.Criteria;
 
-public class FilterBuilder {
+public class FilterBuilder extends AbstractOpBuilder {
 
-    private FlowOpsBuilder fob;
     private FilterOp filterOp = new FilterOp();
 
     public FilterBuilder(FlowOpsBuilder fob) {
-        this.fob = fob;
+        super(fob);
     }
 
     public FilterBuilder criteria(Criteria criteria) {
@@ -18,7 +17,11 @@ public class FilterBuilder {
     }
 
     public FlowOpsBuilder end() {
-        fob.addFlowOp(filterOp);
-        return fob;
+
+        if(filterOp.getCriteria() == null)
+            throw new RuntimeException("Filter operator needs criteria to filter");
+
+        getFlowOpsBuilder().addFlowOp(filterOp);
+        return getFlowOpsBuilder();
     }
 }

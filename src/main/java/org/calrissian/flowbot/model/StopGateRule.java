@@ -18,7 +18,6 @@ public class StopGateRule implements Serializable {
     Policy evictionPolicy;
     Policy stopPolicy;
 
-
     List<String> defaultImports;
 
     int activationThreshold;

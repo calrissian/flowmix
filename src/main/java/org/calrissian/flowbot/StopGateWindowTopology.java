@@ -39,7 +39,7 @@ public class StopGateWindowTopology {
                 .setEvictionPolicy(Policy.COUNT)
                 .setEvictionThreshold(5)
                 .setPartitionBy(Arrays.asList(new String[]{"key4", "key5"}))
-                .setActivationPolicy(Policy.TIME_DIFF)
+                .setActivationPolicy(Policy.TIME_DELTA_LT)
                 .setActivationThreshold(1)
                 .setStopPolicy(Policy.TIME)
                 .setStopThreshold(15);

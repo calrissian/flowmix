@@ -197,7 +197,7 @@ public class StopGateBolt extends BaseRichBolt {
                     }
 
                     long timeRange = buffer.timeRange();
-                    if(rule.getActivationPolicy() == Policy.TIME_DIFF && buffer.timeRange() > -1 && buffer.timeRange() <= rule.getActivationThreshold() * 1000) {
+                    if(rule.getActivationPolicy() == Policy.TIME_DELTA_LT && buffer.timeRange() > -1 && buffer.timeRange() <= rule.getActivationThreshold() * 1000) {
 
                         if(rule.getEvictionPolicy() == Policy.COUNT && buffer.size() == rule.getEvictionThreshold() ||
                                 rule.getEvictionPolicy() != Policy.COUNT) {

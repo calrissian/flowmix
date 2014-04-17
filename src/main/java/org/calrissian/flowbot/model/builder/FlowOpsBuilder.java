@@ -30,6 +30,18 @@ public class FlowOpsBuilder {
         return new SelectBuilder(this);
     }
 
+    public AggregateBuilder aggregate() {
+        return new AggregateBuilder(this);
+    }
+
+    public PartitionBuilder partition() {
+        return new PartitionBuilder(this);
+    }
+
+    public StopGateBuilder stopGate() {
+        return new StopGateBuilder(this);
+    }
+
     public FlowBuilder endOps() {
         return flowBuilder;
     }

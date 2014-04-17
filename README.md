@@ -33,7 +33,7 @@ Flow flow = new FlowBuilder()
         .aggregate().class(CountingAggregator.class).evict(Policy.COUNT, 1000).trigger(Policy.TIME, 30).end()
         .filter().criteria(new CriteriaBuilder().greaterThan("count", 50).build()).end()
     .endOps()
-    .build();
+.createFlow();
 ```
 
 ##Running the simulation: 

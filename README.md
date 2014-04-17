@@ -3,6 +3,39 @@ Flowbot - A Storm CEP Engine
 
 This is a proof of concept to implement an InfoSphere Streams-like and Esper-like distributed complex event processing engine written on top of Apache Storm. This framework's goal is to make use of Storm's groupings and tuple-at-a-time abilities (along with its guarantees of thread-safe parallelism in its bolts) to make different processed flows of streams possible in a single Storm topology. 
 
+
+##Planned Notable Features:
+- Groovy-defined flows that get auto-classloaded by the Storm bolts to limit downtime and promote on-the-fly updates of flows.
+- Automatic synchronization of flow updates via Zookeeper. You modify your flow and submit it, the Storm topology will automatically update itself.
+- Ability to expire partitioned windows by time
+- Aggregated windows with custom aggregation functions
+- Easy to define flow processing pipelines that automatically run in parallel.
+- Customizable output processing (the flow stops with output, you plug in your downstream handling)
+
+##Concepts:
+
+### What is a flow?
+A flow is a processing pipeline that defines how to manipulate a set of data streams. A flow runs in parallel processing as many streams as possible at the same time, though flows also define algorithms that use windowing, partitions, and aggregations to manage the data so that analytics can be orchestrated easily. 
+
+###How are flows defined?
+
+Flows are defined using an object called a Flow. FlowOps are added to a flow to define executions that need to occur on the flow. Here's an example:
+
+```Java
+Flow flow = new FlowBuilder()
+    .id('myFlow')
+    .name('My first flow')
+    .description('This flow is just an example')
+    .addOp().filter()
+        .criteria(new CriteriaBuilder().eq('country', 'USA').build()).endOp()
+    .addOp().select(Arrays.asList(new String[] { 'name', 'age', 'country' }).endOp()
+    .addOp().partition(Arrays.asList(new String[] { 'age', 'country' }).endOp()
+    .addOp().aggregator(CountingAggregator.class, "age").evict(Policy.COUNT, 1000).trigger(Policy.TIME, 30).endOp()
+    .addOp().filter()
+        .criteria(new CriteriaBuilder().greaterThan('count', 50).build()).endOp()
+    .build();
+```
+
 ##Running the simulation: 
 For now, a simple sliding window simulation can be run in your IDE by modifying the building of the Rule in the AlertingToplogy class's main method. This will, by default, fire up a local storm cluster and print a message to the screen each time a trigger function returns true. The constructure to the MockEventGeneratorSpout is the delay, in milliseconds, between each event generated.
 
@@ -13,33 +46,4 @@ This engine works on very weakly structured objects called Events. An event, by 
 Event event = new Event("id", System.currentTimeMillis());
 event.put(new Tuple("key1", "val1"));
 ```
-
-Events are the input to the alerting engine. The rules that determine what events are important and when/how to trigger the sliding windows can be built like this:
-
-```java 
-
-Rule rule = new Rule("testRule") 
-    .setCriteria(new Criteria() {
-        @Override
-        public boolean matches(Event event) {
-            return event.get("key2").getValue().equals("val2");
-        }
-    })
-    .setEnabled(true)
-    .setEvictionPolicy(Policy.COUNT)
-    .setEvictionThreshold(5)
-    .setGroupBy(Arrays.asList(new String[] { "key4", "key5" }))
-    .setTriggerPolicy(Policy.TIME)
-    .setTriggerThreshold(1)
-    .setTriggerFunction(
-        "events.each { /* do something with window */ } return true;"
-    );
-```
-
-Essentialy what this says is:
-- Whenever I encounter an event that has a tuple with "key2" == "val2", add it to a sliding window along with all other events matching the criteria that have the same values for both "key4" and "key5" tuples. 
-- At any point, the sliding window shouldn't have more than the last 5 events in it 
-- A trigger function should be run every 1 second. 
-- The trigger function is a little passage of groovy code that gets passed the iterator of events in the sliding window so that it can introspect the window to determine whether or not a trigger needs to be called. 
-- When a trigger function returns true, that window's contents is output (an alert has been fired).
 

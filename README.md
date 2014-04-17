@@ -15,7 +15,7 @@ This is a proof of concept to implement an InfoSphere Streams-like and Esper-lik
 ##Concepts:
 
 ### What is a flow?
-A flow is a processing pipeline that defines how to manipulate a set of data streams. A flow runs in parallel processing as many streams as possible at the same time, though flows also define algorithms that use windowing, partitions, and aggregations to manage the data so that analytics can be orchestrated easily. 
+A flow is a processing pipeline that defines how to manipulate a set of data streams. A flow runs in parallel, processing as many streams as possible at the same time. Flows also define algorithms that use windowing, partitions, and aggregations to manage the data so that analytics and alerting can be orchestrated easily. 
 
 ###How are flows defined?
 
@@ -37,7 +37,7 @@ Flow flow = new FlowBuilder()
 ```
 
 ##Running the simulation: 
-For now, a simple sliding window simulation can be run in your IDE by modifying the building of the Rule in the AlertingToplogy class's main method. This will, by default, fire up a local storm cluster and print a message to the screen each time a trigger function returns true. The constructure to the MockEventGeneratorSpout is the delay, in milliseconds, between each event generated.
+For now, simple flow simulation can be run in your IDE by executing the main() method in the org.calrissian.flowbot.FlowbotTopology class. This will, by default, fire up a local storm cluster and print a message to the screen each time a tuple makes its way to the output (traversing the whole flow). The constructor argument to the MockEventGeneratorSpout is the delay, in milliseconds, between each event generated. Multiple flows can be passed into the MockFlowLoaderSpout to show its ability to process multiple flows in parallel.
 
 ##What is it?
 This engine works on very weakly structured objects called Events. An event, by default, only has to have an id and a timestamp. All other state is set through adding tuples, which are key/value objects. The object looks like this:
@@ -46,4 +46,6 @@ This engine works on very weakly structured objects called Events. An event, by 
 Event event = new Event("id", System.currentTimeMillis());
 event.put(new Tuple("key1", "val1"));
 ```
+
+
 

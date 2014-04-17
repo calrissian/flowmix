@@ -19,7 +19,7 @@ A flow is a processing pipeline that defines how to manipulate a set of data str
 
 ###How are flows defined?
 
-Flows are defined using an object called a Flow. FlowOps are added to a flow to define executions that need to occur on the flow. Here's an example:
+Flows are defined using an object called a Flow. FlowOps are added to a flow to define executions that need to occur on the flow. Note that the placement of the executions in the flow are important. In the flow defined below, every tuple will first begin with a filtering operator, then move on to a selection operator, then move on to be partitioned, etc...
 
 ```Java
 Flow flow = new FlowBuilder()

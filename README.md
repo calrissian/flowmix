@@ -26,13 +26,11 @@ Flow flow = new FlowBuilder()
     .id("myFlow")
     .name("My first flow")
     .description("This flow is just an example")
-    .addOp().filter()
-        .criteria(new CriteriaBuilder().eq("country", "USA").build()).endOp()
-    .addOp().select(Arrays.asList(new String[] { "name", "age", "country"}).endOp()
-    .addOp().partition(Arrays.asList(new String[] { "age", "country" }).endOp()
-    .addOp().aggregator(CountingAggregator.class, "age").evict(Policy.COUNT, 1000).trigger(Policy.TIME, 30).endOp()
-    .addOp().filter()
-        .criteria(new CriteriaBuilder().greaterThan("count", 50).build()).endOp()
+    .filter().criteria(new CriteriaBuilder().eq("country", "USA").build()).end()
+    .select(Arrays.asList(new String[] { "name", "age", "country"}).end()
+    .partition(Arrays.asList(new String[] { "age", "country" }).end()
+    .aggregator(CountingAggregator.class, "age").evict(Policy.COUNT, 1000).trigger(Policy.TIME, 30).end()
+    .filter().criteria(new CriteriaBuilder().greaterThan("count", 50).build()).end()
     .build();
 ```
 

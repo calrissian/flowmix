@@ -50,16 +50,16 @@ public class SelectorBolt extends BaseRichBolt {
 
                 String nextStream = idx+1 < flow.getFlowOps().size() ? flow.getFlowOps().get(idx + 1).getComponentName() : "output";
 
-                Set<String> toRemove = new HashSet<String>();
+                Event newEvent = new Event(event.getId(), event.getTimestamp());
                 for(Map.Entry<String, Set<org.calrissian.flowbot.model.Tuple>> eventTuple : event.getTuples().entrySet()) {
-                    if(!selectOp.getFields().contains(eventTuple.getKey()))
-                        toRemove.add(eventTuple.getKey());
+                    if(selectOp.getFields().contains(eventTuple.getKey())) {
+                        for(org.calrissian.flowbot.model.Tuple curTuple : eventTuple.getValue()) {
+                            newEvent.put(curTuple);
+                        }
+                    }
                 }
 
-                for(String keyToRemove : toRemove)
-                    event.getTuples().remove(keyToRemove);
-
-                collector.emit(nextStream, new Values(flowId, event, idx));
+                collector.emit(nextStream, tuple, new Values(flowId, newEvent, idx));
             }
 
             collector.ack(tuple);

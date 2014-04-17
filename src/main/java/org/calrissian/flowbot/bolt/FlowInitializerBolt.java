@@ -4,7 +4,6 @@ import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
-import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import org.calrissian.flowbot.FlowbotTopology;
@@ -15,7 +14,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.calrissian.flowbot.Constants.*;
 import static org.calrissian.flowbot.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 public class FlowInitializerBolt extends BaseRichBolt {
@@ -42,15 +40,13 @@ public class FlowInitializerBolt extends BaseRichBolt {
                     Collection<Event> events = (Collection<Event>) tuple.getValue(0);
                     for(Event event : events) {
                         String streamid = flow.getFlowOps().get(0).getComponentName();
-                        collector.emit(streamid, new Values(flow.getId(), event, -1));
+                        collector.emit(streamid, tuple, new Values(flow.getId(), event, -1));
                     }
                 }
             }
 
             collector.ack(tuple);
         }
-
-
     }
 
     @Override

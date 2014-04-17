@@ -17,7 +17,10 @@ import org.calrissian.flowbot.model.builder.FlowBuilder;
 import org.calrissian.flowbot.spout.MockEventGeneratorSpout;
 import org.calrissian.flowbot.spout.MockFlowLoaderSpout;
 import org.calrissian.flowbot.support.Criteria;
+import org.calrissian.flowbot.support.Policy;
+import org.calrissian.flowbot.support.SummingAggregator;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.calrissian.flowbot.Constants.*;
@@ -46,8 +49,23 @@ public class FlowbotTopology {
             .endOps()
         .createFlow();
 
+        Flow flow2 = new FlowBuilder()
+                .id("myFlowId2")
+                .flowOps()
+                .filter().criteria(new Criteria() {
+                    @Override
+                    public boolean matches(Event event) {
+                        return true;
+                    }
+                }).end()
+                .select().field("key5").end()
+                .partition().field("key5").end()
+                .endOps()
+                .createFlow();
+
+
         StormTopology topology = new FlowbotTopology().buildTopology(
-                new MockFlowLoaderSpout(Collections.singletonList(flow), 60000),
+                new MockFlowLoaderSpout(Arrays.asList(new Flow[]{ flow, flow2 }), 60000),
                 new MockEventGeneratorSpout(10),
                 new PrinterBolt(), 6);
 

@@ -4,6 +4,7 @@ import java.util.List;
 
 public class SelectOp implements FlowOp {
 
+    public static final String SELECT = "select";
     List<String> fields;
 
     public SelectOp(List<String> fields) {
@@ -11,7 +12,7 @@ public class SelectOp implements FlowOp {
     }
     @Override
     public String getComponentName() {
-        return "select";
+        return SELECT;
     }
 
     public List<String> getFields() {

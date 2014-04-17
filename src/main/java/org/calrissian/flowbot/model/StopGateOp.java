@@ -5,6 +5,7 @@ import org.calrissian.flowbot.support.Policy;
 
 public class StopGateOp implements FlowOp{
 
+    public static final String STOP_GATE = "stopGate";
     private Policy activationPolicy;
     private Policy evictionPolicy;
     private Policy openPolicy;
@@ -49,6 +50,6 @@ public class StopGateOp implements FlowOp{
 
     @Override
     public String getComponentName() {
-        return "stopGate";
+        return STOP_GATE;
     }
 }

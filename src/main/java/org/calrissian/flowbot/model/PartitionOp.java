@@ -4,6 +4,7 @@ import java.util.List;
 
 public class PartitionOp implements FlowOp {
 
+    public static final String PARTITION = "partition";
     private List<String> fields;
 
     public PartitionOp(List<String> fields) {
@@ -16,6 +17,6 @@ public class PartitionOp implements FlowOp {
 
     @Override
     public String getComponentName() {
-        return "partition";
+        return PARTITION;
     }
 }

@@ -19,7 +19,7 @@ public class MockEventGeneratorSpout extends BaseRichSpout{
 
     SpoutOutputCollector collector;
 
-    int sleepBetweenEvents = 0;
+    int sleepBetweenEvents = 5000;
 
     public MockEventGeneratorSpout(int sleepBetweenEvents) {
         this.sleepBetweenEvents = sleepBetweenEvents;

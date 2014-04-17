@@ -1,8 +1,9 @@
 package org.calrissian.flowbot.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class Flow {
+public class Flow implements Serializable{
 
     String id;
     String name;

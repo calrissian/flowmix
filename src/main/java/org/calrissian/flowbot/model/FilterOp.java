@@ -4,6 +4,7 @@ import org.calrissian.flowbot.support.Criteria;
 
 public class FilterOp implements FlowOp {
 
+    public static final String FILTER = "filter";
     Criteria criteria;
 
     public void setCriteria(Criteria criteria) {
@@ -16,6 +17,6 @@ public class FilterOp implements FlowOp {
 
     @Override
     public String getComponentName() {
-        return null;
+        return FILTER;
     }
 }

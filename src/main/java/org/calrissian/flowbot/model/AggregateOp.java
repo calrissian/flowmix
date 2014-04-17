@@ -5,6 +5,8 @@ import org.calrissian.flowbot.support.Policy;
 
 public class AggregateOp implements FlowOp {
 
+    public static final String AGGREGATE = "aggregate";
+
     private Class<? extends Aggregator> aggregatorClass;
     private Policy triggerPolicy;
     private Policy evictionPolicy;
@@ -49,6 +51,6 @@ public class AggregateOp implements FlowOp {
 
     @Override
     public String getComponentName() {
-        return "aggregate";
+        return AGGREGATE;
     }
 }

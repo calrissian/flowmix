@@ -1,7 +1,9 @@
 package org.calrissian.flowbot.model;
 
 
-public interface FlowOp {
+import java.io.Serializable;
+
+public interface FlowOp extends Serializable {
 
     String getComponentName();
 }

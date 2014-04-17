@@ -11,16 +11,20 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.calrissian.flowbot.Constants;
 import org.calrissian.flowbot.model.Event;
+import org.calrissian.flowbot.model.StopGateOp;
 import org.calrissian.flowbot.model.StopGateRule;
 import org.calrissian.flowbot.support.Policy;
 import org.calrissian.flowbot.support.StopGateWindow;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static org.calrissian.flowbot.Constants.EVENT;
+import static org.calrissian.flowbot.Constants.FLOW_ID;
+import static org.calrissian.flowbot.Constants.FLOW_OP_IDX;
+import static org.calrissian.flowbot.model.StopGateOp.STOP_GATE;
 
 /**
  * Uses a tumbling window to stop execution after an activation policy is met.
@@ -47,12 +51,14 @@ public class StopGateBolt extends BaseRichBolt {
     @Override
     public void execute(Tuple tuple) {
 
+        collector.ack(tuple);
+
         /**
          * Update rules if necessary
          */
         if(ruleStream.equals(tuple.getSourceStreamId())) {
 
-            Set<StopGateRule> rules = (Set<StopGateRule>) tuple.getValue(0);
+            Collection<StopGateRule> rules = (Collection<StopGateRule>) tuple.getValue(0);
             Set<String> rulesToRemove = new HashSet<String>();
 
             // find deleted rules and remove them
@@ -220,7 +226,7 @@ public class StopGateBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("ruleId", "events"));
+        outputFieldsDeclarer.declareStream(STOP_GATE, new Fields(FLOW_ID, EVENT, FLOW_OP_IDX));
     }
 
     @Override

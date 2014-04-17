@@ -1,10 +1,10 @@
-Storm Complex-Event Processing Alerting
+Flowbot - A Storm CEP Engine
 =============================
 
-This is a proof of concept to implement an InfoSphere Streams-like complex event processing engine written on top of Apache Storm.
+This is a proof of concept to implement an InfoSphere Streams-like and Esper-like distributed complex event processing engine written on top of Apache Storm. This framework's goal is to make use of Storm's groupings and tuple-at-a-time abilities (along with its guarantees of thread-safe parallelism in its bolts) to make different processed flows of streams possible in a single Storm topology. 
 
 ##Running the simulation: 
-For now, the simulation can be run right in your IDE by modifying the building of the Rule in  the AlertingToplogy class's main method. This will, by default, fire up a local storm cluster and print a message to the screen each time a trigger function returns true. The constructure to the MockEventGeneratorSpout is the delay, in milliseconds, between each event generated.
+For now, a simple sliding window simulation can be run in your IDE by modifying the building of the Rule in the AlertingToplogy class's main method. This will, by default, fire up a local storm cluster and print a message to the screen each time a trigger function returns true. The constructure to the MockEventGeneratorSpout is the delay, in milliseconds, between each event generated.
 
 ##What is it?
 This engine works on very weakly structured objects called Events. An event, by default, only has to have an id and a timestamp. All other state is set through adding tuples, which are key/value objects. The object looks like this:

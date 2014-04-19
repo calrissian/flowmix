@@ -87,17 +87,22 @@ public class WindowBuffer {
 
     public static String buildKeyIndexForEvent(Event event, List<String> groupBy) {
         StringBuffer stringBuffer = new StringBuffer();
+
+        if(groupBy == null || groupBy.size() == 0) {
+            return "";  // default partition when no groupBy fields are specified.
+        }
+
         for(String groupField : groupBy) {
             Set<Tuple> tuples = event.getAll(groupField);
             SortedSet<String> values = new TreeSet<String>();
 
-            if(tuples == null)
-                return "";
-
-            for(Tuple tuple : tuples)
-                values.add(tuple.getValue().toString());        // toString() for now until we have something better
+            if(tuples == null) {
+                values.add("");
+            } else {
+                for(Tuple tuple : tuples)
+                    values.add(tuple.getValue().toString());        // toString() for now until we have something better
+            }
             stringBuffer.append(groupBy + StringUtils.join(values, ""));
-
         }
         try {
             return hashString(stringBuffer.toString());

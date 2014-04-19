@@ -1,6 +1,5 @@
 package org.calrissian.flowbox.model.builder;
 
-import org.calrissian.flowbox.model.FlowOp;
 import org.calrissian.flowbox.model.StreamDef;
 
 import java.util.ArrayList;
@@ -28,6 +27,7 @@ public class FlowDefsBuilder {
     }
 
     public FlowBuilder endDefs() {
+        // TODO: It's important that partition-aware things have a partitioner added to them during this phase. This will require looking for any partition-aware components (join, aggregate, etc...) and, if the index before them in the list is not a partitioner, adding a default partitioner.
         return flowBuilder;
     }
 }

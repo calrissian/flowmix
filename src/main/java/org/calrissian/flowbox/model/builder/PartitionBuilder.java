@@ -20,8 +20,9 @@ public class PartitionBuilder extends AbstractOpBuilder {
 
     public StreamBuilder end() {
 
-        if(fields == null || fields.size() == 0)
-            throw new RuntimeException("Partitioner needs to have fields set.");
+        /**
+         * It's possible that if a partitioner does not have any specified fields, that it uses a default partition.
+         */
 
         getStreamBuilder().addFlowOp(new PartitionOp(fields));
         return getStreamBuilder();

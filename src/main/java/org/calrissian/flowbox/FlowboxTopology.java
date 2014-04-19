@@ -121,13 +121,16 @@ public class FlowboxTopology {
         return builder.createTopology();
     }
 
+    public FlowboxTopology() {
+    }
+
     private static void declarebolt(TopologyBuilder builder, String boltName, IRichBolt bolt, int parallelism) {
         builder.setBolt(boltName, bolt, parallelism)
             .allGrouping(FLOW_LOADER_STREAM, FLOW_LOADER_STREAM)
             .allGrouping("tick", "tick")
             .localOrShuffleGrouping(INITIALIZER, boltName)
             .localOrShuffleGrouping(FILTER, boltName)
-            .fieldsGrouping(PARTITION, boltName, new Fields("partition"))
+            .fieldsGrouping(PARTITION, boltName, new Fields(FLOW_ID, PARTITION))    // guaranteed partitions will always group the same flow for flows that have joins with default partitions.
             .localOrShuffleGrouping(AGGREGATE, boltName)
             .localOrShuffleGrouping(SELECT, boltName)
             .localOrShuffleGrouping(STOP_GATE, boltName)

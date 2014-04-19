@@ -35,7 +35,7 @@ public class FilterBolt extends BaseRichBolt {
         if(FLOW_LOADER_STREAM.equals(tuple.getSourceStreamId())) {
             for(Flow flow : (Collection<Flow>)tuple.getValue(0))
                 flows.put(flow.getId(), flow);
-        } else {
+        } else if(!"tick".equals(tuple.getSourceStreamId())){
             String flowId = tuple.getStringByField(FLOW_ID);
             Event event = (Event) tuple.getValueByField(EVENT);
             int idx = tuple.getIntegerByField(FLOW_OP_IDX);

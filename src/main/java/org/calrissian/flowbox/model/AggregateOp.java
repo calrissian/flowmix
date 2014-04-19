@@ -1,7 +1,6 @@
 package org.calrissian.flowbox.model;
 
 import org.calrissian.flowbox.support.Aggregator;
-import org.calrissian.flowbox.support.Policy;
 
 public class AggregateOp implements FlowOp {
 

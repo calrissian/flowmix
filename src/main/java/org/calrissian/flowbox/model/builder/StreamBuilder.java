@@ -1,6 +1,7 @@
 package org.calrissian.flowbox.model.builder;
 
 import org.calrissian.flowbox.model.FlowOp;
+import org.calrissian.flowbox.model.builder.JoinBuilder;
 import org.calrissian.flowbox.model.StreamDef;
 
 import java.util.ArrayList;
@@ -39,6 +40,10 @@ public class StreamBuilder {
 
     public StopGateBuilder stopGate() {
         return new StopGateBuilder(this);
+    }
+
+    public JoinBuilder join(String stream1, String stream2) {
+        return new JoinBuilder(this);
     }
 
     public FlowDefsBuilder endStream() {

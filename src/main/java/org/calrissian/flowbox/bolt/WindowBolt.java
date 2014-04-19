@@ -11,9 +11,8 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.calrissian.flowbox.model.Event;
-import org.calrissian.flowbox.model.Rule;
-import org.calrissian.flowbox.support.Policy;
+import org.calrissian.flowbox.Constants;
+import org.calrissian.flowbox.model.*;
 import org.calrissian.flowbox.support.WindowBuffer;
 
 import java.util.HashMap;
@@ -35,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 public class WindowBolt extends BaseRichBolt {
 
     String ruleStream;
-    Map<String, Rule> rulesMap;
+    Map<String, Flow> rulesMap;
     Map<String, Cache<String, WindowBuffer>> buffers;
 
     OutputCollector collector;
@@ -47,7 +46,7 @@ public class WindowBolt extends BaseRichBolt {
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
-        rulesMap = new HashMap<String, Rule>();
+        rulesMap = new HashMap<String, Flow>();
         buffers = new HashMap<String, Cache<String, WindowBuffer>>();
     }
 
@@ -59,11 +58,11 @@ public class WindowBolt extends BaseRichBolt {
          */
         if(ruleStream.equals(tuple.getSourceStreamId())) {
 
-            Set<Rule> rules = (Set<Rule>) tuple.getValue(0);
+            Set<Flow> rules = (Set<Flow>) tuple.getValue(0);
             Set<String> rulesToRemove = new HashSet<String>();
 
             // find deleted rules and remove them
-            for(Rule rule : rulesMap.values()) {
+            for(Flow rule : rulesMap.values()) {
                 if(!rules.contains(rule))
                     rulesToRemove.add(rule.getId());
             }
@@ -76,14 +75,13 @@ public class WindowBolt extends BaseRichBolt {
                 buffers.remove(ruleId);
             }
 
-            for(Rule rule : rules) {
+            for(Flow rule : rules) {
                 /**
                  * If a rule has been updated, let's drop the window windows and start out fresh.
                  */
                 if(rulesMap.get(rule.getId()) != null && !rulesMap.get(rule.getId()).equals(rule) ||
                         !rulesMap.containsKey(rule.getId())) {
                     rulesMap.put(rule.getId(), rule);
-                    rule.initTriggerFunction();
                     buffers.remove(rule.getId());
                 }
             }
@@ -96,12 +94,14 @@ public class WindowBolt extends BaseRichBolt {
              */
             if(rulesMap.size() > 0) {
 
-                for(Rule rule : rulesMap.values()) {
+                for(Flow rule : rulesMap.values()) {
+
+                    AggregateOp op = (AggregateOp) rule.getStreams().iterator().next().getFlowOps().get(0);
 
                     /**
                      * If we need to trigger any time-based policies, let's do that here.
                      */
-                    if(rule.getTriggerPolicy() == Policy.TIME) {
+                    if(op.getTriggerPolicy() == Policy.TIME) {
 
                         Cache<String, WindowBuffer> buffersForRule = buffers.get(rule.getId());
                         if(buffersForRule != null) {
@@ -110,11 +110,10 @@ public class WindowBolt extends BaseRichBolt {
                                 /**
                                  * If we need to evict any buffered items, let's do it here
                                  */
-                                if(rule.getEvictionPolicy() == Policy.TIME)
-                                    buffer.timeEvict(rule.getEvictionThreshold());
+                                if(op.getEvictionPolicy() == Policy.TIME)
+                                    buffer.timeEvict(op.getEvictionThreshold());
 
-                                if (buffer.getTriggerTicks() == rule.getTriggerThreshold() &&
-                                        (Boolean)rule.invokeTriggerFunction(buffer.getEvents())) {
+                                if (buffer.getTriggerTicks() == op.getTriggerThreshold()) {
                                     collector.emit(new Values(rule.getId(), buffer));
                                     System.out.println("Just emitted buffer: " + buffer);
                                     buffer.resetTriggerTicks();
@@ -145,8 +144,14 @@ public class WindowBolt extends BaseRichBolt {
                 String ruleId = tuple.getString(0);
                 String hash = tuple.getString(1);
                 Event event = (Event) tuple.getValue(2);
+                int idx = tuple.getIntegerByField(Constants.FLOW_OP_IDX);
+                idx++;
 
-                Rule rule = rulesMap.get(ruleId);
+                String streamName = tuple.getStringByField(Constants.STREAM_NAME);
+                Flow rule = rulesMap.get(ruleId);
+
+                AggregateOp op = (AggregateOp) rule.getStream(streamName).getFlowOps().get(idx);
+
                 Cache<String, WindowBuffer> buffersForRule = buffers.get(rule.getId());
                 WindowBuffer buffer;
                 if (buffersForRule != null) {
@@ -156,20 +161,20 @@ public class WindowBolt extends BaseRichBolt {
                         /**
                          * If we need to evict any buffered items, let's do it here
                          */
-                        if(rule.getEvictionPolicy() == Policy.TIME)
-                            buffer.timeEvict(rule.getEvictionThreshold());
+                        if(op.getEvictionPolicy() == Policy.TIME)
+                            buffer.timeEvict(op.getEvictionThreshold());
                         /**
                          * Perform count-based eviction if necessary
                          */
-                        else if (rule.getEvictionPolicy() == Policy.COUNT) {
-                            if (buffer.size() == rule.getEvictionThreshold())
+                        else if (op.getEvictionPolicy() == Policy.COUNT) {
+                            if (buffer.size() == op.getEvictionThreshold())
                                 buffer.expire();
                         }
                     }
                 } else {
                     buffersForRule = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).build(); // just in case we get some rogue data, we don't wan ti to sit for too long.
-                    buffer = rule.getEvictionPolicy() == Policy.TIME ? new WindowBuffer(hash) :
-                            new WindowBuffer(hash, rule.getEvictionThreshold());
+                    buffer = op.getEvictionPolicy() == Policy.TIME ? new WindowBuffer(hash) :
+                            new WindowBuffer(hash, op.getEvictionThreshold());
                     buffersForRule.put(hash, buffer);
                     buffers.put(rule.getId(), buffersForRule);
                 }
@@ -179,11 +184,10 @@ public class WindowBolt extends BaseRichBolt {
                 /**
                  * Perform count-based trigger if necessary
                  */
-                if (rule.getTriggerPolicy() == Policy.COUNT)
+                if (op.getTriggerPolicy() == Policy.COUNT) {
 
                     buffer.incrTriggerTicks();
-                    if(buffer.getTriggerTicks() == rule.getTriggerThreshold()) {
-                    if ((Boolean)rule.invokeTriggerFunction(buffer.getEvents())) {
+                    if(buffer.getTriggerTicks() == op.getTriggerThreshold()) {
                         collector.emit(new Values(ruleId, buffer));
                         System.out.println("Just emitted buffer: " + buffer);
                         buffer.resetTriggerTicks();

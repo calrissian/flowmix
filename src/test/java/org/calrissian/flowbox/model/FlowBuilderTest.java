@@ -2,7 +2,6 @@ package org.calrissian.flowbox.model;
 
 import org.calrissian.flowbox.model.builder.FlowBuilder;
 import org.calrissian.flowbox.support.Criteria;
-import org.calrissian.flowbox.support.Policy;
 import org.calrissian.flowbox.support.SummingAggregator;
 import org.junit.Test;
 
@@ -36,6 +35,6 @@ public class FlowBuilderTest {
         assertEquals("My First Test Flow", flow.getName());
         assertEquals("This is a test flow just to prove that we can use the builder effectively", flow.getDescription());
         assertEquals(5, flow.getStreams().iterator().next().getFlowOps().size());
-        assertEquals(2, ((SelectOp)flow.getStreams().iterator().next().getFlowOps().get(1)).getFields().size());
+        assertEquals(2, ((SelectOp) flow.getStreams().iterator().next().getFlowOps().get(1)).getFields().size());
     }
 }

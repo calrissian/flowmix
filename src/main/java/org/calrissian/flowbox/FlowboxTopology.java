@@ -17,8 +17,9 @@ import org.calrissian.flowbox.model.builder.FlowBuilder;
 import org.calrissian.flowbox.model.kryo.EventSerializer;
 import org.calrissian.flowbox.spout.MockEventGeneratorSpout;
 import org.calrissian.flowbox.spout.MockFlowLoaderSpout;
+import org.calrissian.flowbox.spout.TickSpout;
 import org.calrissian.flowbox.support.Criteria;
-import org.calrissian.flowbox.support.Policy;
+import org.calrissian.flowbox.model.Policy;
 
 import java.util.Arrays;
 
@@ -37,32 +38,44 @@ public class FlowboxTopology {
 
         Flow flow = new FlowBuilder()
             .id("myFlowId")
-        .flowDefs()
+            .flowDefs()
                 .stream("stream1")
                     .filter().criteria(new Criteria() {
-                            @Override
-                            public boolean matches(Event event) {
-                                return false;
-                            }
-                        }).end()
-                    .select().field("key5").end()
-                    .partition().field("key10").end()
+                    @Override
+                    public boolean matches(Event event) {
+                        return true;
+                    }
+                }).end()
+                    .select().field("key3").end()
+                    .partition().field("key3").end()
+                    .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
                 .endStream()
             .endDefs()
-        .createFlow();
+            .createFlow();
 
         Flow flow2 = new FlowBuilder()
             .id("myFlowId2")
             .flowDefs()
                 .stream("stream1")
                     .filter().criteria(new Criteria() {
-                            @Override
-                            public boolean matches(Event event) {
-                                return true;
-                            }
-                        }).end()
+                    @Override
+                    public boolean matches(Event event) {
+                        return true;
+                    }
+                }).end()
                     .select().field("key5").end()
                     .partition().field("key5").end()
+                    .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
+                .endStream()
+                .stream("stream2")
+                    .filter().criteria(new Criteria() {
+                    @Override
+                    public boolean matches(Event event) {
+                        return true;
+                    }
+                }).end()
+                    .select().field("key4").end()
+                    .partition().field("key4").end()
                     .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
                 .endStream()
             .endDefs()
@@ -91,18 +104,16 @@ public class FlowboxTopology {
 
         builder.setSpout(EVENT, eventsSpout, 1);
         builder.setSpout(FLOW_LOADER_STREAM, ruleSpout, 1);
-
+        builder.setSpout("tick", new TickSpout(1000), 1);
         builder.setBolt(INITIALIZER, new FlowInitializerBolt(), parallelismHint)  // kicks off a flow determining where to start
                 .shuffleGrouping(EVENT)
                 .allGrouping(FLOW_LOADER_STREAM, FLOW_LOADER_STREAM);
 
         declarebolt(builder, FILTER, new FilterBolt(), parallelismHint);
-
         declarebolt(builder, SELECT, new SelectorBolt(), parallelismHint);
         declarebolt(builder, PARTITION, new PartitionBolt(), parallelismHint);
         declarebolt(builder, STOP_GATE, new StopGateBolt(), parallelismHint);
         declarebolt(builder, AGGREGATE, new AggregatorBolt(), parallelismHint);
-
         declarebolt(builder, OUTPUT, outputBolt, parallelismHint);
 
         return builder.createTopology();
@@ -111,6 +122,7 @@ public class FlowboxTopology {
     private static void declarebolt(TopologyBuilder builder, String boltName, IRichBolt bolt, int parallelism) {
         builder.setBolt(boltName, bolt, parallelism)
             .allGrouping(FLOW_LOADER_STREAM, FLOW_LOADER_STREAM)
+            .allGrouping("tick", "tick")
             .localOrShuffleGrouping(INITIALIZER, boltName)
             .localOrShuffleGrouping(FILTER, boltName)
             .fieldsGrouping(PARTITION, boltName, new Fields("partition"))

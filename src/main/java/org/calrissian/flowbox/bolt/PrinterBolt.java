@@ -20,8 +20,10 @@ public class PrinterBolt extends BaseRichBolt {
 
     @Override
     public void execute(Tuple tuple) {
-        collector.ack(tuple);
-        System.out.println("INPUT: " + tuple);
+        if(!tuple.getSourceStreamId().equals("tick")) {
+            collector.ack(tuple);
+            System.out.println("INPUT: " + tuple);
+        }
     }
 
     @Override

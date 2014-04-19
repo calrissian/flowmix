@@ -2,7 +2,7 @@ package org.calrissian.flowbox.model.builder;
 
 import org.calrissian.flowbox.model.AggregateOp;
 import org.calrissian.flowbox.support.Aggregator;
-import org.calrissian.flowbox.support.Policy;
+import org.calrissian.flowbox.model.Policy;
 
 public class AggregateBuilder extends AbstractOpBuilder {
 

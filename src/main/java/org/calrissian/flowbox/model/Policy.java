@@ -1,4 +1,4 @@
-package org.calrissian.flowbox.support;
+package org.calrissian.flowbox.model;
 
 
 import java.io.Serializable;

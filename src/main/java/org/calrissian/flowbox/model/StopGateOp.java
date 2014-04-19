@@ -1,8 +1,6 @@
 package org.calrissian.flowbox.model;
 
 
-import org.calrissian.flowbox.support.Policy;
-
 public class StopGateOp implements FlowOp{
 
     public static final String STOP_GATE = "stopGate";

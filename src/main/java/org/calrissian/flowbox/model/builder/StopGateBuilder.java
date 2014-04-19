@@ -1,7 +1,7 @@
 package org.calrissian.flowbox.model.builder;
 
 import org.calrissian.flowbox.model.StopGateOp;
-import org.calrissian.flowbox.support.Policy;
+import org.calrissian.flowbox.model.Policy;
 
 public class StopGateBuilder extends AbstractOpBuilder {
 

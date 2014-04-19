@@ -6,44 +6,33 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import org.calrissian.flowbox.model.Rule;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-import static java.util.Collections.singleton;
+public class TickSpout extends BaseRichSpout{
 
-public class RuleLoaderSpout extends BaseRichSpout{
-
-    public static final Logger log = LoggerFactory.getLogger(RuleLoaderSpout.class);
-
+    private long sleepMillis;
     private SpoutOutputCollector collector;
-    private Rule rule;
 
-    private String ruleStream;
-
-    public RuleLoaderSpout(Rule rule, String loaderStream) {
-        this.rule = rule;
-        this.ruleStream = loaderStream;
+    public TickSpout(long sleepMillis) {
+        this.sleepMillis = sleepMillis;
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(ruleStream, new Fields("rules"));
+        outputFieldsDeclarer.declareStream("tick", new Fields());
     }
 
     @Override
     public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
-        collector = spoutOutputCollector;
+        this.collector = spoutOutputCollector;
     }
 
     @Override
     public void nextTuple() {
-
-        collector.emit(ruleStream, new Values(singleton(rule)));
+        collector.emit("tick", new Values());
         try {
-            Thread.sleep(60000);
+            Thread.sleep(sleepMillis);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

@@ -11,7 +11,7 @@ import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.calrissian.flowbox.model.*;
-import org.calrissian.flowbox.support.Policy;
+import org.calrissian.flowbox.model.Policy;
 import org.calrissian.flowbox.support.StopGateWindow;
 
 import java.util.*;
@@ -77,8 +77,7 @@ public class StopGateBolt extends BaseRichBolt {
                 }
             }
 
-        } else if("__system".equals(tuple.getSourceComponent()) &&
-                "__tick".equals(tuple.getSourceStreamId())) {
+        } else if("tick".equals(tuple.getSourceStreamId())) {
 
             /**
              * Don't bother evaluating if we don't even have any rules
@@ -143,7 +142,6 @@ public class StopGateBolt extends BaseRichBolt {
                  * The hashKey was added to the "fieldsGrouping" in an attempt to share pointers where possible. Different
                  * rules with like fields groupings can store the items in their windows on the same node.
                  */
-
                 String flowId = tuple.getStringByField(FLOW_ID);
                 String hash = tuple.getStringByField(PARTITION);
                 Event event = (Event) tuple.getValueByField(EVENT);
@@ -211,7 +209,6 @@ public class StopGateBolt extends BaseRichBolt {
                         buffer.clear();
                     }
 
-                    long timeRange = buffer.timeRange();
                     if(op.getActivationPolicy() == Policy.TIME_DELTA_LT && buffer.timeRange() > -1 && buffer.timeRange() <= op.getActivationThreshold() * 1000) {
 
                         if(op.getEvictionPolicy() == Policy.COUNT && buffer.size() == op.getEvictionThreshold() ||
@@ -236,10 +233,4 @@ public class StopGateBolt extends BaseRichBolt {
         declareOutputStreams(outputFieldsDeclarer);
     }
 
-    @Override
-    public Map<String, Object> getComponentConfiguration() {
-        Map<String,Object> config = new HashMap<String, Object>();
-        config.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 1);
-        return config;
-    }
 }

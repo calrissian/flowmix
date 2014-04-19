@@ -1,7 +1,6 @@
 package org.calrissian.flowbox.model;
 
 import org.calrissian.flowbox.support.Criteria;
-import org.calrissian.flowbox.support.Policy;
 
 import java.io.Serializable;
 import java.util.List;

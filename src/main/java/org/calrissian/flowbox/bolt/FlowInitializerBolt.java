@@ -34,7 +34,7 @@ public class FlowInitializerBolt extends BaseRichBolt {
         if(FLOW_LOADER_STREAM.equals(tuple.getSourceStreamId())) {
             for(Flow flow : (Collection<Flow>)tuple.getValue(0))
                 flows.put(flow.getId(), flow);
-        } else {
+        } else if(!"tick".equals(tuple.getSourceStreamId())){
 
             if(flows.size() > 0) {
                 for(Flow flow : flows.values()) {

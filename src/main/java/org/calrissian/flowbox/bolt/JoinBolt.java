@@ -186,7 +186,10 @@ public class JoinBolt extends BaseRichBolt {
                     throw new RuntimeException("Received event for stream that does not match the join. Flowbox has been miswired.");
                 }
             }
+
         }
+
+        collector.ack(tuple);
     }
 
     @Override

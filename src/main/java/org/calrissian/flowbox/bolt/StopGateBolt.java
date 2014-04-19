@@ -223,6 +223,8 @@ public class StopGateBolt extends BaseRichBolt {
                     collector.emit(nextStream, new Values(flow.getId(), event, idx, streamName));
                 }
             }
+
+            collector.ack(tuple);
         }
     }
 

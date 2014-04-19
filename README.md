@@ -1,7 +1,10 @@
-Flowbot - A Storm CEP Engine
-=============================
+Flowbox - A Flexible Storm CEP Engine
+======================================
 
-This is a proof of concept to implement an InfoSphere Streams-like and Esper-like distributed complex event processing engine written on top of Apache Storm. This framework's goal is to make use of Storm's groupings and tuple-at-a-time abilities (along with its guarantees of thread-safe parallelism in its bolts) to make different processed flows of streams possible in a single Storm topology. 
+This is a proof of concept to implement an InfoSphere Streams-like (and Esper-like) distributed complex event processing engine written on top of Apache Storm. This framework's goal is to make use of Storm's groupings and tuple-at-a-time abilities (along with its guarantees of thread-safe parallelism in its bolts) to make different processed flows of streams possible in a single Storm topology. The problem with Trident is that each each trident topology needs to be deployed separately in Storm. You could, perhaps, write several streams in a trident topology, but this problem is exasberated by massive complexity in the client-side builder pattern required to make it possible. Similar to Hadoop MapReduce, a storm cluster is run with a finite amount of resources available. Each topology that gets deployed needs to make use of more resources. If I have 15 different analytics that I'm interested in writing to correllate the same couple streams of data, I'm left running 15 different topologies.
+
+
+One of the solutions this project offers is having a single topology deployed with a generic "stream" of domain-agnostic objects that can be split, aggregated, filtered from, selected from, etc...
 
 
 ##Planned Notable Features:

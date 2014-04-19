@@ -13,9 +13,7 @@ import org.calrissian.flowbox.model.SelectOp;
 
 import java.util.*;
 
-import static org.calrissian.flowbox.Constants.EVENT;
-import static org.calrissian.flowbox.Constants.FLOW_ID;
-import static org.calrissian.flowbox.Constants.FLOW_OP_IDX;
+import static org.calrissian.flowbox.Constants.*;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 public class SelectorBolt extends BaseRichBolt {
@@ -40,14 +38,15 @@ public class SelectorBolt extends BaseRichBolt {
             String flowId = tuple.getStringByField(FLOW_ID);
             Event event = (Event) tuple.getValueByField(EVENT);
             int idx = tuple.getIntegerByField(FLOW_OP_IDX);
+            String streamName = tuple.getStringByField(STREAM_NAME);
             idx++;
 
             Flow flow = flows.get(flowId);
 
             if (flow != null) {
-                SelectOp selectOp = (SelectOp) flow.getFlowOps().get(idx);
+                SelectOp selectOp = (SelectOp) flow.getStream(streamName).getFlowOps().get(idx);
 
-                String nextStream = idx+1 < flow.getFlowOps().size() ? flow.getFlowOps().get(idx + 1).getComponentName() : "output";
+                String nextStream = idx+1 < flow.getStream(streamName).getFlowOps().size() ? flow.getStream(streamName).getFlowOps().get(idx + 1).getComponentName() : "output";
 
                 Event newEvent = new Event(event.getId(), event.getTimestamp());
                 for(Map.Entry<String, Set<org.calrissian.flowbox.model.Tuple>> eventTuple : event.getTuples().entrySet()) {
@@ -58,7 +57,7 @@ public class SelectorBolt extends BaseRichBolt {
                     }
                 }
 
-                collector.emit(nextStream, tuple, new Values(flowId, newEvent, idx));
+                collector.emit(nextStream, tuple, new Values(flowId, newEvent, idx, streamName));
             }
 
             collector.ack(tuple);

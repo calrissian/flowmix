@@ -9,7 +9,7 @@ public class SelectBuilder extends AbstractOpBuilder {
 
     private List<String> fields = new ArrayList<String>();
 
-    public SelectBuilder(FlowOpsBuilder fob) {
+    public SelectBuilder(StreamBuilder fob) {
         super(fob);
     }
 
@@ -18,11 +18,11 @@ public class SelectBuilder extends AbstractOpBuilder {
         return this;
     }
 
-    public FlowOpsBuilder end() {
+    public StreamBuilder end() {
         if(fields == null || fields.size() == 0)
             throw new RuntimeException("Selector operator needs to select at least 1 field");
 
-        getFlowOpsBuilder().addFlowOp(new SelectOp(fields));
-        return getFlowOpsBuilder();
+        getStreamBuilder().addFlowOp(new SelectOp(fields));
+        return getStreamBuilder();
     }
 }

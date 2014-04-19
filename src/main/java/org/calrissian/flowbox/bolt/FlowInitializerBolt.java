@@ -9,6 +9,7 @@ import backtype.storm.tuple.Values;
 import org.calrissian.flowbox.FlowboxTopology;
 import org.calrissian.flowbox.model.Event;
 import org.calrissian.flowbox.model.Flow;
+import org.calrissian.flowbox.model.StreamDef;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -39,8 +40,13 @@ public class FlowInitializerBolt extends BaseRichBolt {
                 for(Flow flow : flows.values()) {
                     Collection<Event> events = (Collection<Event>) tuple.getValue(0);
                     for(Event event : events) {
-                        String streamid = flow.getFlowOps().get(0).getComponentName();
-                        collector.emit(streamid, tuple, new Values(flow.getId(), event, -1));
+
+                        for(StreamDef stream : flow.getStreams()) {
+                            String streamid = stream.getFlowOps().get(0).getComponentName();
+                            String streamName = stream.getName();
+                            collector.emit(streamid, tuple, new Values(flow.getId(), event, -1, streamName));
+
+                        }
                     }
                 }
             }

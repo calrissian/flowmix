@@ -37,31 +37,35 @@ public class FlowboxTopology {
 
         Flow flow = new FlowBuilder()
             .id("myFlowId")
-        .flowOps()
-                .filter().criteria(new Criteria() {
-                        @Override
-                        public boolean matches(Event event) {
-                            return false;
-                        }
-                    }).end()
-                .select().field("key5").end()
-                .partition().field("key10").end()
-            .endOps()
+        .flowDefs()
+                .stream("stream1")
+                    .filter().criteria(new Criteria() {
+                            @Override
+                            public boolean matches(Event event) {
+                                return false;
+                            }
+                        }).end()
+                    .select().field("key5").end()
+                    .partition().field("key10").end()
+                .endStream()
+            .endDefs()
         .createFlow();
 
         Flow flow2 = new FlowBuilder()
             .id("myFlowId2")
-            .flowOps()
-                .filter().criteria(new Criteria() {
-                        @Override
-                        public boolean matches(Event event) {
-                            return true;
-                        }
-                    }).end()
-                .select().field("key5").end()
-                .partition().field("key5").end()
-                .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
-            .endOps()
+            .flowDefs()
+                .stream("stream1")
+                    .filter().criteria(new Criteria() {
+                            @Override
+                            public boolean matches(Event event) {
+                                return true;
+                            }
+                        }).end()
+                    .select().field("key5").end()
+                    .partition().field("key5").end()
+                    .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
+                .endStream()
+            .endDefs()
             .createFlow();
 
         StormTopology topology = new FlowboxTopology().buildTopology(
@@ -107,16 +111,16 @@ public class FlowboxTopology {
     private static void declarebolt(TopologyBuilder builder, String boltName, IRichBolt bolt, int parallelism) {
         builder.setBolt(boltName, bolt, parallelism)
             .allGrouping(FLOW_LOADER_STREAM, FLOW_LOADER_STREAM)
-            .shuffleGrouping(INITIALIZER, boltName)
-            .shuffleGrouping(FILTER, boltName)
+            .localOrShuffleGrouping(INITIALIZER, boltName)
+            .localOrShuffleGrouping(FILTER, boltName)
             .fieldsGrouping(PARTITION, boltName, new Fields("partition"))
-            .shuffleGrouping(AGGREGATE, boltName)
-            .shuffleGrouping(SELECT, boltName)
-            .shuffleGrouping(STOP_GATE, boltName);
+            .localOrShuffleGrouping(AGGREGATE, boltName)
+            .localOrShuffleGrouping(SELECT, boltName)
+            .localOrShuffleGrouping(STOP_GATE, boltName);
     }
 
     public static void declareOutputStreams(OutputFieldsDeclarer declarer) {
-        Fields fields = new Fields(FLOW_ID, EVENT, FLOW_OP_IDX);
+        Fields fields = new Fields(FLOW_ID, EVENT, FLOW_OP_IDX, STREAM_NAME);
         declarer.declareStream(PARTITION, fields);
         declarer.declareStream(FILTER, fields);
         declarer.declareStream(SELECT, fields);
@@ -126,7 +130,7 @@ public class FlowboxTopology {
     }
 
     public static void declarePartitionedOutputStreams(OutputFieldsDeclarer declarer) {
-        Fields fields = new Fields(FLOW_ID, EVENT, FLOW_OP_IDX, Constants.PARTITION);
+        Fields fields = new Fields(FLOW_ID, EVENT, FLOW_OP_IDX, STREAM_NAME, PARTITION);
         declarer.declareStream(PARTITION, fields);
         declarer.declareStream(FILTER, fields);
         declarer.declareStream(SELECT, fields);

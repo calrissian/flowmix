@@ -13,7 +13,7 @@ public class AggregateBuilder extends AbstractOpBuilder {
     private long evictionThreshold = -1;
     private boolean clearOnTrigger = false;
 
-    public AggregateBuilder(FlowOpsBuilder flowOpsBuilder) {
+    public AggregateBuilder(StreamBuilder flowOpsBuilder) {
         super(flowOpsBuilder);
     }
 
@@ -39,7 +39,7 @@ public class AggregateBuilder extends AbstractOpBuilder {
         return this;
     }
 
-    public FlowOpsBuilder end() {
+    public StreamBuilder end() {
 
         if(aggregatorClass == null)
             throw new RuntimeException("Aggregator operator needs an aggregator class");
@@ -50,8 +50,8 @@ public class AggregateBuilder extends AbstractOpBuilder {
         if(evictionPolicy == null || evictionThreshold == -1)
             throw new RuntimeException("Aggregator operator needs to have eviction policy and threshold");
 
-        getFlowOpsBuilder().addFlowOp(new AggregateOp(aggregatorClass, triggerPolicy, triggerThreshold, evictionPolicy,
+        getStreamBuilder().addFlowOp(new AggregateOp(aggregatorClass, triggerPolicy, triggerThreshold, evictionPolicy,
                 evictionThreshold, clearOnTrigger));
-        return getFlowOpsBuilder();
+        return getStreamBuilder();
     }
 }

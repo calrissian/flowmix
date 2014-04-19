@@ -9,7 +9,7 @@ public class PartitionBuilder extends AbstractOpBuilder {
 
     private List<String> fields = new ArrayList<String>();
 
-    public PartitionBuilder(FlowOpsBuilder flowOpsBuilder) {
+    public PartitionBuilder(StreamBuilder flowOpsBuilder) {
         super(flowOpsBuilder);
     }
 
@@ -18,12 +18,12 @@ public class PartitionBuilder extends AbstractOpBuilder {
         return this;
     }
 
-    public FlowOpsBuilder end() {
+    public StreamBuilder end() {
 
         if(fields == null || fields.size() == 0)
             throw new RuntimeException("Partitioner needs to have fields set.");
 
-        getFlowOpsBuilder().addFlowOp(new PartitionOp(fields));
-        return getFlowOpsBuilder();
+        getStreamBuilder().addFlowOp(new PartitionOp(fields));
+        return getStreamBuilder();
     }
 }

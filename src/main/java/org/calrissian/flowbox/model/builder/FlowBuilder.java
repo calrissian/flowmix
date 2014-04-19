@@ -5,7 +5,7 @@ import org.calrissian.flowbox.model.Flow;
 public class FlowBuilder {
 
     private Flow flow = new Flow();
-    private FlowOpsBuilder flowOpsBuilder = new FlowOpsBuilder(this);
+    private FlowDefsBuilder flowOpsBuilder = new FlowDefsBuilder(this);
 
     public FlowBuilder id(String id) {
         flow.setId(id);
@@ -22,7 +22,7 @@ public class FlowBuilder {
         return this;
     }
 
-    public FlowOpsBuilder flowOps() {
+    public FlowDefsBuilder flowDefs() {
         return flowOpsBuilder;
     }
 
@@ -30,9 +30,9 @@ public class FlowBuilder {
         if(flow.getId() == null)
             throw new RuntimeException("A flow needs to have an id");
 
-        flow.setFlowOps(flowOpsBuilder.getFlowOpList());
+        flow.setStreams(flowOpsBuilder.getStreamList());
 
-        if(flow.getFlowOps() == null || flow.getFlowOps().size() == 0)
+        if(flow.getStreams() == null || flow.getStreams().size() == 0)
             throw new RuntimeException("A flow should have at least one flow op");
 
         return flow;

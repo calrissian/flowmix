@@ -1,7 +1,7 @@
 package org.calrissian.flowbox.model;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.*;
 
 public class Flow implements Serializable{
 
@@ -9,7 +9,7 @@ public class Flow implements Serializable{
     String name;
     String description;
 
-    List<FlowOp> flowOps;
+    Map<String,StreamDef> streams = new HashMap<String, StreamDef>();
 
     public String getId() {
         return id;
@@ -23,8 +23,12 @@ public class Flow implements Serializable{
         return description;
     }
 
-    public List<FlowOp> getFlowOps() {
-        return flowOps;
+    public Collection<StreamDef> getStreams() {
+        return streams.values();
+    }
+
+    public StreamDef getStream(String name) {
+        return streams.get(name);
     }
 
     public void setId(String id) {
@@ -39,8 +43,9 @@ public class Flow implements Serializable{
         this.description = description;
     }
 
-    public void setFlowOps(List<FlowOp> flowOps) {
-        this.flowOps = flowOps;
+    public void setStreams(List<StreamDef> streams) {
+        for(StreamDef def : streams)
+            this.streams.put(def.getName(), def);
     }
 
     @Override
@@ -51,9 +56,9 @@ public class Flow implements Serializable{
         Flow flow = (Flow) o;
 
         if (description != null ? !description.equals(flow.description) : flow.description != null) return false;
-        if (flowOps != null ? !flowOps.equals(flow.flowOps) : flow.flowOps != null) return false;
         if (id != null ? !id.equals(flow.id) : flow.id != null) return false;
         if (name != null ? !name.equals(flow.name) : flow.name != null) return false;
+        if (streams != null ? !streams.equals(flow.streams) : flow.streams != null) return false;
 
         return true;
     }
@@ -63,7 +68,7 @@ public class Flow implements Serializable{
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
-        result = 31 * result + (flowOps != null ? flowOps.hashCode() : 0);
+        result = 31 * result + (streams != null ? streams.hashCode() : 0);
         return result;
     }
 
@@ -73,7 +78,7 @@ public class Flow implements Serializable{
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
-                ", flowOps=" + flowOps +
+                ", streams=" + streams +
                 '}';
     }
 }

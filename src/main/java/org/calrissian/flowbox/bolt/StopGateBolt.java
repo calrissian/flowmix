@@ -6,13 +6,10 @@ import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
-import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.calrissian.flowbox.Constants;
-import org.calrissian.flowbox.FlowboxTopology;
 import org.calrissian.flowbox.model.*;
 import org.calrissian.flowbox.support.Policy;
 import org.calrissian.flowbox.support.StopGateWindow;
@@ -22,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 import static org.calrissian.flowbox.Constants.*;
 import static org.calrissian.flowbox.FlowboxTopology.declareOutputStreams;
-import static org.calrissian.flowbox.model.StopGateOp.STOP_GATE;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 /**
@@ -91,41 +87,44 @@ public class StopGateBolt extends BaseRichBolt {
 
                 for(Flow flow : flowMap.values()) {
 
-                    int idx = 0;
-                    for(FlowOp curOp : flow.getFlowOps()) {
+                    for(StreamDef stream : flow.getStreams()) {
 
-                        if(curOp instanceof StopGateOp) {
-                            StopGateOp op = (StopGateOp)curOp;
-                            /**
-                             * If we need to trigger any time-based policies, let's do that here.
-                             */
-                            if(op.getActivationPolicy() == Policy.TIME || op.getOpenPolicy() == Policy.TIME) {
-                                Cache<String, StopGateWindow> buffersForRule = windows.get(flow.getId() + "\0" + idx);
-                                if(buffersForRule != null) {
-                                    for (StopGateWindow buffer : buffersForRule.asMap().values()) {
-                                        if(op.getActivationPolicy() == Policy.TIME && !buffer.isStopped()) {
-                                            if (buffer.getTriggerTicks() == op.getActivationThreshold()) {
-                                                buffer.setStopped(true);
-                                                buffer.clear();
-                                            } else {
-                                                buffer.incrTriggerTicks();
+                        int idx = 0;
+                        for(FlowOp curOp : stream.getFlowOps()) {
+                            if(curOp instanceof StopGateOp) {
+                                StopGateOp op = (StopGateOp)curOp;
+                                /**
+                                 * If we need to trigger any time-based policies, let's do that here.
+                                 */
+                                if(op.getActivationPolicy() == Policy.TIME || op.getOpenPolicy() == Policy.TIME) {
+                                    Cache<String, StopGateWindow> buffersForRule = windows.get(flow.getId() + "\0" + stream.getName() + "\0" + idx);
+                                    if(buffersForRule != null) {
+                                        for (StopGateWindow buffer : buffersForRule.asMap().values()) {
+                                            if(op.getActivationPolicy() == Policy.TIME && !buffer.isStopped()) {
+                                                if (buffer.getTriggerTicks() == op.getActivationThreshold()) {
+                                                    buffer.setStopped(true);
+                                                    buffer.clear();
+                                                } else {
+                                                    buffer.incrTriggerTicks();
+                                                }
                                             }
-                                        }
 
-                                        else if(op.getOpenPolicy() == Policy.TIME && buffer.isStopped()) {
-                                            if(buffer.getStopTicks() == op.getOpenThreshold()) {
-                                                buffer.setStopped(false);
-                                                buffer.resetStopTicks();
-                                            } else {
-                                                buffer.incrementStopTicks();
+                                            else if(op.getOpenPolicy() == Policy.TIME && buffer.isStopped()) {
+                                                if(buffer.getStopTicks() == op.getOpenThreshold()) {
+                                                    buffer.setStopped(false);
+                                                    buffer.resetStopTicks();
+                                                } else {
+                                                    buffer.incrementStopTicks();
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
+
+                            idx++;
                         }
 
-                        idx++;
                     }
                 }
             }
@@ -149,13 +148,14 @@ public class StopGateBolt extends BaseRichBolt {
                 String hash = tuple.getStringByField(PARTITION);
                 Event event = (Event) tuple.getValueByField(EVENT);
                 int idx = tuple.getIntegerByField(FLOW_OP_IDX);
+                String streamName = tuple.getStringByField(STREAM_NAME);
                 idx++;
 
                 Flow flow = flowMap.get(flowId);
 
-                StopGateOp op = (StopGateOp) flow.getFlowOps().get(idx);
+                StopGateOp op = (StopGateOp) flow.getStream(streamName).getFlowOps().get(idx);
 
-                Cache<String, StopGateWindow> buffersForRule = windows.get(flow.getId() + "\0" + idx);
+                Cache<String, StopGateWindow> buffersForRule = windows.get(flow.getId() + "\0" + streamName + "\0" + idx);
                 StopGateWindow buffer;
                 if (buffersForRule != null) {
                     buffer = buffersForRule.getIfPresent(hash);
@@ -183,7 +183,7 @@ public class StopGateBolt extends BaseRichBolt {
                     buffer = op.getEvictionPolicy() == Policy.TIME ? new StopGateWindow(hash) :
                             new StopGateWindow(hash, op.getEvictionThreshold());
                     buffersForRule.put(hash, buffer);
-                    windows.put(flow.getId() + "\0" + idx, buffersForRule);
+                    windows.put(flow.getId() + "\0" + streamName + "\0" + idx, buffersForRule);
                 }
 
                 if(buffer.isStopped()) {
@@ -220,14 +220,12 @@ public class StopGateBolt extends BaseRichBolt {
                             buffer.clear();
                         }
                     }
-
-
-
                 }
+
                 if(!buffer.isStopped()) {
                     buffer.add(event);
-                    collector.emit(new Values(flow.getId(), event));
-                    System.out.println("EMITTING: " + event);
+                    String nextStream = idx+1 < flow.getStream(streamName).getFlowOps().size() ? flow.getStream(streamName).getFlowOps().get(idx + 1).getComponentName() : "output";
+                    collector.emit(nextStream, new Values(flow.getId(), event, idx, streamName));
                 }
             }
         }

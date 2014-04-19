@@ -1,21 +1,20 @@
 package org.calrissian.flowbox.model.builder;
 
 import org.calrissian.flowbox.model.FlowOp;
+import org.calrissian.flowbox.model.StreamDef;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FlowOpsBuilder {
+public class StreamBuilder {
 
+    private String name;
     private List<FlowOp> flowOpList = new ArrayList<FlowOp>();
-    private FlowBuilder flowBuilder;
+    FlowDefsBuilder flowOpsBuilder;
 
-    public FlowOpsBuilder(FlowBuilder flowBuilder) {
-        this.flowBuilder = flowBuilder;
-    }
-
-    public List<FlowOp> getFlowOpList() {
-        return flowOpList;
+    public StreamBuilder(FlowDefsBuilder flowOpsBuilder, String name) {
+        this.flowOpsBuilder = flowOpsBuilder;
+        this.name = name;
     }
 
     protected void addFlowOp(FlowOp flowOp) {
@@ -42,7 +41,9 @@ public class FlowOpsBuilder {
         return new StopGateBuilder(this);
     }
 
-    public FlowBuilder endOps() {
-        return flowBuilder;
+    public FlowDefsBuilder endStream() {
+        flowOpsBuilder.addStream(new StreamDef(name, flowOpList));
+        return flowOpsBuilder;
     }
+
 }

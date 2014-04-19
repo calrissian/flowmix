@@ -2,15 +2,15 @@ package org.calrissian.flowbox.model.builder;
 
 public abstract class AbstractOpBuilder {
 
-    private FlowOpsBuilder flowOpsBuilder;
+    private StreamBuilder flowOpsBuilder;
 
-    public AbstractOpBuilder(FlowOpsBuilder flowOpsBuilder) {
+    public AbstractOpBuilder(StreamBuilder flowOpsBuilder) {
         this.flowOpsBuilder = flowOpsBuilder;
     }
 
-    protected FlowOpsBuilder getFlowOpsBuilder() {
+    protected StreamBuilder getStreamBuilder() {
         return flowOpsBuilder;
     }
 
-    public abstract FlowOpsBuilder end();
+    public abstract StreamBuilder end();
 }

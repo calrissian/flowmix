@@ -41,7 +41,7 @@ public class WindowBuffer {
      * Used for age-based expiration
      */
     public void timeEvict(long thresholdInSeconds) {
-        while((System.currentTimeMillis() - events.peek().getTimestamp()) >= (thresholdInSeconds * 1000))
+        while(events != null && events.peek() != null && (System.currentTimeMillis() - events.peek().getTimestamp()) >= (thresholdInSeconds * 1000))
             events.poll();
     }
 

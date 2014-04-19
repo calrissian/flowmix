@@ -7,7 +7,7 @@ public class FilterBuilder extends AbstractOpBuilder {
 
     private FilterOp filterOp = new FilterOp();
 
-    public FilterBuilder(FlowOpsBuilder fob) {
+    public FilterBuilder(StreamBuilder fob) {
         super(fob);
     }
 
@@ -16,12 +16,12 @@ public class FilterBuilder extends AbstractOpBuilder {
         return this;
     }
 
-    public FlowOpsBuilder end() {
+    public StreamBuilder end() {
 
         if(filterOp.getCriteria() == null)
             throw new RuntimeException("Filter operator needs criteria to filter");
 
-        getFlowOpsBuilder().addFlowOp(filterOp);
-        return getFlowOpsBuilder();
+        getStreamBuilder().addFlowOp(filterOp);
+        return getStreamBuilder();
     }
 }

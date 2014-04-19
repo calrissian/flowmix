@@ -13,7 +13,7 @@ public class StopGateBuilder extends AbstractOpBuilder {
     private long evictionThreshold = -1;
     private long openThreshold = -1;
 
-    public StopGateBuilder(FlowOpsBuilder flowOpsBuilder) {
+    public StopGateBuilder(StreamBuilder flowOpsBuilder) {
         super(flowOpsBuilder);
     }
 
@@ -36,7 +36,7 @@ public class StopGateBuilder extends AbstractOpBuilder {
     }
 
     @Override
-    public FlowOpsBuilder end() {
+    public StreamBuilder end() {
 
         if(activationPolicy == null || activationThreshold == -1)
             throw new RuntimeException("Stop gate operator must have an activation policy and threshold");
@@ -47,8 +47,8 @@ public class StopGateBuilder extends AbstractOpBuilder {
         if(openPolicy == null || openThreshold == -1)
             throw new RuntimeException("Stop gate operator must have an open policy and threshold");
 
-        getFlowOpsBuilder().addFlowOp(new StopGateOp(activationPolicy, evictionPolicy, openPolicy,
+        getStreamBuilder().addFlowOp(new StopGateOp(activationPolicy, evictionPolicy, openPolicy,
                 activationThreshold, evictionThreshold, openThreshold));
-        return getFlowOpsBuilder();
+        return getStreamBuilder();
     }
 }

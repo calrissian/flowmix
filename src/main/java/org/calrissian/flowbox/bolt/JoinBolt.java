@@ -6,7 +6,6 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.calrissian.flowbox.model.*;
@@ -21,8 +20,8 @@ import static org.calrissian.flowbox.FlowboxTopology.declareOutputStreams;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 /**
- * Join semantics are defined very similar to that of InfoSphere Streams. The join operator, by default, triggers
- * on each single input event from the stream on the right hand side.
+ * Sliding window join semantics are defined very similar to that of InfoSphere Streams. The join operator,
+ * by default, trigger on each single input event from the stream on the right hand side.
  *
  * The stream on the right is joined with the stream on the left where the stream on the left is collected into a
  * window which is evicted by the given policy. The stream on the right has a default eviction policy of COUNT with
@@ -34,7 +33,6 @@ import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREA
  *
  * It's possible for events to have multi-valued keys, thus it's possible for merged tuples to make a single-valued key
  * into a multi-valued key.
- *
  */
 public class JoinBolt extends BaseRichBolt {
 

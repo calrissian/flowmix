@@ -60,30 +60,30 @@ public class FlowboxTopology {
             .id("myFlowId2")
             .flowDefs()
                 .stream("stream1")
-                    .filter().criteria(new Criteria() {
-                    @Override
-                    public boolean matches(Event event) {
-                        return true;
-                    }
-                }).end()
-                    .select().field("key5").end()
-                    .partition().field("key5").end()
-                    .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
+                .filter().criteria(new Criteria() {
+                        @Override
+                        public boolean matches(Event event) {
+                            return true;
+                        }
+                    }).end()
+                .select().field("key5").end()
+                .partition().field("key5").end()
+                .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
                 .endStream()
                 .stream("stream2")
-                    .filter().criteria(new Criteria() {
-                    @Override
-                    public boolean matches(Event event) {
-                        return true;
-                    }
-                }).end()
-                    .select().field("key4").end()
-                    .partition().field("key4").end()
-                    .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
-                    .function().function(new Function() {
+                        .filter().criteria(new Criteria() {
+                        @Override
+                        public boolean matches(Event event) {
+                            return true;
+                        }
+                    }).end()
+                .select().field("key4").end()
+                .partition().field("key4").end()
+                .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
+                .function().function(new Function() {
                         @Override
                         public List<Event> execute(Event event) {
-                            event.put(new Tuple("enriched", "testField"));
+
                             return singletonList(event);
                         }
                     }).end()

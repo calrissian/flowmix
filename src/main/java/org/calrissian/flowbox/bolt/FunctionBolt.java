@@ -54,8 +54,10 @@ public class FunctionBolt extends BaseRichBolt {
 
                 String nextStream = idx+1 < flow.getStream(streamName).getFlowOps().size() ? flow.getStream(streamName).getFlowOps().get(idx + 1).getComponentName() : "output";
                 List<Event> events = functionOp.getFunction().execute(event);
-                for(Event newEvent : events)
-                    collector.emit(nextStream, tuple, new Values(flowId, newEvent, idx, streamName));
+                if(events != null) {
+                    for(Event newEvent : events)
+                        collector.emit(nextStream, tuple, new Values(flowId, newEvent, idx, streamName));
+                }
             }
 
             collector.ack(tuple);

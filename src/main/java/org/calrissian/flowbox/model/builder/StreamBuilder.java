@@ -3,6 +3,7 @@ package org.calrissian.flowbox.model.builder;
 import org.calrissian.flowbox.model.FlowOp;
 import org.calrissian.flowbox.model.builder.JoinBuilder;
 import org.calrissian.flowbox.model.StreamDef;
+import org.calrissian.flowbox.support.Function;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,10 @@ public class StreamBuilder {
 
     public JoinBuilder join(String stream1, String stream2) {
         return new JoinBuilder(this, stream1, stream2);
+    }
+
+    public FunctionBuilder function() {
+        return new FunctionBuilder(this);
     }
 
     public FlowDefsBuilder endStream() {

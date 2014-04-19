@@ -7,6 +7,9 @@ This is a proof of concept to implement an InfoSphere Streams-like (and Esper-li
 One of the solutions this project offers is having a single topology deployed with a generic "stream" of domain-agnostic objects that can be split, aggregated, filtered from, selected from, etc...
 
 
+Another downfall to Trident is that it does not make temporal operations and state very easy to manage. Things like typical sliding windows (with expiration and trigger functions that act independently of one another) mean having to write your own custom functions to do so, thereby making it impossible to utilize the rich aggregation mechanisms already built into the framework. 
+
+
 ##Planned Notable Features:
 - Groovy-defined flows that get auto-classloaded by the Storm bolts to limit downtime and promote on-the-fly updates of flows.
 - Automatic synchronization of flow updates via Zookeeper. You modify your flow and submit it, the Storm topology will automatically update itself.

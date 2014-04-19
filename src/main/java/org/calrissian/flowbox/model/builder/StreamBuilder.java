@@ -43,7 +43,7 @@ public class StreamBuilder {
     }
 
     public JoinBuilder join(String stream1, String stream2) {
-        return new JoinBuilder(this);
+        return new JoinBuilder(this, stream1, stream2);
     }
 
     public FlowDefsBuilder endStream() {

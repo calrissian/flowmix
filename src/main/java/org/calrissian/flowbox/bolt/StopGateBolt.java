@@ -1,7 +1,6 @@
 package org.calrissian.flowbox.bolt;
 
 
-import backtype.storm.Config;
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -11,7 +10,6 @@ import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.calrissian.flowbox.model.*;
-import org.calrissian.flowbox.model.Policy;
 import org.calrissian.flowbox.support.StopGateWindow;
 
 import java.util.*;

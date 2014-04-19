@@ -57,7 +57,11 @@ public class SelectorBolt extends BaseRichBolt {
                     }
                 }
 
-                collector.emit(nextStream, tuple, new Values(flowId, newEvent, idx, streamName));
+                /**
+                 * If no selected tuples existed, event will not be emitted
+                 */
+                if(newEvent.getTuples().size() > 0)
+                    collector.emit(nextStream, tuple, new Values(flowId, newEvent, idx, streamName));
             }
 
             collector.ack(tuple);

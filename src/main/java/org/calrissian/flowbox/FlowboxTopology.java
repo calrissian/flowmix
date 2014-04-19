@@ -13,19 +13,20 @@ import backtype.storm.tuple.Fields;
 import org.calrissian.flowbox.bolt.*;
 import org.calrissian.flowbox.model.Event;
 import org.calrissian.flowbox.model.Flow;
+import org.calrissian.flowbox.model.Policy;
 import org.calrissian.flowbox.model.builder.FlowBuilder;
 import org.calrissian.flowbox.model.kryo.EventSerializer;
 import org.calrissian.flowbox.spout.MockEventGeneratorSpout;
 import org.calrissian.flowbox.spout.MockFlowLoaderSpout;
 import org.calrissian.flowbox.spout.TickSpout;
 import org.calrissian.flowbox.support.Criteria;
-import org.calrissian.flowbox.model.Policy;
 
 import java.util.Arrays;
 
 import static org.calrissian.flowbox.Constants.*;
 import static org.calrissian.flowbox.model.AggregateOp.AGGREGATE;
 import static org.calrissian.flowbox.model.FilterOp.FILTER;
+import static org.calrissian.flowbox.model.JoinOp.JOIN;
 import static org.calrissian.flowbox.model.PartitionOp.PARTITION;
 import static org.calrissian.flowbox.model.SelectOp.SELECT;
 import static org.calrissian.flowbox.model.StopGateOp.STOP_GATE;
@@ -114,6 +115,7 @@ public class FlowboxTopology {
         declarebolt(builder, PARTITION, new PartitionBolt(), parallelismHint);
         declarebolt(builder, STOP_GATE, new StopGateBolt(), parallelismHint);
         declarebolt(builder, AGGREGATE, new AggregatorBolt(), parallelismHint);
+        declarebolt(builder, JOIN, new JoinBolt(), parallelismHint);
         declarebolt(builder, OUTPUT, outputBolt, parallelismHint);
 
         return builder.createTopology();
@@ -128,7 +130,8 @@ public class FlowboxTopology {
             .fieldsGrouping(PARTITION, boltName, new Fields("partition"))
             .localOrShuffleGrouping(AGGREGATE, boltName)
             .localOrShuffleGrouping(SELECT, boltName)
-            .localOrShuffleGrouping(STOP_GATE, boltName);
+            .localOrShuffleGrouping(STOP_GATE, boltName)
+            .localOrShuffleGrouping(JOIN, boltName);
     }
 
     public static void declareOutputStreams(OutputFieldsDeclarer declarer) {
@@ -138,6 +141,7 @@ public class FlowboxTopology {
         declarer.declareStream(SELECT, fields);
         declarer.declareStream(AGGREGATE, fields);
         declarer.declareStream(STOP_GATE, fields);
+        declarer.declareStream(JOIN, fields);
         declarer.declareStream(OUTPUT, fields);
     }
 
@@ -148,6 +152,7 @@ public class FlowboxTopology {
         declarer.declareStream(SELECT, fields);
         declarer.declareStream(AGGREGATE, fields);
         declarer.declareStream(STOP_GATE, fields);
+        declarer.declareStream(JOIN, fields);
         declarer.declareStream(OUTPUT, fields);
     }
 }

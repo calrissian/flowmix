@@ -11,40 +11,37 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.calrissian.flowbox.Constants;
+import org.calrissian.flowbox.FlowboxTopology;
 import org.calrissian.flowbox.model.*;
+import org.calrissian.flowbox.spout.MockFlowLoaderSpout;
 import org.calrissian.flowbox.support.WindowBuffer;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static org.calrissian.flowbox.Constants.FLOW_OP_IDX;
-import static org.calrissian.flowbox.Constants.STREAM_NAME;
+import static org.calrissian.flowbox.Constants.*;
+import static org.calrissian.flowbox.FlowboxTopology.declareOutputStreams;
+import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 /**
- * A basic windowing bolt that uses partitioned in-memory deques. A trigger algorithm is applied to the windows
- * based on the the trigger policy. The window is kept to a specific size based on the eviction policy.
+ * Join semantics are defined very similar to that of InfoSphere Streams. The join operator, by default, triggers
+ * on each single input event from the stream on the right hand side.
  *
- * This class is an attempt at porting over the Sliding Window from IBM's InfoSphere Streams:
- * {@see http://pic.dhe.ibm.com/infocenter/streams/v3r2/index.jsp?topic=%2Fcom.ibm.swg.im.infosphere.streams.spl-language-specification.doc%2Fdoc%2Fslidingwindows.html}
+ * The stream on the right is joined with the stream on the left where the stream on the left is collected into a
+ * window which is evicted by the given policy. The stream on the right has a default eviction policy of COUNT with
+ * a threshold of 1. Every time a tuple on the right stream is encountered, it is compared against the window on the
+ * left and a new tuple is emitted for each find in the join.
  *
- * This class can also be used to implement a tumbling window, whereby COUNT policies are used both for eviction and triggering
- * with the same threshold for each.
+ * By default, if no partition has been done before the join, every event received on the right stream will be joined will
+ * be joined with every event currently in the window for the left hand stream.
+ *
  */
-public class WindowBolt extends BaseRichBolt {
+public class JoinBolt extends BaseRichBolt {
 
-    String ruleStream;
     Map<String, Flow> rulesMap;
     Map<String, Cache<String, WindowBuffer>> buffers;
 
     OutputCollector collector;
-
-    public WindowBolt(String ruleStream) {
-        this.ruleStream = ruleStream;
-    }
 
     @Override
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
@@ -59,9 +56,9 @@ public class WindowBolt extends BaseRichBolt {
         /**
          * Update rules if necessary
          */
-        if(ruleStream.equals(tuple.getSourceStreamId())) {
+        if(FLOW_LOADER_STREAM.equals(tuple.getSourceStreamId())) {
 
-            Set<Flow> rules = (Set<Flow>) tuple.getValue(0);
+            Collection<Flow> rules = (Collection<Flow>) tuple.getValue(0);
             Set<String> rulesToRemove = new HashSet<String>();
 
             // find deleted rules and remove them
@@ -89,8 +86,7 @@ public class WindowBolt extends BaseRichBolt {
                 }
             }
 
-        } else if("__system".equals(tuple.getSourceComponent()) &&
-                  "__tick".equals(tuple.getSourceStreamId())) {
+        } else if("tick".equals(tuple.getSourceStreamId())) {
 
             /**
              * Don't bother evaluating if we don't even have any rules
@@ -99,33 +95,30 @@ public class WindowBolt extends BaseRichBolt {
 
                 for(Flow rule : rulesMap.values()) {
 
-                    AggregateOp op = (AggregateOp) rule.getStreams().iterator().next().getFlowOps().get(0);
+                    for(StreamDef stream : rule.getStreams()) {
 
-                    /**
-                     * If we need to trigger any time-based policies, let's do that here.
-                     */
-                    if(op.getTriggerPolicy() == Policy.TIME) {
+                        int count = 0;
+                        for(FlowOp curOp : stream.getFlowOps()) {
 
-                        Cache<String, WindowBuffer> buffersForRule = buffers.get(rule.getId());
-                        if(buffersForRule != null) {
-                            for (WindowBuffer buffer : buffersForRule.asMap().values()) {
+                            if(curOp instanceof JoinOp) {
 
+                                JoinOp op = (JoinOp) curOp;
                                 /**
-                                 * If we need to evict any buffered items, let's do it here
+                                 * If we need to trigger any time-based policies, let's do that here.
                                  */
-                                if(op.getEvictionPolicy() == Policy.TIME)
-                                    buffer.timeEvict(op.getEvictionThreshold());
+                                if(op.getEvictionPolicy() == Policy.TIME) {
 
-                                if (buffer.getTriggerTicks() == op.getTriggerThreshold()) {
-                                    collector.emit(new Values(rule.getId(), buffer));
-                                    System.out.println("Just emitted buffer: " + buffer);
-                                    buffer.resetTriggerTicks();
-                                } else {
-                                    buffer.incrTriggerTicks();
+                                    Cache<String, WindowBuffer> buffersForRule = buffers.get(rule.getId());
+                                    if(buffersForRule != null)
+                                        for (WindowBuffer buffer : buffersForRule.asMap().values())
+                                            buffer.timeEvict(op.getEvictionThreshold());
                                 }
                             }
+                            count++;
                         }
+
                     }
+
                 }
             }
 
@@ -144,16 +137,16 @@ public class WindowBolt extends BaseRichBolt {
                  * rules with like fields groupings can store the items in their windows on the same node.
                  */
 
-                String ruleId = tuple.getString(0);
-                String hash = tuple.getString(1);
-                Event event = (Event) tuple.getValue(2);
+                String ruleId = tuple.getStringByField(FLOW_ID);
+                String hash = tuple.contains(PARTITION) ? tuple.getStringByField(PARTITION) : "";
+                Event event = (Event) tuple.getValueByField(EVENT);
                 int idx = tuple.getIntegerByField(FLOW_OP_IDX);
                 idx++;
 
                 String streamName = tuple.getStringByField(STREAM_NAME);
                 Flow rule = rulesMap.get(ruleId);
 
-                AggregateOp op = (AggregateOp) rule.getStream(streamName).getFlowOps().get(idx);
+                JoinOp op = (JoinOp) rule.getStream(streamName).getFlowOps().get(idx);
 
                 Cache<String, WindowBuffer> buffersForRule = buffers.get(rule.getId());
                 WindowBuffer buffer;
@@ -184,31 +177,16 @@ public class WindowBolt extends BaseRichBolt {
 
                 buffer.add(event);
 
-                /**
-                 * Perform count-based trigger if necessary
-                 */
-                if (op.getTriggerPolicy() == Policy.COUNT) {
-
-                    buffer.incrTriggerTicks();
-                    if(buffer.getTriggerTicks() == op.getTriggerThreshold()) {
-                        collector.emit(new Values(ruleId, buffer));
-                        System.out.println("Just emitted buffer: " + buffer);
-                        buffer.resetTriggerTicks();
-                    }
-                }
+                // TODO: this is where we compare the event on the rhs stream against the window for the lhs
+                collector.emit(new Values(ruleId, buffer));
+                System.out.println("Just emitted buffer: " + buffer);
+                buffer.resetTriggerTicks();
             }
         }
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("ruleId", "events"));
-    }
-
-    @Override
-    public Map<String, Object> getComponentConfiguration() {
-        Map<String,Object> config = new HashMap<String, Object>();
-        config.put(Config.TOPOLOGY_TICK_TUPLE_FREQ_SECS, 1);
-        return config;
+        declareOutputStreams(outputFieldsDeclarer);
     }
 }

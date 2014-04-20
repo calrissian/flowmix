@@ -1,18 +1,18 @@
 package org.calrissian.flowbox.model.builder;
 
 
-import org.calrissian.flowbox.model.FunctionOp;
+import org.calrissian.flowbox.model.EachOp;
 import org.calrissian.flowbox.support.Function;
 
-public class FunctionBuilder extends AbstractOpBuilder{
+public class EachBuilder extends AbstractOpBuilder{
 
     private Function function;
 
-    public FunctionBuilder(StreamBuilder flowOpsBuilder) {
+    public EachBuilder(StreamBuilder flowOpsBuilder) {
         super(flowOpsBuilder);
     }
 
-    public FunctionBuilder function(Function function) {
+    public EachBuilder function(Function function) {
         this.function = function;
         return this;
     }
@@ -20,7 +20,7 @@ public class FunctionBuilder extends AbstractOpBuilder{
 
     @Override
     public StreamBuilder end() {
-        getStreamBuilder().addFlowOp(new FunctionOp(function));
+        getStreamBuilder().addFlowOp(new EachOp(function));
         return getStreamBuilder();
     }
 }

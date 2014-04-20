@@ -2,13 +2,13 @@ package org.calrissian.flowbox.model;
 
 import org.calrissian.flowbox.support.Function;
 
-public class FunctionOp implements FlowOp {
+public class EachOp implements FlowOp {
 
-    public static final String FUNCTION = "function";
+    public static final String EACH = "each";
 
     Function function;
 
-    public FunctionOp(Function function) {
+    public EachOp(Function function) {
         this.function = function;
     }
 
@@ -21,7 +21,7 @@ public class FunctionOp implements FlowOp {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        FunctionOp that = (FunctionOp) o;
+        EachOp that = (EachOp) o;
 
         if (function != null ? !function.equals(that.function) : that.function != null) return false;
 
@@ -35,6 +35,6 @@ public class FunctionOp implements FlowOp {
 
     @Override
     public String getComponentName() {
-        return "function";
+        return "each";
     }
 }

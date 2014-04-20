@@ -27,7 +27,7 @@ import static java.util.Collections.singletonList;
 import static org.calrissian.flowbox.Constants.*;
 import static org.calrissian.flowbox.model.AggregateOp.AGGREGATE;
 import static org.calrissian.flowbox.model.FilterOp.FILTER;
-import static org.calrissian.flowbox.model.FunctionOp.FUNCTION;
+import static org.calrissian.flowbox.model.EachOp.EACH;
 import static org.calrissian.flowbox.model.JoinOp.JOIN;
 import static org.calrissian.flowbox.model.PartitionOp.PARTITION;
 import static org.calrissian.flowbox.model.SelectOp.SELECT;
@@ -71,19 +71,18 @@ public class FlowboxTopology {
                 .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
                 .endStream()
                 .stream("stream2")
-                        .filter().criteria(new Criteria() {
+                    .filter().criteria(new Criteria() {
                         @Override
                         public boolean matches(Event event) {
                             return true;
                         }
                     }).end()
-                .select().field("key4").end()
-                .partition().field("key4").end()
-                .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
-                .function().function(new Function() {
+                    .select().field("key4").end()
+                    .partition().field("key4").end()
+                    .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
+                    .each().function(new Function() {
                         @Override
                         public List<Event> execute(Event event) {
-
                             return singletonList(event);
                         }
                     }).end()
@@ -125,7 +124,7 @@ public class FlowboxTopology {
         declarebolt(builder, STOP_GATE, new StopGateBolt(), parallelismHint);
         declarebolt(builder, AGGREGATE, new AggregatorBolt(), parallelismHint);
         declarebolt(builder, JOIN, new JoinBolt(), parallelismHint);
-        declarebolt(builder, FUNCTION, new FunctionBolt(), parallelismHint);
+        declarebolt(builder, EACH, new EachBolt(), parallelismHint);
         declarebolt(builder, OUTPUT, outputBolt, parallelismHint);
 
         return builder.createTopology();
@@ -143,7 +142,7 @@ public class FlowboxTopology {
             .fieldsGrouping(PARTITION, boltName, new Fields(FLOW_ID, PARTITION))    // guaranteed partitions will always group the same flow for flows that have joins with default partitions.
             .localOrShuffleGrouping(AGGREGATE, boltName)
             .localOrShuffleGrouping(SELECT, boltName)
-            .localOrShuffleGrouping(FUNCTION, boltName)
+            .localOrShuffleGrouping(EACH, boltName)
             .localOrShuffleGrouping(STOP_GATE, boltName)
             .localOrShuffleGrouping(JOIN, boltName);
     }
@@ -156,7 +155,7 @@ public class FlowboxTopology {
         declarer.declareStream(AGGREGATE, fields);
         declarer.declareStream(STOP_GATE, fields);
         declarer.declareStream(JOIN, fields);
-        declarer.declareStream(FUNCTION, fields);
+        declarer.declareStream(EACH, fields);
         declarer.declareStream(OUTPUT, fields);
     }
 
@@ -167,7 +166,7 @@ public class FlowboxTopology {
         declarer.declareStream(SELECT, fields);
         declarer.declareStream(AGGREGATE, fields);
         declarer.declareStream(STOP_GATE, fields);
-        declarer.declareStream(FUNCTION, fields);
+        declarer.declareStream(EACH, fields);
         declarer.declareStream(JOIN, fields);
         declarer.declareStream(OUTPUT, fields);
     }

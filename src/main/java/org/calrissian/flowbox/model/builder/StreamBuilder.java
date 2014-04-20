@@ -1,9 +1,7 @@
 package org.calrissian.flowbox.model.builder;
 
 import org.calrissian.flowbox.model.FlowOp;
-import org.calrissian.flowbox.model.builder.JoinBuilder;
 import org.calrissian.flowbox.model.StreamDef;
-import org.calrissian.flowbox.support.Function;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,8 +45,12 @@ public class StreamBuilder {
         return new JoinBuilder(this, stream1, stream2);
     }
 
-    public FunctionBuilder function() {
-        return new FunctionBuilder(this);
+    public SortBuilder sort() {
+        return new SortBuilder(this);
+    }
+
+    public EachBuilder each() {
+        return new EachBuilder(this);
     }
 
     public FlowDefsBuilder endStream() {

@@ -7,10 +7,9 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import org.calrissian.flowbox.FlowboxTopology;
+import org.calrissian.flowbox.model.EachOp;
 import org.calrissian.flowbox.model.Event;
-import org.calrissian.flowbox.model.FilterOp;
 import org.calrissian.flowbox.model.Flow;
-import org.calrissian.flowbox.model.FunctionOp;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,9 +20,9 @@ import static org.calrissian.flowbox.Constants.*;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 /**
- * A function allows an event to be processed, mutated, split, or transformed.
+ * A each allows an event to be processed, mutated, split, or transformed.
  */
-public class FunctionBolt extends BaseRichBolt {
+public class EachBolt extends BaseRichBolt {
 
     Map<String,Flow> flows;
     OutputCollector collector;
@@ -50,7 +49,7 @@ public class FunctionBolt extends BaseRichBolt {
             Flow flow = flows.get(flowId);
 
             if(flow != null) {
-                FunctionOp functionOp = (FunctionOp) flow.getStream(streamName).getFlowOps().get(idx);
+                EachOp functionOp = (EachOp) flow.getStream(streamName).getFlowOps().get(idx);
 
                 String nextStream = idx+1 < flow.getStream(streamName).getFlowOps().size() ? flow.getStream(streamName).getFlowOps().get(idx + 1).getComponentName() : "output";
                 List<Event> events = functionOp.getFunction().execute(event);

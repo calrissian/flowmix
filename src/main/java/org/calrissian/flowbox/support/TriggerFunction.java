@@ -4,6 +4,6 @@ import java.io.Serializable;
 
 public interface TriggerFunction extends Serializable {
 
-    boolean trigger(Iterable<WindowBufferItem> events);
+    boolean trigger(Iterable<WindowItem> events);
 
 }

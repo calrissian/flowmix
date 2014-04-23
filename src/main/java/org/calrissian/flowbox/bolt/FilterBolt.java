@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.calrissian.flowbox.Constants.*;
+import static org.calrissian.flowbox.FlowboxTopology.declareOutputStreams;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 public class FilterBolt extends BaseRichBolt {
@@ -58,6 +59,6 @@ public class FilterBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        FlowboxTopology.declareOutputStreams(outputFieldsDeclarer);
+        declareOutputStreams(outputFieldsDeclarer);
     }
 }

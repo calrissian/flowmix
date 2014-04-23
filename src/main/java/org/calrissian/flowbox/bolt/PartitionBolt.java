@@ -6,7 +6,6 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import org.calrissian.flowbox.FlowboxTopology;
 import org.calrissian.flowbox.model.Event;
 import org.calrissian.flowbox.model.Flow;
 import org.calrissian.flowbox.model.PartitionOp;
@@ -18,7 +17,7 @@ import java.util.Map;
 import static org.calrissian.flowbox.Constants.*;
 import static org.calrissian.flowbox.FlowboxTopology.declarePartitionedOutputStreams;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
-import static org.calrissian.flowbox.support.WindowBuffer.buildKeyIndexForEvent;
+import static org.calrissian.flowbox.support.Window.buildKeyIndexForEvent;
 
 public class PartitionBolt extends BaseRichBolt {
 

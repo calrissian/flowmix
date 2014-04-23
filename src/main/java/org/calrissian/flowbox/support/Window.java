@@ -12,29 +12,31 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import static java.lang.System.currentTimeMillis;
 
-public class WindowBuffer {
+public class Window {
 
     private String groupedIndex;        // a unique key given to the groupBy field/value combinations in the window buffer
 
-    private Deque<WindowBufferItem> events;     // using standard array list for proof of concept.
+    private Deque<WindowItem> events;     // using standard array list for proof of concept.
                                                // Circular buffer needs to be used after concept is proven
     private int triggerTicks = 0;
 
     /**
      * A sliding window buffer which automatically evicts by count
      */
-    public WindowBuffer(String groupedIndex, long size) {
-        events = new LimitingDeque<WindowBufferItem>(size);
+    public Window(String groupedIndex, long size) {
+        events = new LimitingDeque<WindowItem>(size);
         this.groupedIndex = groupedIndex;
     }
 
-    public WindowBuffer(String groupedIndex) {
-        events = new LinkedBlockingDeque<WindowBufferItem>();
+    public Window(String groupedIndex) {
+        events = new LinkedBlockingDeque<WindowItem>();
         this.groupedIndex = groupedIndex;
     }
 
-    public void add(Event event) {
-        events.add(new WindowBufferItem(event, currentTimeMillis()));
+    public WindowItem add(Event event) {
+        WindowItem item = new WindowItem(event, currentTimeMillis());
+        events.add(item);
+        return item;
     }
 
     /**
@@ -70,7 +72,7 @@ public class WindowBuffer {
         return events.getLast().getTimestamp() - events.getFirst().getTimestamp();
     }
 
-    public Iterable<WindowBufferItem> getEvents() {
+    public Iterable<WindowItem> getEvents() {
         return events;
     }
 
@@ -81,8 +83,10 @@ public class WindowBuffer {
     /**
      * Used for count-based expiration
      */
-    public void expire() {
+    public WindowItem expire() {
+        WindowItem item = events.getLast();
         events.remove(0);
+        return item;
     }
 
     public static String buildKeyIndexForEvent(Event event, List<String> groupBy) {
@@ -126,7 +130,7 @@ public class WindowBuffer {
 
     @Override
     public String toString() {
-        return "WindowBuffer{" +
+        return "Window{" +
                 "groupedIndex='" + groupedIndex + '\'' +
                 ", size=" + events.size() +
                 ", events=" + events +

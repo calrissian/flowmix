@@ -9,12 +9,12 @@ import java.util.List;
  */
 public class SummingAggregator implements Aggregator {
     @Override
-    public void added(WindowBufferItem item) {
+    public void added(WindowItem item) {
 
     }
 
     @Override
-    public void evicted(WindowBufferItem item) {
+    public void evicted(WindowItem item) {
 
     }
 

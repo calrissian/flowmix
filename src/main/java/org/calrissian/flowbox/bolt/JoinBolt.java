@@ -9,8 +9,8 @@ import backtype.storm.tuple.Tuple;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.calrissian.flowbox.model.*;
-import org.calrissian.flowbox.support.WindowBuffer;
-import org.calrissian.flowbox.support.WindowBufferItem;
+import org.calrissian.flowbox.support.Window;
+import org.calrissian.flowbox.support.WindowItem;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +37,7 @@ import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREA
 public class JoinBolt extends BaseRichBolt {
 
     Map<String, Flow> rulesMap;
-    Map<String, Cache<String, WindowBuffer>> windows;
+    Map<String, Cache<String, Window>> windows;
 
     OutputCollector collector;
 
@@ -45,7 +45,7 @@ public class JoinBolt extends BaseRichBolt {
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
         rulesMap = new HashMap<String, Flow>();
-        windows = new HashMap<String, Cache<String, WindowBuffer>>();
+        windows = new HashMap<String, Cache<String, Window>>();
     }
 
     @Override
@@ -106,9 +106,9 @@ public class JoinBolt extends BaseRichBolt {
                                  */
                                 if(op.getEvictionPolicy() == Policy.TIME) {
 
-                                    Cache<String, WindowBuffer> buffersForRule = windows.get(rule.getId() + "\0" + stream.getName() + "\0" + idx);
+                                    Cache<String, Window> buffersForRule = windows.get(rule.getId() + "\0" + stream.getName() + "\0" + idx);
                                     if(buffersForRule != null)
-                                        for (WindowBuffer buffer : buffersForRule.asMap().values())
+                                        for (Window buffer : buffersForRule.asMap().values())
                                             buffer.timeEvict(op.getEvictionThreshold());
                                 }
                             }
@@ -141,8 +141,8 @@ public class JoinBolt extends BaseRichBolt {
                 // do processing on lhs
                 if(streamName.equals(op.getLeftStream())) {
 
-                    Cache<String, WindowBuffer> buffersForRule = windows.get(flow.getId() + "\0" + streamName + "\0" + idx);
-                    WindowBuffer buffer;
+                    Cache<String, Window> buffersForRule = windows.get(flow.getId() + "\0" + streamName + "\0" + idx);
+                    Window buffer;
                     if (buffersForRule != null) {
                         buffer = buffersForRule.getIfPresent(hash);
 
@@ -162,8 +162,8 @@ public class JoinBolt extends BaseRichBolt {
                         }
                     } else {
                         buffersForRule = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).build(); // just in case we get some rogue data, we don't wan ti to sit for too long.
-                        buffer = op.getEvictionPolicy() == Policy.TIME ? new WindowBuffer(hash) :
-                                new WindowBuffer(hash, op.getEvictionThreshold());
+                        buffer = op.getEvictionPolicy() == Policy.TIME ? new Window(hash) :
+                                new Window(hash, op.getEvictionThreshold());
                         buffersForRule.put(hash, buffer);
                         windows.put(flow.getId() + "\0" + streamName + "\0" + idx, buffersForRule);
                     }
@@ -172,12 +172,12 @@ public class JoinBolt extends BaseRichBolt {
 
                 } else if(streamName.equals(op.getRightStream())) {
 
-                    Cache<String, WindowBuffer> buffersForRule = windows.get(flow.getId() + "\0" + streamName + "\0" + idx);
-                    WindowBuffer buffer;
+                    Cache<String, Window> buffersForRule = windows.get(flow.getId() + "\0" + streamName + "\0" + idx);
+                    Window buffer;
                     if (buffersForRule != null) {
                         buffer = buffersForRule.getIfPresent(hash);
 
-                        for(WindowBufferItem bufferedEvent : buffer.getEvents()) {
+                        for(WindowItem bufferedEvent : buffer.getEvents()) {
                             //TODO: perform combination join logic here
                         }
 

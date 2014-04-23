@@ -20,4 +20,12 @@ public class StreamDef implements Serializable {
     public List<FlowOp> getFlowOps() {
         return flowOps;
     }
+
+    @Override
+    public String toString() {
+        return "StreamDef{" +
+                "name='" + name + '\'' +
+                ", flowOps=" + flowOps +
+                '}';
+    }
 }

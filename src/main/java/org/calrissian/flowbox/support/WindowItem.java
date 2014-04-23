@@ -3,11 +3,11 @@ package org.calrissian.flowbox.support;
 
 import org.calrissian.flowbox.model.Event;
 
-public class WindowBufferItem {
+public class WindowItem {
     Event event;
     long timestamp;
 
-    public WindowBufferItem(Event event, long timestamp) {
+    public WindowItem(Event event, long timestamp) {
         this.event = event;
         this.timestamp = timestamp;
     }
@@ -22,7 +22,7 @@ public class WindowBufferItem {
 
     @Override
     public String toString() {
-        return "WindowBufferItem{" +
+        return "WindowItem{" +
                 "event=" + event +
                 ", timestamp=" + timestamp +
                 '}';

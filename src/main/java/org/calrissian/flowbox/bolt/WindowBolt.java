@@ -11,9 +11,8 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.calrissian.flowbox.Constants;
 import org.calrissian.flowbox.model.*;
-import org.calrissian.flowbox.support.WindowBuffer;
+import org.calrissian.flowbox.support.Window;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -38,7 +37,7 @@ public class WindowBolt extends BaseRichBolt {
 
     String ruleStream;
     Map<String, Flow> rulesMap;
-    Map<String, Cache<String, WindowBuffer>> buffers;
+    Map<String, Cache<String, Window>> buffers;
 
     OutputCollector collector;
 
@@ -50,7 +49,7 @@ public class WindowBolt extends BaseRichBolt {
     public void prepare(Map map, TopologyContext topologyContext, OutputCollector outputCollector) {
         this.collector = outputCollector;
         rulesMap = new HashMap<String, Flow>();
-        buffers = new HashMap<String, Cache<String, WindowBuffer>>();
+        buffers = new HashMap<String, Cache<String, Window>>();
     }
 
     @Override
@@ -106,9 +105,9 @@ public class WindowBolt extends BaseRichBolt {
                      */
                     if(op.getTriggerPolicy() == Policy.TIME) {
 
-                        Cache<String, WindowBuffer> buffersForRule = buffers.get(rule.getId());
+                        Cache<String, Window> buffersForRule = buffers.get(rule.getId());
                         if(buffersForRule != null) {
-                            for (WindowBuffer buffer : buffersForRule.asMap().values()) {
+                            for (Window buffer : buffersForRule.asMap().values()) {
 
                                 /**
                                  * If we need to evict any buffered items, let's do it here
@@ -155,8 +154,8 @@ public class WindowBolt extends BaseRichBolt {
 
                 AggregateOp op = (AggregateOp) rule.getStream(streamName).getFlowOps().get(idx);
 
-                Cache<String, WindowBuffer> buffersForRule = buffers.get(rule.getId());
-                WindowBuffer buffer;
+                Cache<String, Window> buffersForRule = buffers.get(rule.getId());
+                Window buffer;
                 if (buffersForRule != null) {
                     buffer = buffersForRule.getIfPresent(hash);
 
@@ -176,8 +175,8 @@ public class WindowBolt extends BaseRichBolt {
                     }
                 } else {
                     buffersForRule = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).build(); // just in case we get some rogue data, we don't wan ti to sit for too long.
-                    buffer = op.getEvictionPolicy() == Policy.TIME ? new WindowBuffer(hash) :
-                            new WindowBuffer(hash, op.getEvictionThreshold());
+                    buffer = op.getEvictionPolicy() == Policy.TIME ? new Window(hash) :
+                            new Window(hash, op.getEvictionThreshold());
                     buffersForRule.put(hash, buffer);
                     buffers.put(rule.getId(), buffersForRule);
                 }

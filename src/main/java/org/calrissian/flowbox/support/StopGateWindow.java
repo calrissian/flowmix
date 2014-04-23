@@ -1,6 +1,6 @@
 package org.calrissian.flowbox.support;
 
-public class StopGateWindow extends WindowBuffer {
+public class StopGateWindow extends Window {
 
     boolean stopped = false;
 

@@ -8,6 +8,7 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.apache.commons.lang.StringUtils;
 import org.calrissian.flowbox.model.*;
 import org.calrissian.flowbox.support.Aggregator;
 import org.calrissian.flowbox.support.AggregatorWindow;
@@ -17,9 +18,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import static org.apache.commons.lang.StringUtils.join;
 import static org.calrissian.flowbox.Constants.*;
 import static org.calrissian.flowbox.FlowboxTopology.declareOutputStreams;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
+import static org.calrissian.flowbox.support.Aggregator.GROUP_BY;
+import static org.calrissian.flowbox.support.Aggregator.GROUP_BY_DELIM;
 
 public class AggregatorBolt extends BaseRichBolt {
 
@@ -136,18 +140,25 @@ public class AggregatorBolt extends BaseRichBolt {
     }
 
     private AggregatorWindow buildWindow(AggregateOp op, String stream, int idx, String hash, String flowId, Cache<String, AggregatorWindow> windowCache) {
+      try {
+        Aggregator agg = op.getAggregatorClass().newInstance();
+        AggregatorWindow window = op.getEvictionPolicy() == Policy.TIME || op.getEvictionPolicy() == Policy.TIME_DELTA_LT ?
+                new AggregatorWindow(agg, hash) : new AggregatorWindow(agg, hash, op.getEvictionThreshold());
 
-        try {
-            Aggregator agg = op.getAggregatorClass().newInstance();
-            AggregatorWindow window = op.getEvictionPolicy() == Policy.TIME || op.getEvictionPolicy() == Policy.TIME_DELTA_LT ?
-                    new AggregatorWindow(agg, hash) : new AggregatorWindow(agg, hash, op.getEvictionThreshold());
-
-            windowCache.put(hash, window);
-            windows.put(flowId + "\0" + stream + "\0" + idx, windowCache);
-            return window;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        Map<String,String> aggConfig = op.getConfig();
+        if(flows.get(flowId).getStream(stream).getFlowOps().get(idx-1) instanceof PartitionOp) {
+          PartitionOp partitionOp = (PartitionOp)flows.get(flowId).getStream(stream).getFlowOps().get(idx-1);
+          aggConfig.put(GROUP_BY, join(partitionOp.getFields(), GROUP_BY_DELIM));
         }
+
+        agg.configure(aggConfig);
+
+        windowCache.put(hash, window);
+          windows.put(flowId + "\0" + stream + "\0" + idx, windowCache);
+          return window;
+      } catch (Exception e) {
+          throw new RuntimeException(e);
+      }
     }
 
     private void emitAggregate(Flow flow, String stream, int idx, AggregatorWindow window) {

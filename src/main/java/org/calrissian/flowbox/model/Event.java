@@ -30,6 +30,11 @@ public class Event implements Serializable {
         curTuples.add(tuple);
     }
 
+    public void putAll(Iterable<Tuple> tuples) {
+      for(Tuple tuple : tuples)
+        put(tuple);
+    }
+
     public Tuple get(String key) {
         return tuples.get(key).iterator().next();
     }

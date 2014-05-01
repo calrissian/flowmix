@@ -1,14 +1,20 @@
-package org.calrissian.flowbox.support;
+package org.calrissian.flowbox.support.aggregator;
 
 import org.calrissian.flowbox.model.Event;
+import org.calrissian.flowbox.support.Aggregator;
+import org.calrissian.flowbox.support.WindowItem;
 
 import java.util.List;
+import java.util.Map;
 
-/**
- * Created by cjnolet on 4/16/14.
- */
 public class SummingAggregator implements Aggregator {
-    @Override
+
+  @Override
+  public void configure(Map<String, String> configuration) {
+
+  }
+
+  @Override
     public void added(WindowItem item) {
 
     }

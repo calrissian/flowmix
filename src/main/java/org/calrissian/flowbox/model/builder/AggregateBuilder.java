@@ -4,6 +4,9 @@ import org.calrissian.flowbox.model.AggregateOp;
 import org.calrissian.flowbox.support.Aggregator;
 import org.calrissian.flowbox.model.Policy;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class AggregateBuilder extends AbstractOpBuilder {
 
     private Class<? extends Aggregator> aggregatorClass;
@@ -13,6 +16,8 @@ public class AggregateBuilder extends AbstractOpBuilder {
     private long evictionThreshold = -1;
     private boolean clearOnTrigger = false;
 
+    private Map<String,String> config = new HashMap<String,String>();
+
     public AggregateBuilder(StreamBuilder flowOpsBuilder) {
         super(flowOpsBuilder);
     }
@@ -21,6 +26,13 @@ public class AggregateBuilder extends AbstractOpBuilder {
         this.aggregatorClass = aggregatorClass;
         return this;
     }
+
+
+    public AggregateBuilder config(String key, String value) {
+      config.put(key, value);
+      return this;
+    }
+
 
     public AggregateBuilder trigger(Policy policy, long threshold) {
         this.triggerPolicy = policy;
@@ -51,7 +63,7 @@ public class AggregateBuilder extends AbstractOpBuilder {
             throw new RuntimeException("Aggregator operator needs to have eviction policy and threshold");
 
         getStreamBuilder().addFlowOp(new AggregateOp(aggregatorClass, triggerPolicy, triggerThreshold, evictionPolicy,
-                evictionThreshold, clearOnTrigger));
+                evictionThreshold, clearOnTrigger, config));
         return getStreamBuilder();
     }
 }

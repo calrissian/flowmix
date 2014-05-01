@@ -13,7 +13,7 @@ import org.calrissian.flowbox.spout.MockEventGeneratorSpout;
 import org.calrissian.flowbox.spout.MockFlowLoaderSpout;
 import org.calrissian.flowbox.support.Aggregator;
 import org.calrissian.flowbox.support.WindowItem;
-import org.junit.Before;
+import org.calrissian.flowbox.support.aggregator.CountAggregator;
 import org.junit.Test;
 
 import java.util.List;
@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.singletonList;
+import static org.calrissian.flowbox.support.aggregator.CountAggregator.OUTPUT_FIELD;
 import static org.junit.Assert.assertEquals;
 
 public class AggregatorBoltIT {
@@ -43,7 +44,7 @@ public class AggregatorBoltIT {
             .flowDefs()
                 .stream("stream1")
                     .partition().field("key3").end()
-                    .aggregate().aggregator(TestAggregator.class).trigger(Policy.TIME, 5).evict(Policy.TIME, 10).end()
+                    .aggregate().aggregator(CountAggregator.class).config(OUTPUT_FIELD, "aCount").trigger(Policy.TIME, 5).evict(Policy.TIME, 10).end()
                 .endStream()
             .endDefs()
         .createFlow();
@@ -61,32 +62,7 @@ public class AggregatorBoltIT {
             e.printStackTrace();
         }
 
+        System.out.println(MockSinkBolt.getEvents());
         assertEquals(4, MockSinkBolt.getEvents().size());
-    }
-
-    public static final class TestAggregator implements Aggregator {
-
-        private long count;
-
-        @Override
-        public void added(WindowItem item) {
-            count++;
-        }
-
-        @Override
-        public void evicted(WindowItem item) {
-            count--;
-
-        }
-
-        @Override
-        public List<Event> aggregate() {
-            Event toReturn = new Event(UUID.randomUUID().toString(), currentTimeMillis());
-            toReturn.put(new Tuple("count", count));
-
-            count = 0;
-            return singletonList(toReturn);
-        }
-
     }
 }

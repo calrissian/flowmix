@@ -4,6 +4,7 @@ import org.calrissian.flowbox.model.Event;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * An aggregator over a sliding/tumbling window allows aggregate values like sums and averages to be
@@ -17,9 +18,14 @@ import java.util.List;
  */
 public interface Aggregator extends Serializable {
 
-    void added(WindowItem item);
+  public static final String GROUP_BY = "groupBy";
+  public static final String GROUP_BY_DELIM = "\u0000";
 
-    void evicted(WindowItem item);
+  void configure(Map<String,String> configuration);
 
-    List<Event> aggregate();
+  void added(WindowItem item);
+
+  void evicted(WindowItem item);
+
+  List<Event> aggregate();
 }

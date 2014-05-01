@@ -2,7 +2,7 @@ package org.calrissian.flowbox.model;
 
 import org.calrissian.flowbox.model.builder.FlowBuilder;
 import org.calrissian.flowbox.support.Criteria;
-import org.calrissian.flowbox.support.SummingAggregator;
+import org.calrissian.flowbox.support.aggregator.SummingAggregator;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

@@ -1,7 +1,11 @@
 package org.calrissian.flowbox.model;
 
 
+import com.google.common.base.Preconditions;
+
 import java.io.Serializable;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class Tuple implements Serializable {
 
@@ -10,14 +14,20 @@ public class Tuple implements Serializable {
     private String visibility;
 
     public Tuple(String key, Serializable value, String visibility) {
+        Preconditions.checkNotNull(key);
+        Preconditions.checkNotNull(value);
+        Preconditions.checkNotNull(visibility);
         this.key = key;
         this.value = value;
         this.visibility = visibility;
     }
 
     public Tuple(String key, Serializable value) {
+        checkNotNull(key);
+        checkNotNull(value);
         this.key = key;
         this.value = value;
+        this.visibility = "";
     }
 
     public String getKey() {

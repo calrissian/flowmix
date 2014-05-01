@@ -2,7 +2,7 @@ package org.calrissian.flowbox.model;
 
 import org.calrissian.flowbox.model.builder.FlowBuilder;
 import org.calrissian.flowbox.support.Criteria;
-import org.calrissian.flowbox.support.aggregator.SummingAggregator;
+import org.calrissian.flowbox.support.aggregator.LongSumAggregator;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -25,7 +25,7 @@ public class FlowBuilderTest {
                     }).end()
                     .select().field("name").field("age").end()
                     .partition().field("name").field("age").field("country").end()
-                    .aggregate().aggregator(SummingAggregator.class).evict(Policy.COUNT, 500).trigger(Policy.TIME, 25).end()
+                    .aggregate().aggregator(LongSumAggregator.class).evict(Policy.COUNT, 500).trigger(Policy.TIME, 25).end()
                     .stopGate().activate(Policy.TIME_DELTA_LT, 1).evict(Policy.COUNT, 5).open(Policy.TIME, 60).end()
                 .endStream()
             .endDefs()

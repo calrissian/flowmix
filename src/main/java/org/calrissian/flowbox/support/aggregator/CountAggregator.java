@@ -21,7 +21,7 @@ public class CountAggregator implements Aggregator {
   private Map<String,Set<Tuple>> groupedValues;
 
   private String[] groupByFields;
-  private long count;
+  private long count = 0;
 
   @Override
   public void configure(Map<String, String> configuration) {
@@ -59,6 +59,7 @@ public class CountAggregator implements Aggregator {
     }
 
     event.put(new Tuple(outputField, count));
+    count = 0;
     return Collections.singletonList(event);
   }
 }

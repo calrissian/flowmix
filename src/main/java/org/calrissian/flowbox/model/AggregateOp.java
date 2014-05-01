@@ -2,7 +2,6 @@ package org.calrissian.flowbox.model;
 
 import org.calrissian.flowbox.support.Aggregator;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class AggregateOp implements FlowOp {
@@ -14,24 +13,18 @@ public class AggregateOp implements FlowOp {
     private Policy evictionPolicy;
     private long triggerThreshold;
     private long evictionThreshold;
-    private boolean clearOnTrigger;
 
     private Map<String,String> config;
 
     public AggregateOp(Class<? extends Aggregator> aggregatorClass, Policy triggerPolicy, long triggerThreshold,
-                       Policy evictionPolicy, long evictionThreshold, boolean clearOnTrigger, Map<String,String> config) {
+                       Policy evictionPolicy, long evictionThreshold, Map<String,String> config) {
         this.aggregatorClass = aggregatorClass;
         this.triggerPolicy = triggerPolicy;
         this.evictionPolicy = evictionPolicy;
         this.triggerThreshold = triggerThreshold;
         this.evictionThreshold = evictionThreshold;
-        this.clearOnTrigger = clearOnTrigger;
         this.config = config;
 
-    }
-
-    public boolean isClearOnTrigger() {
-        return clearOnTrigger;
     }
 
     public Class<? extends Aggregator> getAggregatorClass() {

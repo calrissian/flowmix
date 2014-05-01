@@ -74,7 +74,7 @@ public class AggregatorBolt extends BaseRichBolt {
                                                 window.incrTriggerTicks();
 
                                             if(window.getTriggerTicks() == op.getTriggerThreshold())
-                                                emitAggregate(flow, curStream.getName(), idx, window);
+                                                emitAggregate(flow, op, curStream.getName(), idx, window);
                                         }
                                     }
 
@@ -99,8 +99,8 @@ public class AggregatorBolt extends BaseRichBolt {
             Flow flow = flows.get(flowId);
 
             if(flow != null) {
-                AggregateOp op = (AggregateOp) flow.getStream(streamName).getFlowOps().get(idx);
 
+                AggregateOp op = (AggregateOp) flow.getStream(streamName).getFlowOps().get(idx);
                 Cache<String, AggregatorWindow> windowCache = windows.get(flowId + "\0" + streamName + "\0" + idx);
 
                 AggregatorWindow window = null;
@@ -130,13 +130,10 @@ public class AggregatorBolt extends BaseRichBolt {
                     window.incrTriggerTicks();
 
                     if(window.getTriggerTicks() == op.getTriggerThreshold())
-                        emitAggregate(flow, streamName, idx, window);
+                        emitAggregate(flow, op, streamName, idx, window);
                 }
-
             }
-
         }
-
     }
 
     private AggregatorWindow buildWindow(AggregateOp op, String stream, int idx, String hash, String flowId, Cache<String, AggregatorWindow> windowCache) {
@@ -161,7 +158,7 @@ public class AggregatorBolt extends BaseRichBolt {
       }
     }
 
-    private void emitAggregate(Flow flow, String stream, int idx, AggregatorWindow window) {
+    private void emitAggregate(Flow flow, AggregateOp op, String stream, int idx, AggregatorWindow window) {
         Collection<Event> eventsToEmit = window.getAggregate();
         String nextStream = idx+1 < flow.getStream(stream).getFlowOps().size() ? flow.getStream(stream).getFlowOps().get(idx+1).getComponentName() : "output";
         for(Event event : eventsToEmit)

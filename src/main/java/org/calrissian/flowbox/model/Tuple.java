@@ -7,13 +7,13 @@ import java.io.Serializable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-public class Tuple implements Serializable {
+public class Tuple<T> implements Serializable {
 
     private String key;
-    private Serializable value;
+    private T value;
     private String visibility;
 
-    public Tuple(String key, Serializable value, String visibility) {
+    public Tuple(String key, T value, String visibility) {
         Preconditions.checkNotNull(key);
         Preconditions.checkNotNull(value);
         Preconditions.checkNotNull(visibility);
@@ -22,7 +22,7 @@ public class Tuple implements Serializable {
         this.visibility = visibility;
     }
 
-    public Tuple(String key, Serializable value) {
+    public Tuple(String key, T value) {
         checkNotNull(key);
         checkNotNull(value);
         this.key = key;
@@ -34,7 +34,7 @@ public class Tuple implements Serializable {
         return key;
     }
 
-    public Object getValue() {
+    public T getValue() {
         return value;
     }
 

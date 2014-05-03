@@ -70,7 +70,6 @@ public class LongSumAggregator implements Aggregator {
       }
 
       event.put(new Tuple(outputField, sum));
-      sum = 0;
       return Collections.singletonList(event);
     }
 }

@@ -34,10 +34,8 @@ public class AggregatorWindow extends Window{
 
     @Override
     public void clear() {
-      while(size() > 0) {
-        WindowItem item = expire();
-        aggregator.evicted(item);
-      }
+      while(size() > 0)
+        expire();
     }
 
     public Collection<Event> getAggregate() {

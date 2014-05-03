@@ -35,7 +35,7 @@ public class Event implements Serializable {
         put(tuple);
     }
 
-    public Tuple get(String key) {
+    public <T>Tuple<T> get(String key) {
         return tuples.get(key).iterator().next();
     }
 

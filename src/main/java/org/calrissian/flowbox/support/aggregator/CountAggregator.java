@@ -59,7 +59,6 @@ public class CountAggregator implements Aggregator {
     }
 
     event.put(new Tuple(outputField, count));
-    count = 0;
     return Collections.singletonList(event);
   }
 }

@@ -65,12 +65,10 @@ public class StreamBuilder {
 
     public FlowDefsBuilder endStream(String[] outputs, boolean stdOutput) {
 
-      StreamDef def = new StreamDef(name, flowOpList, stdInput, false, outputs);
+      StreamDef def = new StreamDef(name, flowOpList, stdInput, stdOutput, outputs);
 
       if(!def.isStdOutput() && (def.getOutputs() == null || def.getOutputs().length == 0))
         throw new RuntimeException("You must specify at least one output. Offending stream: " + name);
-
-
 
       flowOpsBuilder.addStream(def);
       return flowOpsBuilder;

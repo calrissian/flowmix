@@ -62,6 +62,14 @@ public class SelectorBolt extends BaseRichBolt {
                  */
                 if(newEvent.getTuples().size() > 0)
                     collector.emit(nextStream, tuple, new Values(flowId, newEvent, idx, streamName));
+
+                if(nextStream.equals("output") && flow.getStream(streamName).getOutputs() != null) {
+                  for (String output : flow.getStream(streamName).getOutputs()) {
+                    String outputStream = flow.getStream(output).getFlowOps().get(0).getComponentName();
+                    collector.emit(outputStream, tuple, new Values(flowId, event, -1, output));
+                  }
+                }
+
             }
 
             collector.ack(tuple);

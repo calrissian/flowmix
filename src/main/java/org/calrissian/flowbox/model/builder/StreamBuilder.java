@@ -11,13 +11,19 @@ public class StreamBuilder {
     private String name;
     private List<FlowOp> flowOpList = new ArrayList<FlowOp>();
     FlowDefsBuilder flowOpsBuilder;
+    boolean stdInput;
 
-    public StreamBuilder(FlowDefsBuilder flowOpsBuilder, String name) {
-        this.flowOpsBuilder = flowOpsBuilder;
-        this.name = name;
+    public StreamBuilder(FlowDefsBuilder flowOpsBuilder, String name, boolean stdInput) {
+      this.flowOpsBuilder = flowOpsBuilder;
+      this.name = name;
+      this.stdInput = stdInput;
     }
 
-    protected void addFlowOp(FlowOp flowOp) {
+    public boolean isStdInput() {
+      return stdInput;
+    }
+
+  protected void addFlowOp(FlowOp flowOp) {
         flowOpList.add(flowOp);
     }
 
@@ -54,8 +60,24 @@ public class StreamBuilder {
     }
 
     public FlowDefsBuilder endStream() {
-        flowOpsBuilder.addStream(new StreamDef(name, flowOpList));
-        return flowOpsBuilder;
+      return endStream(null, true);
     }
+
+    public FlowDefsBuilder endStream(String[] outputs, boolean stdOutput) {
+
+      StreamDef def = new StreamDef(name, flowOpList, stdInput, false, outputs);
+
+      if(!def.isStdOutput() && (def.getOutputs() == null || def.getOutputs().length == 0))
+        throw new RuntimeException("You must specify at least one output. Offending stream: " + name);
+
+
+
+      flowOpsBuilder.addStream(def);
+      return flowOpsBuilder;
+    }
+
+  public FlowDefsBuilder endStream(String[] outputs) {
+    return endStream(outputs, true);
+  }
 
 }

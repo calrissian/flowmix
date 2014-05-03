@@ -161,8 +161,12 @@ public class AggregatorBolt extends BaseRichBolt {
     private void emitAggregate(Flow flow, AggregateOp op, String stream, int idx, AggregatorWindow window) {
         Collection<Event> eventsToEmit = window.getAggregate();
         String nextStream = idx+1 < flow.getStream(stream).getFlowOps().size() ? flow.getStream(stream).getFlowOps().get(idx+1).getComponentName() : "output";
-        for(Event event : eventsToEmit)
+
+        if(nextStream.equals("output")) {
+          for(Event event : eventsToEmit)
             collector.emit(nextStream, new Values(flow.getId(), event, idx, stream));
+        }
+        window.clear();
         window.resetTriggerTicks();
     }
 

@@ -44,8 +44,9 @@ public class FlowInitializerBolt extends BaseRichBolt {
                         for(StreamDef stream : flow.getStreams()) {
                             String streamid = stream.getFlowOps().get(0).getComponentName();
                             String streamName = stream.getName();
-                            collector.emit(streamid, tuple, new Values(flow.getId(), event, -1, streamName));
 
+                            if(stream.isStdInput())
+                              collector.emit(streamid, tuple, new Values(flow.getId(), event, -1, streamName));
                         }
                     }
                 }

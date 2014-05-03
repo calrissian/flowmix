@@ -13,6 +13,7 @@ public class Constants {
     public static final String OUTPUT = "output";
     public static final String PARTITION = "partition";
     public static final String STREAM_NAME = "streamName";
+    public static final String LAST_STREAM = "lastStream";
 
     public static final String INITIALIZER = "initializer";
 }

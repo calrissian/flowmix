@@ -33,8 +33,16 @@ public class FlowDefsBuilder {
 
   public FlowBuilder endDefs() {
 
+      boolean oneStdOut = false;
+      boolean oneStdIn = false;
       Map<String, Set<String>> inputs = new HashMap<String, Set<String>>();
       for(StreamDef def : getStreamList()) {
+        if(def.isStdInput())
+          oneStdIn = true;
+
+        if(def.isStdOutput())
+          oneStdOut = true;
+
         if(def.getOutputs() != null) {
           for(String output : def.getOutputs()) {
             Set<String> entry = inputs.get(output);
@@ -46,6 +54,12 @@ public class FlowDefsBuilder {
           }
         }
       }
+
+      if(!oneStdIn)
+        throw new RuntimeException("At least one stream needs to read from std input");
+
+      if(!oneStdOut)
+        throw new RuntimeException("At least one stream needs to read from std output");
 
       for(StreamDef def : getStreamList()) {
         for(FlowOp op : def.getFlowOps()) {

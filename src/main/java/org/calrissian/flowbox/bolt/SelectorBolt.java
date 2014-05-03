@@ -60,8 +60,10 @@ public class SelectorBolt extends BaseRichBolt {
                 /**
                  * If no selected tuples existed, event will not be emitted
                  */
-                if(newEvent.getTuples().size() > 0)
+                if((nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output")) {
+                  if (newEvent.getTuples().size() > 0)
                     collector.emit(nextStream, tuple, new Values(flowId, newEvent, idx, streamName));
+                }
 
                 if(nextStream.equals("output") && flow.getStream(streamName).getOutputs() != null) {
                   for (String output : flow.getStream(streamName).getOutputs()) {

@@ -51,7 +51,9 @@ public class PartitionBolt extends BaseRichBolt {
 
                 String nextStream = idx+1 < flow.getStream(streamName).getFlowOps().size() ? flow.getStream(streamName).getFlowOps().get(idx + 1).getComponentName() : "output";
                 String hash = buildKeyIndexForEvent(event, partitionOp.getFields());
-                collector.emit(nextStream, tuple, new Values(flowId, event, idx, streamName, hash));
+
+                if((nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output"))
+                  collector.emit(nextStream, tuple, new Values(flowId, event, idx, streamName, hash));
 
                 if(nextStream.equals("output") && flow.getStream(streamName).getOutputs() != null) {
                   for (String output : flow.getStream(streamName).getOutputs()) {

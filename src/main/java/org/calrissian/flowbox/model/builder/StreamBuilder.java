@@ -63,10 +63,10 @@ public class StreamBuilder {
     }
 
     public FlowDefsBuilder endStream() {
-      return endStream(null, true);
+      return endStream(true, null);
     }
 
-    public FlowDefsBuilder endStream(String[] outputs, boolean stdOutput) {
+    public FlowDefsBuilder endStream(boolean stdOutput, String... outputs) {
 
       StreamDef def = new StreamDef(name, flowOpList, stdInput, stdOutput, outputs);
       if(!def.isStdOutput() && def.getOutputs().length == 0)
@@ -76,8 +76,8 @@ public class StreamBuilder {
       return flowOpsBuilder;
     }
 
-  public FlowDefsBuilder endStream(String[] outputs) {
-    return endStream(outputs, true);
+  public FlowDefsBuilder endStream(String... outputs) {
+    return endStream(true, outputs);
   }
 
 }

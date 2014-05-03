@@ -69,7 +69,7 @@ public class FlowboxTopology {
                 .select().field("key5").end()
                 .partition().field("key5").end()
                 .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
-                .endStream()
+                .endStream(false, "stream2")   // send ALL results to stream2
                 .stream("stream2")
                     .filter().criteria(new Criteria() {
                         @Override

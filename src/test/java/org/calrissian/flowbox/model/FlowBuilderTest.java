@@ -48,7 +48,7 @@ public class FlowBuilderTest {
           .flowDefs()
           .stream("stream1")
           .select().field("name").field("age").end()
-          .endStream(null, false)
+          .endStream(false, null)
           .endDefs()
           .createFlow();
 

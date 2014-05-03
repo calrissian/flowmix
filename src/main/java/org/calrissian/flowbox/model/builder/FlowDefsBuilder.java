@@ -59,7 +59,7 @@ public class FlowDefsBuilder {
         throw new RuntimeException("At least one stream needs to read from std input");
 
       if(!oneStdOut)
-        throw new RuntimeException("At least one stream needs to read from std output");
+        throw new RuntimeException("At least one stream needs to write to std output");
 
       for(StreamDef def : getStreamList()) {
         for(FlowOp op : def.getFlowOps()) {

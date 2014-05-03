@@ -1,10 +1,13 @@
 package org.calrissian.flowbox.model.builder;
 
+import com.google.common.base.Preconditions;
 import org.calrissian.flowbox.model.FlowOp;
 import org.calrissian.flowbox.model.StreamDef;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class StreamBuilder {
 
@@ -66,8 +69,7 @@ public class StreamBuilder {
     public FlowDefsBuilder endStream(String[] outputs, boolean stdOutput) {
 
       StreamDef def = new StreamDef(name, flowOpList, stdInput, stdOutput, outputs);
-
-      if(!def.isStdOutput() && (def.getOutputs() == null || def.getOutputs().length == 0))
+      if(!def.isStdOutput() && def.getOutputs().length == 0)
         throw new RuntimeException("You must specify at least one output. Offending stream: " + name);
 
       flowOpsBuilder.addStream(def);

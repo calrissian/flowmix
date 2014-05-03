@@ -6,6 +6,7 @@ import org.calrissian.flowbox.support.aggregator.LongSumAggregator;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class FlowBuilderTest {
 
@@ -36,5 +37,85 @@ public class FlowBuilderTest {
         assertEquals("This is a test flow just to prove that we can use the builder effectively", flow.getDescription());
         assertEquals(5, flow.getStreams().iterator().next().getFlowOps().size());
         assertEquals(2, ((SelectOp) flow.getStreams().iterator().next().getFlowOps().get(1)).getFields().size());
+    }
+
+    @Test
+    public void testNoStdOutputthrowsException() {
+
+      try {
+        Flow flow = new FlowBuilder()
+          .id("myTestFlow")
+          .flowDefs()
+          .stream("stream1")
+          .select().field("name").field("age").end()
+          .endStream(null, false)
+          .endDefs()
+          .createFlow();
+
+        fail("An exception should have been thrown");
+      } catch(Exception e) {}
+    }
+
+    @Test
+    public void testNoStdInputthrowsException() {
+
+      try {
+        Flow flow = new FlowBuilder()
+          .id("myTestFlow")
+          .flowDefs()
+          .stream("stream1", false)
+          .select().field("name").field("age").end()
+          .endStream()
+          .endDefs()
+          .createFlow();
+
+        fail("An exception should have been thrown");
+      } catch(Exception e) {}
+    }
+
+    @Test
+    public void testInvalidJoin_NoLHSThrowsException() {
+
+      try {
+        Flow flow = new FlowBuilder()
+                .id("myTestFlow")
+                .flowDefs()
+                .stream("stream1", false)
+                .select().field("name").field("age").end()
+                .endStream()
+                .stream("stream2")
+                .select().field("hello").end()
+                .endStream(new String[] {"stream3"})
+                .stream("stream3")
+                .join("stream1", "stream2").end()
+                .endStream()
+                .endDefs()
+                .createFlow();
+
+        fail("An exception should have been thrown");
+      } catch(Exception e) {}
+    }
+
+    @Test
+    public void testInvalidJoin_NoRHSThrowsException() {
+
+      try {
+        Flow flow = new FlowBuilder()
+                .id("myTestFlow")
+                .flowDefs()
+                .stream("stream1", false)
+                .select().field("name").field("age").end()
+                .endStream(new String[] {"stream3"})
+                .stream("stream2")
+                .select().field("hello").end()
+                .endStream()
+                .stream("stream3")
+                .join("stream1", "stream2").end()
+                .endStream()
+                .endDefs()
+                .createFlow();
+
+        fail("An exception should have been thrown");
+      } catch(Exception e) {}
     }
 }

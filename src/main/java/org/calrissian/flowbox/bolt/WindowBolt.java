@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static org.calrissian.flowbox.Constants.FLOW_OP_IDX;
+import static org.calrissian.flowbox.Constants.LAST_STREAM;
 import static org.calrissian.flowbox.Constants.STREAM_NAME;
 
 /**
@@ -150,6 +151,7 @@ public class WindowBolt extends BaseRichBolt {
                 idx++;
 
                 String streamName = tuple.getStringByField(STREAM_NAME);
+                String lastStream = tuple.getStringByField(LAST_STREAM);
                 Flow rule = rulesMap.get(ruleId);
 
                 AggregateOp op = (AggregateOp) rule.getStream(streamName).getFlowOps().get(idx);
@@ -181,7 +183,7 @@ public class WindowBolt extends BaseRichBolt {
                     buffers.put(rule.getId(), buffersForRule);
                 }
 
-                buffer.add(event);
+                buffer.add(event, lastStream);
 
                 /**
                  * Perform count-based trigger if necessary

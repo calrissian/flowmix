@@ -10,6 +10,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.apache.commons.lang.StringUtils;
 import org.calrissian.flowbox.model.*;
+import org.calrissian.flowbox.support.AggregatedEvent;
 import org.calrissian.flowbox.support.Aggregator;
 import org.calrissian.flowbox.support.AggregatorWindow;
 
@@ -94,6 +95,7 @@ public class AggregatorBolt extends BaseRichBolt {
             int idx = tuple.getIntegerByField(FLOW_OP_IDX);
             idx++;
             String streamName = tuple.getStringByField(STREAM_NAME);
+            String previousStream = tuple.getStringByField(LAST_STREAM);
             String partition = tuple.getStringByField(PARTITION);
 
             Flow flow = flows.get(flowId);
@@ -121,7 +123,7 @@ public class AggregatorBolt extends BaseRichBolt {
                     window = buildWindow(op, streamName, idx, partition, flowId, windowCache);
                 }
 
-                window.add(event);
+                window.add(event, previousStream);
 
                 /**
                  * Perform count-based trigger if necessary
@@ -161,21 +163,23 @@ public class AggregatorBolt extends BaseRichBolt {
     }
 
     private void emitAggregate(Flow flow, AggregateOp op, String stream, int idx, AggregatorWindow window) {
-        Collection<Event> eventsToEmit = window.getAggregate();
+        Collection<AggregatedEvent> eventsToEmit = window.getAggregate();
         String nextStream = idx+1 < flow.getStream(stream).getFlowOps().size() ? flow.getStream(stream).getFlowOps().get(idx+1).getComponentName() : "output";
 
         if((nextStream.equals("output") && flow.getStream(stream).isStdOutput()) || !nextStream.equals("output")) {
-          for(Event event : eventsToEmit)
-            collector.emit(nextStream, new Values(flow.getId(), event, idx, stream, stream)); // The previous_stream field is lost when aggregation is made.
+          for(AggregatedEvent event : eventsToEmit) {
+            String previousStream = event.getPreviousStream() != null ? event.getPreviousStream() : stream;
+            collector.emit(nextStream, new Values(flow.getId(), event.getEvent(), idx, stream, previousStream));  // Note: If aggregated event isn't keeping the previous stream, it's possible it could be lost
+          }
         }
 
         // send to any other streams that are configured (aside from output)
         if(nextStream.equals("output")) {
           if(flow.getStream(stream).getOutputs() != null) {
             for(String output : flow.getStream(stream).getOutputs()) {
-              for(Event event : eventsToEmit) {
+              for(AggregatedEvent event : eventsToEmit) {
                 String outputComponent = flow.getStream(output).getFlowOps().get(0).getComponentName();
-                collector.emit(outputComponent, new Values(flow.getId(), event, -1, output, stream));
+                collector.emit(outputComponent, new Values(flow.getId(), event.getEvent(), -1, output, stream));
               }
             }
           }

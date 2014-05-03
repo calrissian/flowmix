@@ -6,8 +6,10 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Iterables;
 import org.calrissian.flowbox.model.*;
 import org.calrissian.flowbox.support.Window;
 import org.calrissian.flowbox.support.WindowItem;
@@ -15,6 +17,7 @@ import org.calrissian.flowbox.support.WindowItem;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.google.common.collect.Iterables.concat;
 import static org.calrissian.flowbox.Constants.*;
 import static org.calrissian.flowbox.FlowboxTopology.declareOutputStreams;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
@@ -169,7 +172,7 @@ public class JoinBolt extends BaseRichBolt {
                         windows.put(flow.getId() + "\0" + streamName + "\0" + idx, buffersForRule);
                     }
 
-                    buffer.add(event);
+                    buffer.add(event, previousStream);
 
                 } else if(previousStream.equals(op.getRightStream())) {
 
@@ -179,7 +182,24 @@ public class JoinBolt extends BaseRichBolt {
                         buffer = buffersForRule.getIfPresent(hash);
 
                         for(WindowItem bufferedEvent : buffer.getEvents()) {
-                            //TODO: perform combination join logic here
+                          Event joined = new Event(bufferedEvent.getEvent().getId(), bufferedEvent.getEvent().getTimestamp());
+                          // the hashcode will filter duplicates
+                          joined.putAll(concat(bufferedEvent.getEvent().getTuples().values()));
+                          joined.putAll(concat(event.getTuples().values()));
+                          String nextStream = idx+1 < flow.getStream(streamName).getFlowOps().size() ? flow.getStream(streamName).getFlowOps().get(idx+1).getComponentName() : "output";
+
+                          if((nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output"))
+                              collector.emit(nextStream, new Values(flow.getId(), event, idx, streamName, bufferedEvent.getPreviousStream()));
+
+                          // send to any other streams that are configured (aside from output)
+                          if(nextStream.equals("output")) {
+                            if(flow.getStream(streamName).getOutputs() != null) {
+                              for(String output : flow.getStream(streamName).getOutputs()) {
+                                String outputComponent = flow.getStream(output).getFlowOps().get(0).getComponentName();
+                                collector.emit(outputComponent, new Values(flow.getId(), event, -1, output, streamName));
+                              }
+                            }
+                          }
                         }
                     }
                 } else {

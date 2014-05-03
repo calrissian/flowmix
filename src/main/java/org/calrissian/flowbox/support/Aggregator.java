@@ -27,5 +27,5 @@ public interface Aggregator extends Serializable {
 
   void evicted(WindowItem item);
 
-  List<Event> aggregate();
+  List<AggregatedEvent> aggregate();
 }

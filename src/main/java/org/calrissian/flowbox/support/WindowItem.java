@@ -6,10 +6,12 @@ import org.calrissian.flowbox.model.Event;
 public class WindowItem {
     Event event;
     long timestamp;
+    String previousStream;
 
-    public WindowItem(Event event, long timestamp) {
+    public WindowItem(Event event, long timestamp, String previousStream) {
         this.event = event;
         this.timestamp = timestamp;
+        this.previousStream = previousStream;
     }
 
     public Event getEvent() {
@@ -18,6 +20,10 @@ public class WindowItem {
 
     public long getTimestamp() {
         return timestamp;
+    }
+
+    public String getPreviousStream() {
+      return previousStream;
     }
 
     @Override

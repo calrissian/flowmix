@@ -19,8 +19,8 @@ public class AggregatorWindow extends Window{
     }
 
     @Override
-    public WindowItem add(Event event) {
-        WindowItem item = super.add(event);
+    public WindowItem add(Event event, String previousStream) {
+        WindowItem item = super.add(event, previousStream);
         aggregator.added(item);
         return item;
     }
@@ -38,7 +38,7 @@ public class AggregatorWindow extends Window{
         expire();
     }
 
-    public Collection<Event> getAggregate() {
+    public Collection<AggregatedEvent> getAggregate() {
         return aggregator.aggregate();
     }
 }

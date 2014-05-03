@@ -3,6 +3,7 @@ package org.calrissian.flowbox.support.aggregator;
 import org.apache.commons.lang.StringUtils;
 import org.calrissian.flowbox.model.Event;
 import org.calrissian.flowbox.model.Tuple;
+import org.calrissian.flowbox.support.AggregatedEvent;
 import org.calrissian.flowbox.support.Aggregator;
 import org.calrissian.flowbox.support.WindowItem;
 
@@ -62,7 +63,7 @@ public class LongSumAggregator implements Aggregator {
     }
 
     @Override
-    public List<Event> aggregate() {
+    public List<AggregatedEvent> aggregate() {
       Event event = new Event(randomUUID().toString(), currentTimeMillis());
       if(groupedValues != null && groupByFields != null) {
         for(Set<Tuple> tuples : groupedValues.values())
@@ -70,6 +71,6 @@ public class LongSumAggregator implements Aggregator {
       }
 
       event.put(new Tuple(outputField, sum));
-      return Collections.singletonList(event);
+      return Collections.singletonList(new AggregatedEvent(event));
     }
 }

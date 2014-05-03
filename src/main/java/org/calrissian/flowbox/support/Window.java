@@ -33,8 +33,8 @@ public class Window {
         this.groupedIndex = groupedIndex;
     }
 
-    public WindowItem add(Event event) {
-        WindowItem item = new WindowItem(event, currentTimeMillis());
+    public WindowItem add(Event event, String previousStream) {
+        WindowItem item = new WindowItem(event, currentTimeMillis(), previousStream);
         events.add(item);
         return item;
     }

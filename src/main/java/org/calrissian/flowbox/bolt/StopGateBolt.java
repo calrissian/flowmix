@@ -218,7 +218,7 @@ public class StopGateBolt extends BaseRichBolt {
                 }
 
                 if(!buffer.isStopped()) {
-                    buffer.add(event);
+                    buffer.add(event, previousStream);
                     String nextStream = idx+1 < flow.getStream(streamName).getFlowOps().size() ? flow.getStream(streamName).getFlowOps().get(idx + 1).getComponentName() : "output";
 
                     if((nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output"))

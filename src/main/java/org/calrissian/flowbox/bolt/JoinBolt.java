@@ -134,12 +134,13 @@ public class JoinBolt extends BaseRichBolt {
                 idx++;
 
                 String streamName = tuple.getStringByField(STREAM_NAME);
+                String previousStream = tuple.getStringByField(LAST_STREAM);
                 Flow flow = rulesMap.get(ruleId);
 
                 JoinOp op = (JoinOp) flow.getStream(streamName).getFlowOps().get(idx);
 
                 // do processing on lhs
-                if(streamName.equals(op.getLeftStream())) {
+                if(previousStream.equals(op.getLeftStream())) {
 
                     Cache<String, Window> buffersForRule = windows.get(flow.getId() + "\0" + streamName + "\0" + idx);
                     Window buffer;
@@ -170,7 +171,7 @@ public class JoinBolt extends BaseRichBolt {
 
                     buffer.add(event);
 
-                } else if(streamName.equals(op.getRightStream())) {
+                } else if(previousStream.equals(op.getRightStream())) {
 
                     Cache<String, Window> buffersForRule = windows.get(flow.getId() + "\0" + streamName + "\0" + idx);
                     Window buffer;
@@ -180,7 +181,6 @@ public class JoinBolt extends BaseRichBolt {
                         for(WindowItem bufferedEvent : buffer.getEvents()) {
                             //TODO: perform combination join logic here
                         }
-
                     }
                 } else {
                     throw new RuntimeException("Received event for stream that does not match the join. Flowbox has been miswired.");

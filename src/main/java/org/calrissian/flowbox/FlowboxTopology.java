@@ -148,7 +148,7 @@ public class FlowboxTopology {
     }
 
     public static void declareOutputStreams(OutputFieldsDeclarer declarer) {
-        Fields fields = new Fields(FLOW_ID, EVENT, FLOW_OP_IDX, STREAM_NAME);
+        Fields fields = new Fields(FLOW_ID, EVENT, FLOW_OP_IDX, STREAM_NAME, LAST_STREAM);
         declarer.declareStream(PARTITION, fields);
         declarer.declareStream(FILTER, fields);
         declarer.declareStream(SELECT, fields);
@@ -160,7 +160,7 @@ public class FlowboxTopology {
     }
 
     public static void declarePartitionedOutputStreams(OutputFieldsDeclarer declarer) {
-        Fields fields = new Fields(FLOW_ID, EVENT, FLOW_OP_IDX, STREAM_NAME, PARTITION);
+        Fields fields = new Fields(FLOW_ID, EVENT, FLOW_OP_IDX, STREAM_NAME, PARTITION, LAST_STREAM);
         declarer.declareStream(PARTITION, fields);
         declarer.declareStream(FILTER, fields);
         declarer.declareStream(SELECT, fields);

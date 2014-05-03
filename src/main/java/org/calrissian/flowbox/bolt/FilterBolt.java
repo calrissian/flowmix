@@ -42,6 +42,7 @@ public class FilterBolt extends BaseRichBolt {
             int idx = tuple.getIntegerByField(FLOW_OP_IDX);
             idx++;
             String streamName = tuple.getStringByField(STREAM_NAME);
+            String previousStream = tuple.getStringByField(LAST_STREAM);
 
             Flow flow = flows.get(flowId);
 
@@ -53,19 +54,20 @@ public class FilterBolt extends BaseRichBolt {
                 if(filterOp.getCriteria().matches(event)) {
 
                   if((nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output"))
-                    collector.emit(nextStream, tuple, new Values(flowId, event, idx, streamName));
+                    collector.emit(nextStream, tuple, new Values(flowId, event, idx, streamName, previousStream));
 
+                  // send directly to any non standard output streams that may be configured
                   if(nextStream.equals("output") && flow.getStream(streamName).getOutputs() != null) {
                     for (String output : flow.getStream(streamName).getOutputs()) {
                       String outputStream = flow.getStream(output).getFlowOps().get(0).getComponentName();
-                      collector.emit(outputStream, tuple, new Values(flowId, event, -1, output));
+                      collector.emit(outputStream, tuple, new Values(flowId, event, -1, output, streamName));
                     }
                   }
                 }
             }
-
-            collector.ack(tuple);
         }
+
+      collector.ack(tuple);
     }
 
     @Override

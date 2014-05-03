@@ -134,6 +134,8 @@ public class AggregatorBolt extends BaseRichBolt {
                 }
             }
         }
+
+      collector.ack(tuple);
     }
 
     private AggregatorWindow buildWindow(AggregateOp op, String stream, int idx, String hash, String flowId, Cache<String, AggregatorWindow> windowCache) {
@@ -164,15 +166,16 @@ public class AggregatorBolt extends BaseRichBolt {
 
         if((nextStream.equals("output") && flow.getStream(stream).isStdOutput()) || !nextStream.equals("output")) {
           for(Event event : eventsToEmit)
-            collector.emit(nextStream, new Values(flow.getId(), event, idx, stream));
+            collector.emit(nextStream, new Values(flow.getId(), event, idx, stream, stream)); // The previous_stream field is lost when aggregation is made.
         }
 
+        // send to any other streams that are configured (aside from output)
         if(nextStream.equals("output")) {
           if(flow.getStream(stream).getOutputs() != null) {
             for(String output : flow.getStream(stream).getOutputs()) {
               for(Event event : eventsToEmit) {
                 String outputComponent = flow.getStream(output).getFlowOps().get(0).getComponentName();
-                collector.emit(outputComponent, new Values(flow.getId(), event, -1, output));
+                collector.emit(outputComponent, new Values(flow.getId(), event, -1, output, stream));
               }
             }
           }

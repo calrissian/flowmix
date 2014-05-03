@@ -39,6 +39,7 @@ public class SelectorBolt extends BaseRichBolt {
             Event event = (Event) tuple.getValueByField(EVENT);
             int idx = tuple.getIntegerByField(FLOW_OP_IDX);
             String streamName = tuple.getStringByField(STREAM_NAME);
+            String previousStream = tuple.getStringByField(LAST_STREAM);
             idx++;
 
             Flow flow = flows.get(flowId);
@@ -62,20 +63,20 @@ public class SelectorBolt extends BaseRichBolt {
                  */
                 if((nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output")) {
                   if (newEvent.getTuples().size() > 0)
-                    collector.emit(nextStream, tuple, new Values(flowId, newEvent, idx, streamName));
+                    collector.emit(nextStream, tuple, new Values(flowId, newEvent, idx, streamName, previousStream));
                 }
 
+                // send directly to any non std output streams
                 if(nextStream.equals("output") && flow.getStream(streamName).getOutputs() != null) {
                   for (String output : flow.getStream(streamName).getOutputs()) {
                     String outputStream = flow.getStream(output).getFlowOps().get(0).getComponentName();
-                    collector.emit(outputStream, tuple, new Values(flowId, event, -1, output));
+                    collector.emit(outputStream, tuple, new Values(flowId, event, -1, output, streamName));
                   }
                 }
 
             }
-
-            collector.ack(tuple);
         }
+      collector.ack(tuple);
     }
 
     @Override

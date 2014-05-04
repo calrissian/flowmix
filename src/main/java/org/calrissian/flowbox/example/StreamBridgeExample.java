@@ -52,7 +52,7 @@ public class StreamBridgeExample implements FlowProvider {
           .partition().field("key5").end()
           .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
         .endStream(false, "stream2")   // send ALL results to stream2 and not to standard output
-        .stream("stream2")            
+        .stream("stream2")
           .filter().criteria(new Criteria() {
               @Override
               public boolean matches(Event event) {

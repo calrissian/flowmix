@@ -174,7 +174,6 @@ public class StopGateBolt extends BaseRichBolt {
                             }
                         }
                     }
-
                 } else {
                     buffersForRule = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).build(); // just in case we get some rogue data, we don't wan ti to sit for too long.
                     buffer = op.getEvictionPolicy() == Policy.TIME ? new StopGateWindow(hash) :
@@ -209,8 +208,7 @@ public class StopGateBolt extends BaseRichBolt {
                     }
 
                     if(op.getActivationPolicy() == Policy.TIME_DELTA_LT && buffer.timeRange() > -1 && buffer.timeRange() <= op.getActivationThreshold() * 1000) {
-                        if(op.getEvictionPolicy() == Policy.COUNT && buffer.size() == op.getEvictionThreshold() ||
-                                op.getEvictionPolicy() != Policy.COUNT) {
+                        if((op.getEvictionPolicy() == Policy.COUNT && buffer.size() == op.getEvictionThreshold()) || op.getEvictionPolicy() != Policy.COUNT) {
                             buffer.setStopped(true);
                             buffer.clear();
                         }

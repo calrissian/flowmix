@@ -84,8 +84,7 @@ public class Window {
      * Used for count-based expiration
      */
     public WindowItem expire() {
-        WindowItem item = events.removeLast();
-        return item;
+        return events.removeLast();
     }
 
     public static String buildKeyIndexForEvent(Event event, List<String> groupBy) {

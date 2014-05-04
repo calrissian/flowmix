@@ -180,13 +180,6 @@ public class StopGateBolt extends BaseRichBolt {
                              */
                             if(op.getEvictionPolicy() == Policy.TIME)
                                 buffer.timeEvict(op.getEvictionThreshold());
-                            /**
-                             * Perform count-based eviction if necessary
-                             */
-                            else if (op.getEvictionPolicy() == Policy.COUNT) {
-                                if (buffer.size() == op.getEvictionThreshold())
-                                    buffer.expire();
-                            }
                         }
                     }
                 } else {

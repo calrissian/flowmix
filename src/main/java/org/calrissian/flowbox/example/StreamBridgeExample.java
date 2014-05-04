@@ -30,8 +30,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 /**
  * An example showing how a stream can output directly to another stream without sending its output events to the
- * standard output component. This essentially leads to streams feeding into other streams, effectively providing
- * a starting point for joining data.
+ * standard output component (stream bridging). This essentially leads to streams feeding directly into other
+ * streams, allowing for things like joins.
  */
 public class StreamBridgeExample implements FlowProvider {
 

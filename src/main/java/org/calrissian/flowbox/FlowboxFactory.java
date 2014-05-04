@@ -87,9 +87,6 @@ public class FlowboxFactory {
       return builder;
   }
 
-  public FlowboxFactory() {
-  }
-
   private static void declarebolt(TopologyBuilder builder, String boltName, IRichBolt bolt, int parallelism) {
       builder.setBolt(boltName, bolt, parallelism)
           .allGrouping(FLOW_LOADER_STREAM, FLOW_LOADER_STREAM)

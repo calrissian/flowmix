@@ -22,24 +22,22 @@ import org.calrissian.flowbox.model.Flow;
 import org.calrissian.flowbox.model.Policy;
 import org.calrissian.flowbox.model.builder.FlowBuilder;
 import org.calrissian.flowbox.support.Criteria;
-import org.calrissian.flowbox.support.Function;
 
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 /**
- * An example showing how a stream can output directly to another stream without sending its output events to the
- * standard output component (stream bridging). This essentially leads to streams feeding directly into other
- * streams, allowing for things like joins.
+ * An example showing how the StopGate flow op works. Conceptually this can be thought of as a governor, where,
+ * untill a particular condition is met, events flow freely through it. However, when an activation condition is
+ * triggered, the gate closes and all events are dropped. When an open condition is met, the gate is lifted and
+ * events can pass through once again
  */
-public class StreamBridgeExample implements FlowProvider {
+public class StopGateExample implements FlowProvider {
 
   @Override
   public List<Flow> getFlows() {
     Flow flow = new FlowBuilder()
-
-      .id("flow")
+      .id("flow1")
       .flowDefs()
         .stream("stream1")
           .filter().criteria(new Criteria() {
@@ -48,21 +46,9 @@ public class StreamBridgeExample implements FlowProvider {
                 return true;
               }
             }).end()
-        .endStream(false, "stream2")   // send ALL results to stream2 and not to standard output
-        .stream("stream2", false)      // don't read any events from standard input
-          .filter().criteria(new Criteria() {
-              @Override
-              public boolean matches(Event event) {
-                return true;
-              }
-            }).end()
-          .select().field("key4").end()
-          .each().function(new Function() {
-            @Override
-            public List<Event> execute(Event event) {
-              return singletonList(event);
-            }
-          }).end()
+          .select().field("key3").end()
+          .partition().field("key3").end()
+          .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
         .endStream()
       .endDefs()
     .createFlow();
@@ -71,6 +57,6 @@ public class StreamBridgeExample implements FlowProvider {
   }
 
   public static void main(String args[]) {
-    new ExampleRunner(new StreamBridgeExample()).run();
+    new ExampleRunner(new StopGateExample()).run();
   }
 }

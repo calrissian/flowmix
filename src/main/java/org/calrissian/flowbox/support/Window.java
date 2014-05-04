@@ -101,6 +101,12 @@ public class Window {
         return events.size();
     }
 
+    /**
+     * Used for count-based expiration
+     */
+    public WindowItem expire() {
+        return events.removeLast();
+    }
 
     public static String buildKeyIndexForEvent(Event event, List<String> groupBy) {
         StringBuffer stringBuffer = new StringBuffer();

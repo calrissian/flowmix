@@ -53,16 +53,24 @@ Flow flow = new FlowBuilder()
 .createFlow();
 ```
 
-##Running the simulation: 
-For now, simple flow simulation can be run in your IDE by executing the main() method in the org.calrissian.flowbot.FlowbotTopology class. This will, by default, fire up a local storm cluster and print a message to the screen each time a tuple makes its way to the output (traversing the whole flow). The constructor argument to the MockEventGeneratorSpout is the delay, in milliseconds, between each event generated. Multiple flows can be passed into the MockFlowLoaderSpout to show its ability to process multiple flows in parallel.
-
-##What is it?
+##Events
 This engine works on very weakly structured objects called Events. An event, by default, only has to have an id and a timestamp. All other state is set through adding tuples, which are key/value objects. The object looks like this:
 
 ```java
 Event event = new Event("id", System.currentTimeMillis());
 event.put(new Tuple("key1", "val1"));
 ```
+
+##Examples: 
+
+Examples are provided in the org.calrissian.flowbox.examples package. These examples with fire up a local Apache Storm cluster and print the events received on the standard output component to the console. Each of the classes in the base examples package have main() methods that can be executed directly to run the example. You can run the examples with the following:
+
+```java
+java -cp flowbox-<version>.jar org.calrissian.flowbox.examples.StreamBridgeExample 
+```
+
+Check the documentation of each example to find out more about the features they are exemplifying.
+
 
 
 

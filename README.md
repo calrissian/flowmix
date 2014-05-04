@@ -20,7 +20,16 @@ Another problem encountered with Trident is that it does not make temporal opera
 
 ##Concepts:
 
-### What is a flow?
+###What are events?
+This engine works on very weakly structured objects called Events. An event, by default, only has to have an id and a timestamp. All other state is set through adding tuples, which are key/value objects. The object looks like this:
+
+```java
+Event event = new Event("id", System.currentTimeMillis());
+event.put(new Tuple("key1", "val1"));
+```
+
+
+###What is a flow?
 A flow is a processing pipeline that defines how to manipulate a set of data streams. A flow runs in parallel, processing as many streams as possible at the same time. Flows also define algorithms that use windowing, partitions, and aggregations to manage the data so that analytics and alerting can be orchestrated easily. 
 
 ###How are flows defined?
@@ -51,14 +60,6 @@ Flow flow = new FlowBuilder()
         .endStream()
     .endDefs()
 .createFlow();
-```
-
-##Events
-This engine works on very weakly structured objects called Events. An event, by default, only has to have an id and a timestamp. All other state is set through adding tuples, which are key/value objects. The object looks like this:
-
-```java
-Event event = new Event("id", System.currentTimeMillis());
-event.put(new Tuple("key1", "val1"));
 ```
 
 ##Examples: 

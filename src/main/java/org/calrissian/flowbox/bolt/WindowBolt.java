@@ -182,13 +182,6 @@ public class WindowBolt extends BaseRichBolt {
                          */
                         if(op.getEvictionPolicy() == Policy.TIME)
                             buffer.timeEvict(op.getEvictionThreshold());
-                        /**
-                         * Perform count-based eviction if necessary
-                         */
-                        else if (op.getEvictionPolicy() == Policy.COUNT) {
-                            if (buffer.size() == op.getEvictionThreshold())
-                                buffer.expire();
-                        }
                     }
                 } else {
                     buffersForRule = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).build(); // just in case we get some rogue data, we don't wan ti to sit for too long.

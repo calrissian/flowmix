@@ -21,7 +21,11 @@ public class LimitingDeque<E> extends LinkedBlockingDeque<E> {
 
     private long maxSize;
 
-    public LimitingDeque(long maxSize) {
+    protected long getMaxSize() {
+      return maxSize;
+    }
+
+  public LimitingDeque(long maxSize) {
         this.maxSize = maxSize;
     }
 

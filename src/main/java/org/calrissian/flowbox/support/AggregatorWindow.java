@@ -24,8 +24,9 @@ public class AggregatorWindow extends Window{
     private Aggregator aggregator;
 
     public AggregatorWindow(Aggregator aggregator, String groupedIndex, long size) {
-        super(groupedIndex, size);
-        this.aggregator = aggregator;
+      events = new AggregatorLimitingDeque(size, aggregator);
+      this.groupedIndex = groupedIndex;
+      this.aggregator = aggregator;
     }
 
     public AggregatorWindow(Aggregator aggregator, String groupedIndex) {

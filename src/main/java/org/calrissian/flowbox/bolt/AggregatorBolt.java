@@ -133,7 +133,7 @@ public class AggregatorBolt extends BaseRichBolt {
                         buildWindow(op, streamName, idx, partition, flowId, windowCache);
                     }
                 } else {
-                    windowCache = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).build(); // just in case we get some rogue data we should make sure it gets cleaned up.
+                    windowCache = CacheBuilder.newBuilder().expireAfterWrite(60, TimeUnit.MINUTES).expireAfterAccess(60, TimeUnit.MINUTES).build(); // just in case we get some rogue data we should make sure it gets cleaned up.
                     window = buildWindow(op, streamName, idx, partition, flowId, windowCache);
                 }
 

@@ -1,4 +1,4 @@
-package org.calrissian.flowbox.example;
+package org.calrissian.flowbox.example.support;
 
 
 import org.calrissian.flowbox.model.Flow;

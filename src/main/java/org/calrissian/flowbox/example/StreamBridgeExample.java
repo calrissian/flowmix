@@ -1,5 +1,7 @@
 package org.calrissian.flowbox.example;
 
+import org.calrissian.flowbox.example.support.ExampleRunner;
+import org.calrissian.flowbox.example.support.FlowProvider;
 import org.calrissian.flowbox.model.Event;
 import org.calrissian.flowbox.model.Flow;
 import org.calrissian.flowbox.model.Policy;
@@ -12,7 +14,7 @@ import java.util.List;
 
 import static java.util.Collections.singletonList;
 
-public class StreamExportExample implements FlowProvider {
+public class StreamBridgeExample implements FlowProvider {
 
   @Override
   public List<Flow> getFlows() {
@@ -70,6 +72,6 @@ public class StreamExportExample implements FlowProvider {
   }
 
   public static void main(String args[]) {
-    new ExampleRunner(new StreamExportExample()).run();
+    new ExampleRunner(new StreamBridgeExample()).run();
   }
 }

@@ -1,4 +1,4 @@
-package org.calrissian.flowbox.example;
+package org.calrissian.flowbox.example.support;
 
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;

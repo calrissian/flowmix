@@ -196,14 +196,14 @@ public class JoinBolt extends BaseRichBolt {
                           String nextStream = idx+1 < flow.getStream(streamName).getFlowOps().size() ? flow.getStream(streamName).getFlowOps().get(idx+1).getComponentName() : "output";
 
                           if((nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output"))
-                              collector.emit(nextStream, new Values(flow.getId(), event, idx, streamName, bufferedEvent.getPreviousStream()));
+                              collector.emit(nextStream, new Values(flow.getId(), joined, idx, streamName, bufferedEvent.getPreviousStream()));
 
                           // send to any other streams that are configured (aside from output)
                           if(nextStream.equals("output")) {
                             if(flow.getStream(streamName).getOutputs() != null) {
                               for(String output : flow.getStream(streamName).getOutputs()) {
                                 String outputComponent = flow.getStream(output).getFlowOps().get(0).getComponentName();
-                                collector.emit(outputComponent, new Values(flow.getId(), event, -1, output, streamName));
+                                collector.emit(outputComponent, new Values(flow.getId(), joined, -1, output, streamName));
                               }
                             }
                           }

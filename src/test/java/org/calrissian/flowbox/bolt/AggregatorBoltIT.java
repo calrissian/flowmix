@@ -3,7 +3,7 @@ package org.calrissian.flowbox.bolt;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
-import org.calrissian.flowbox.FlowboxTopologyFactory;
+import org.calrissian.flowbox.FlowboxFactory;
 import org.calrissian.flowbox.model.Event;
 import org.calrissian.flowbox.model.Flow;
 import org.calrissian.flowbox.model.Policy;
@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 public class AggregatorBoltIT {
 
     private StormTopology buildTopology(Flow flow) {
-        StormTopology topology = new FlowboxTopologyFactory().createFlowbox(
+        StormTopology topology = new FlowboxFactory().createFlowbox(
                 new MockFlowLoaderSpout(singletonList(flow), 60000),
                 new MockEventGeneratorSpout(10),
                 new MockSinkBolt(),

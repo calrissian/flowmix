@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.apache.commons.lang.StringUtils.join;
 import static org.calrissian.flowbox.Constants.*;
-import static org.calrissian.flowbox.FlowboxTopologyFactory.declareOutputStreams;
+import static org.calrissian.flowbox.FlowboxFactory.declareOutputStreams;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 import static org.calrissian.flowbox.support.Aggregator.GROUP_BY;
 import static org.calrissian.flowbox.support.Aggregator.GROUP_BY_DELIM;

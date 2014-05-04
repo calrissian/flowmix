@@ -18,7 +18,7 @@ import static org.calrissian.flowbox.model.SelectOp.SELECT;
 import static org.calrissian.flowbox.model.StopGateOp.STOP_GATE;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
-public class FlowboxTopologyFactory {
+public class FlowboxFactory {
 
   /**
    * Builds the base flowbox topology configuration. The topology builder is returned so that it can be further
@@ -56,7 +56,7 @@ public class FlowboxTopologyFactory {
         return builder;
     }
 
-    public FlowboxTopologyFactory() {
+    public FlowboxFactory() {
     }
 
     private static void declarebolt(TopologyBuilder builder, String boltName, IRichBolt bolt, int parallelism) {

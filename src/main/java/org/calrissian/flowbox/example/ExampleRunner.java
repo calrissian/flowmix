@@ -3,7 +3,7 @@ package org.calrissian.flowbox.example;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
-import org.calrissian.flowbox.FlowboxTopologyFactory;
+import org.calrissian.flowbox.FlowboxFactory;
 import org.calrissian.flowbox.bolt.PrinterBolt;
 import org.calrissian.flowbox.model.Event;
 import org.calrissian.flowbox.model.kryo.EventSerializer;
@@ -20,7 +20,7 @@ public class ExampleRunner {
 
   public void run() {
 
-    StormTopology topology = new FlowboxTopologyFactory().createFlowbox(
+    StormTopology topology = new FlowboxFactory().createFlowbox(
             new MockFlowLoaderSpout(provider.getFlows(), 60000),
             new MockEventGeneratorSpout(10),
             new PrinterBolt(), 6).createTopology();

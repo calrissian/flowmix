@@ -26,7 +26,7 @@ public class AggregatorExample implements FlowProvider {
            * Every 5 seconds, emit the counts of events grouped by the key3 field. Don't allow more than 50000
            * items to exist in the window at any point in time (maxCount = 50000)
            */
-          .partition().field("key3").end()
+          .partition().field("key3").end()  // remove this to get the total number of events
           .aggregate().aggregator(CountAggregator.class).evict(Policy.COUNT, 50000).trigger(Policy.TIME, 5).end()
         .endStream()
       .endDefs()

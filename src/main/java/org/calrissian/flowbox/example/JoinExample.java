@@ -15,14 +15,18 @@
  */
 package org.calrissian.flowbox.example;
 
+import com.google.common.collect.Iterables;
 import org.calrissian.flowbox.example.support.ExampleRunner;
 import org.calrissian.flowbox.example.support.FlowProvider;
 import org.calrissian.flowbox.model.Event;
 import org.calrissian.flowbox.model.Flow;
+import org.calrissian.flowbox.model.Policy;
+import org.calrissian.flowbox.model.Tuple;
 import org.calrissian.flowbox.model.builder.FlowBuilder;
 import org.calrissian.flowbox.support.Criteria;
 import org.calrissian.flowbox.support.Function;
 
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -32,36 +36,37 @@ import static java.util.Collections.singletonList;
  * standard output component (stream bridging). This essentially leads to streams feeding directly into other
  * streams, allowing for things like joins.
  */
-public class StreamBridgeExample implements FlowProvider {
+public class JoinExample implements FlowProvider {
 
   @Override
   public List<Flow> getFlows() {
     Flow flow = new FlowBuilder()
-
       .id("flow")
       .flowDefs()
         .stream("stream1")
-          .filter().criteria(new Criteria() {
+            .each().function(new Function() {
               @Override
-              public boolean matches(Event event) {
-                return true;
+              public List<Event> execute(Event event) {
+                Event newEvent = new Event(event.getId(), event.getTimestamp());
+                newEvent.putAll(Iterables.concat(event.getTuples().values()));
+                newEvent.put(new Tuple("stream", "stream1"));
+                return singletonList(newEvent);
               }
             }).end()
-        .endStream(false, "stream2")   // send ALL results to stream2 and not to standard output
-        .stream("stream2", false)      // don't read any events from standard input
-          .filter().criteria(new Criteria() {
-              @Override
-              public boolean matches(Event event) {
-                return true;
-              }
-            }).end()
-          .select().field("key4").end()
+        .endStream(false, "stream3")   // send ALL results to stream2 and not to standard output
+        .stream("stream2")      // don't read any events from standard input
           .each().function(new Function() {
             @Override
             public List<Event> execute(Event event) {
-              return singletonList(event);
+              Event newEvent = new Event(event.getId(), event.getTimestamp());
+              newEvent.putAll(Iterables.concat(event.getTuples().values()));
+              newEvent.put(new Tuple("stream", "stream2"));
+              return singletonList(newEvent);
             }
           }).end()
+        .endStream(false, "stream3")
+        .stream("stream3", false)
+            .join("stream1", "stream2").evict(Policy.TIME, 5).end()
         .endStream()
       .endDefs()
     .createFlow();
@@ -70,6 +75,6 @@ public class StreamBridgeExample implements FlowProvider {
   }
 
   public static void main(String args[]) {
-    new ExampleRunner(new StreamBridgeExample()).run();
+    new ExampleRunner(new JoinExample()).run();
   }
 }

@@ -71,24 +71,24 @@ public class EachBolt extends BaseRichBolt {
                 List<Event> events = functionOp.getFunction().execute(event);
 
                 if((nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output")) {
-                  if(events != null) {
+                  if (events != null) {
                     for (Event newEvent : events)
                       collector.emit(nextStream, tuple, new Values(flowId, newEvent, idx, streamName, previousStream));
+                  }
+                }
 
-                    // send directly to any non std output streams that may be configured
-                    if (nextStream.equals("output") && flow.getStream(streamName).getOutputs() != null) {
-                      for (String output : flow.getStream(streamName).getOutputs()) {
-                        if (events != null) {
-                          for (Event newEvent : events) {
-                            String outputStream = flow.getStream(output).getFlowOps().get(0).getComponentName();
-                            collector.emit(outputStream, tuple, new Values(flowId, newEvent, -1, output, streamName));
-                          }
-                        }
+                // send directly to any non std output streams that may be configured
+                if (nextStream.equals("output") && flow.getStream(streamName).getOutputs() != null) {
+                  for (String output : flow.getStream(streamName).getOutputs()) {
+                    if (events != null) {
+                      for (Event newEvent : events) {
+                        String outputStream = flow.getStream(output).getFlowOps().get(0).getComponentName();
+                        collector.emit(outputStream, tuple, new Values(flowId, newEvent, -1, output, streamName));
                       }
                     }
                   }
                 }
-            }
+              }
         }
 
       collector.ack(tuple);

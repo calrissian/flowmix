@@ -9,17 +9,21 @@ import org.calrissian.flowbox.model.builder.FlowBuilder;
 import org.calrissian.flowbox.support.Criteria;
 import org.calrissian.flowbox.support.Function;
 
-import java.util.Arrays;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-
+/**
+ * An example showing how a stream can output directly to another stream without sending its output events to the
+ * standard output component. This essentially leads to streams feeding into other streams, effectively providing
+ * a starting point for joining data.
+ */
 public class StreamBridgeExample implements FlowProvider {
 
   @Override
   public List<Flow> getFlows() {
     Flow flow = new FlowBuilder()
-      .id("myFlowId")
+      .id("flow1")
       .flowDefs()
         .stream("stream1")
           .filter().criteria(new Criteria() {
@@ -36,7 +40,7 @@ public class StreamBridgeExample implements FlowProvider {
     .createFlow();
 
     Flow flow2 = new FlowBuilder()
-      .id("myFlowId2")
+      .id("flow2")
       .flowDefs()
         .stream("stream1")
           .filter().criteria(new Criteria() {
@@ -47,8 +51,8 @@ public class StreamBridgeExample implements FlowProvider {
             }).end()
           .partition().field("key5").end()
           .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
-        .endStream(false, "stream2")   // send ALL results to stream2
-        .stream("stream2")
+        .endStream(false, "stream2")   // send ALL results to stream2 and not to standard output
+        .stream("stream2")            
           .filter().criteria(new Criteria() {
               @Override
               public boolean matches(Event event) {
@@ -68,7 +72,7 @@ public class StreamBridgeExample implements FlowProvider {
       .endDefs()
     .createFlow();
 
-    return Arrays.asList(new Flow[] { flow, flow2});
+    return asList(new Flow[]{flow, flow2});
   }
 
   public static void main(String args[]) {

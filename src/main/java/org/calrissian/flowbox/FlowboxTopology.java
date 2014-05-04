@@ -66,7 +66,6 @@ public class FlowboxTopology {
                             return true;
                         }
                     }).end()
-                .select().field("key5").end()
                 .partition().field("key5").end()
                 .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
                 .endStream(false, "stream2")   // send ALL results to stream2

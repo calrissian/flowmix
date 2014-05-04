@@ -35,14 +35,15 @@ public class SelectorBolt extends BaseRichBolt {
             for(Flow flow : (Collection<Flow>)tuple.getValue(0))
                 flows.put(flow.getId(), flow);
         } else if(!"tick".equals(tuple.getSourceStreamId())) {
-            String flowId = tuple.getStringByField(FLOW_ID);
-            Event event = (Event) tuple.getValueByField(EVENT);
-            int idx = tuple.getIntegerByField(FLOW_OP_IDX);
-            String streamName = tuple.getStringByField(STREAM_NAME);
-            String previousStream = tuple.getStringByField(LAST_STREAM);
-            idx++;
+          String flowId = tuple.getStringByField(FLOW_ID);
+          Event event = (Event) tuple.getValueByField(EVENT);
+          int idx = tuple.getIntegerByField(FLOW_OP_IDX);
+          String streamName = tuple.getStringByField(STREAM_NAME);
+          String previousStream = tuple.getStringByField(LAST_STREAM);
+          idx++;
 
-            Flow flow = flows.get(flowId);
+
+          Flow flow = flows.get(flowId);
 
             if (flow != null) {
                 SelectOp selectOp = (SelectOp) flow.getStream(streamName).getFlowOps().get(idx);

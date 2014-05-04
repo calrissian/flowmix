@@ -20,10 +20,12 @@ public class ExampleRunner {
 
   public void run() {
 
-    StormTopology topology = new FlowboxFactory().createFlowbox(
-            new MockFlowLoaderSpout(provider.getFlows(), 60000),
-            new MockEventGeneratorSpout(10),
-            new PrinterBolt(), 6).createTopology();
+    StormTopology topology = new FlowboxFactory(
+        new MockFlowLoaderSpout(provider.getFlows(), 60000),
+        new MockEventGeneratorSpout(10),
+        new PrinterBolt(), 6)
+      .createFlowbox()
+    .createTopology();
 
     Config conf = new Config();
     conf.setNumWorkers(20);
@@ -33,7 +35,6 @@ public class ExampleRunner {
     conf.setSkipMissingKryoRegistrations(false);
 
     LocalCluster cluster = new LocalCluster();
-    cluster.submitTopology("mytopology", conf, topology);
-
+    cluster.submitTopology("example-topology", conf, topology);
   }
 }

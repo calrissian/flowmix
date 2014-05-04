@@ -22,13 +22,15 @@ import static org.junit.Assert.assertTrue;
 public class AggregatorBoltIT {
 
     private StormTopology buildTopology(Flow flow) {
-        StormTopology topology = new FlowboxFactory().createFlowbox(
-                new MockFlowLoaderSpout(singletonList(flow), 60000),
-                new MockEventGeneratorSpout(10),
-                new MockSinkBolt(),
-                6).createTopology();
+      StormTopology topology = new FlowboxFactory(
+          new MockFlowLoaderSpout(singletonList(flow), 60000),
+          new MockEventGeneratorSpout(10),
+          new MockSinkBolt(),
+          6)
+        .createFlowbox()
+      .createTopology();
 
-        return topology;
+      return topology;
     }
 
     @Test

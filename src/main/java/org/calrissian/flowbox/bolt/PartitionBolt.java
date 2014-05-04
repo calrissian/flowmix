@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.calrissian.flowbox.Constants.*;
-import static org.calrissian.flowbox.FlowboxTopology.declarePartitionedOutputStreams;
+import static org.calrissian.flowbox.FlowboxTopologyFactory.declarePartitionedOutputStreams;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 import static org.calrissian.flowbox.support.Window.buildKeyIndexForEvent;
 

@@ -9,7 +9,6 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.collect.Iterables;
 import org.calrissian.flowbox.model.*;
 import org.calrissian.flowbox.support.Window;
 import org.calrissian.flowbox.support.WindowItem;
@@ -19,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.Iterables.concat;
 import static org.calrissian.flowbox.Constants.*;
-import static org.calrissian.flowbox.FlowboxTopology.declareOutputStreams;
+import static org.calrissian.flowbox.FlowboxTopologyFactory.declareOutputStreams;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 /**

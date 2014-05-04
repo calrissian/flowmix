@@ -3,23 +3,16 @@ package org.calrissian.flowbox.bolt;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
-import org.calrissian.flowbox.FlowboxTopology;
+import org.calrissian.flowbox.FlowboxTopologyFactory;
 import org.calrissian.flowbox.model.Event;
 import org.calrissian.flowbox.model.Flow;
 import org.calrissian.flowbox.model.Policy;
-import org.calrissian.flowbox.model.Tuple;
 import org.calrissian.flowbox.model.builder.FlowBuilder;
 import org.calrissian.flowbox.spout.MockEventGeneratorSpout;
 import org.calrissian.flowbox.spout.MockFlowLoaderSpout;
-import org.calrissian.flowbox.support.Aggregator;
-import org.calrissian.flowbox.support.WindowItem;
 import org.calrissian.flowbox.support.aggregator.CountAggregator;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.UUID;
-
-import static java.lang.System.currentTimeMillis;
 import static java.util.Collections.singletonList;
 import static org.calrissian.flowbox.support.aggregator.CountAggregator.OUTPUT_FIELD;
 import static org.junit.Assert.assertEquals;
@@ -29,11 +22,11 @@ import static org.junit.Assert.assertTrue;
 public class AggregatorBoltIT {
 
     private StormTopology buildTopology(Flow flow) {
-        StormTopology topology = new FlowboxTopology().buildTopology(
+        StormTopology topology = new FlowboxTopologyFactory().createFlowbox(
                 new MockFlowLoaderSpout(singletonList(flow), 60000),
                 new MockEventGeneratorSpout(10),
                 new MockSinkBolt(),
-                6);
+                6).createTopology();
 
         return topology;
     }

@@ -6,7 +6,7 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import org.calrissian.flowbox.FlowboxTopology;
+import org.calrissian.flowbox.FlowboxTopologyFactory;
 import org.calrissian.flowbox.model.Event;
 import org.calrissian.flowbox.model.Flow;
 import org.calrissian.flowbox.model.SelectOp;
@@ -82,6 +82,6 @@ public class SelectorBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        FlowboxTopology.declareOutputStreams(outputFieldsDeclarer);
+        FlowboxTopologyFactory.declareOutputStreams(outputFieldsDeclarer);
     }
 }

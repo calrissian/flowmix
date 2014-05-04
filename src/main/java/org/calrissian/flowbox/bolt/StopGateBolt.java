@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static org.calrissian.flowbox.Constants.*;
-import static org.calrissian.flowbox.FlowboxTopology.declareOutputStreams;
+import static org.calrissian.flowbox.FlowboxTopologyFactory.declareOutputStreams;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 /**

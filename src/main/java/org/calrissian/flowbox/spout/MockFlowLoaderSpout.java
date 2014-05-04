@@ -15,13 +15,15 @@ import java.util.Map;
 public class MockFlowLoaderSpout extends BaseRichSpout{
 
     Collection<Flow> flows;
-    long pauseBetweenLoads;
+    long pauseBetweenLoads = -1;
+
+    boolean loaded = false;
 
     public static final String FLOW_LOADER_STREAM = "flowLoaderStream";
 
     SpoutOutputCollector collector;
 
-    public MockFlowLoaderSpout(List<Flow> flows, long pauseBetweenLoads) {
+    public MockFlowLoaderSpout(Collection<Flow> flows, long pauseBetweenLoads) {
         this.flows = flows;
         this.pauseBetweenLoads = pauseBetweenLoads;
     }
@@ -39,11 +41,17 @@ public class MockFlowLoaderSpout extends BaseRichSpout{
 
     @Override
     public void nextTuple() {
+
+      if(!loaded || pauseBetweenLoads > -1) {
         collector.emit(FLOW_LOADER_STREAM, new Values(flows));
-        try {
+
+        if(pauseBetweenLoads > -1) {
+          try {
             Thread.sleep(pauseBetweenLoads);
-        } catch (InterruptedException e) {
+          } catch (InterruptedException e) {
             throw new RuntimeException(e);
+          }
         }
+      }
     }
 }

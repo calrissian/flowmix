@@ -6,7 +6,6 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import org.calrissian.flowbox.FlowboxTopology;
 import org.calrissian.flowbox.model.Event;
 import org.calrissian.flowbox.model.FilterOp;
 import org.calrissian.flowbox.model.Flow;
@@ -16,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.calrissian.flowbox.Constants.*;
-import static org.calrissian.flowbox.FlowboxTopology.declareOutputStreams;
+import static org.calrissian.flowbox.FlowboxTopologyFactory.declareOutputStreams;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 public class FilterBolt extends BaseRichBolt {

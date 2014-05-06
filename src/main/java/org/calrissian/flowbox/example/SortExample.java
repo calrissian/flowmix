@@ -31,8 +31,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 
 /**
- * A stream join example. The events for the left hand of the join (stream1) are collected into a window and the
- * right hand side is joined against the left hand side (that is, the tuples are merged with the right hand side).
+ * A simple sorted stream example. Windows are used to collect events. If clearOnTrigger value is set (i.e. if it's a
+ * tumbling window) then the window is only sorted on output. Otherwise, the window is kept in sorted order always.
  */
 public class SortExample implements FlowProvider {
 

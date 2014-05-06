@@ -26,31 +26,30 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static java.lang.System.currentTimeMillis;
+import static org.apache.commons.lang.StringUtils.join;
 
 public class Window {
 
-    protected String groupedIndex;        // a unique key given to the groupBy field/value combinations in the window buffer
+  protected String groupedIndex;        // a unique key given to the groupBy field/value combinations in the window buffer
 
-    protected Deque<WindowItem> events;     // using standard array list for proof of concept.
-                                               // Circular buffer needs to be used after concept is proven
-    protected int triggerTicks = 0;
+  protected Deque<WindowItem> events;     // using standard array list for proof of concept.
+                                             // Circular buffer needs to be used after concept is proven
+  protected int triggerTicks = 0;
 
-    /**
-     * A sliding window buffer which automatically evicts by count
-     */
-    public Window(String groupedIndex, long size) {
-        events = new LimitingDeque<WindowItem>(size);
-        this.groupedIndex = groupedIndex;
-    }
-
-    public Window(String groupedIndex) {
-        events = new LinkedBlockingDeque<WindowItem>();
-        this.groupedIndex = groupedIndex;
-    }
+  /**
+   * A sliding window buffer which automatically evicts by count
+   */
+  public Window(String groupedIndex, long size) {
+    this(groupedIndex);
+    events = new LimitingDeque<WindowItem>(size);
+  }
 
   public Window() {
+  }
+
+  public Window(String groupedIndex) {
     events = new LinkedBlockingDeque<WindowItem>();
-    this.groupedIndex = ""; // no grouped index
+    this.groupedIndex = groupedIndex;
   }
 
   public WindowItem add(Event event, String previousStream) {
@@ -108,7 +107,7 @@ public class Window {
         return events.removeLast();
     }
 
-    public static String buildKeyIndexForEvent(Event event, List<String> groupBy) {
+  public static String buildKeyIndexForEvent(Event event, List<String> groupBy) {
         StringBuffer stringBuffer = new StringBuffer();
 
         if(groupBy == null || groupBy.size() == 0) {
@@ -125,7 +124,7 @@ public class Window {
                 for(Tuple tuple : tuples)
                     values.add(tuple.getValue().toString());        // toString() for now until we have something better
             }
-            stringBuffer.append(groupBy + StringUtils.join(values, ""));
+            stringBuffer.append(groupBy + join(values, ""));
         }
         try {
             return hashString(stringBuffer.toString());

@@ -21,21 +21,37 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import org.calrissian.flowbox.model.Event;
 import org.calrissian.flowbox.model.Tuple;
+import org.calrissian.mango.accumulo.types.AccumuloTypeEncoders;
+import org.calrissian.mango.types.TypeRegistry;
+import org.calrissian.mango.types.exception.TypeDecodingException;
 
+import javax.management.relation.RoleUnresolved;
 import java.util.Set;
 
+import static org.calrissian.mango.accumulo.types.AccumuloTypeEncoders.ACCUMULO_TYPES;
+
 public class EventSerializer extends Serializer<Event> {
+
+    TypeRegistry<String> registry = ACCUMULO_TYPES;
+
     @Override
     public void write(Kryo kryo, Output output, Event event) {
+
+      try {
         output.writeString(event.getId());
         output.writeLong(event.getTimestamp());
         output.writeInt(event.getTuples().size());
         for(Set<Tuple> tupleSet : event.getTuples().values()) {
-            for(Tuple tuple : tupleSet) {
-                output.writeString(tuple.getKey());
-                output.writeString(tuple.getValue().toString());
-            }
+          for(Tuple tuple : tupleSet) {
+            output.writeString(tuple.getKey());
+            output.writeString(registry.getAlias(tuple.getValue()));
+            output.writeString(registry.encode(tuple.getValue()));
+          }
         }
+
+      } catch(Exception e) {
+        throw new RuntimeException(e);
+      }
     }
 
     @Override
@@ -43,11 +59,22 @@ public class EventSerializer extends Serializer<Event> {
         String uuid = input.readString();
         long timestamp = input.readLong();
 
+      try {
         Event event = new Event(uuid, timestamp);
         int numTuples = input.readInt();
-        for(int i = 0; i < numTuples; i++)
-            event.put(new Tuple(input.readString(), input.readString()));
+        for(int i = 0; i < numTuples; i++) {
+
+          String key = input.readString();
+          String alias = input.readString();
+          String val = input.readString();
+
+          event.put(new Tuple(key, registry.decode(alias, val)));
+
+        }
 
         return event;
+      } catch (TypeDecodingException e) {
+        throw new RuntimeException(e);
+      }
     }
 }

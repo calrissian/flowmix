@@ -21,6 +21,7 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 import org.calrissian.flowbox.bolt.*;
+import org.calrissian.flowbox.model.SortOp;
 import org.calrissian.flowbox.spout.TickSpout;
 
 import static org.calrissian.flowbox.Constants.*;
@@ -30,6 +31,7 @@ import static org.calrissian.flowbox.model.FilterOp.FILTER;
 import static org.calrissian.flowbox.model.JoinOp.JOIN;
 import static org.calrissian.flowbox.model.PartitionOp.PARTITION;
 import static org.calrissian.flowbox.model.SelectOp.SELECT;
+import static org.calrissian.flowbox.model.SortOp.SORT;
 import static org.calrissian.flowbox.model.StopGateOp.STOP_GATE;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
@@ -82,6 +84,7 @@ public class FlowboxFactory {
       declarebolt(builder, AGGREGATE, new AggregatorBolt(), parallelismHint);
       declarebolt(builder, JOIN, new JoinBolt(), parallelismHint);
       declarebolt(builder, EACH, new EachBolt(), parallelismHint);
+      declarebolt(builder, SORT, new SortBolt(), parallelismHint);
       declarebolt(builder, OUTPUT, outputBolt, parallelismHint);
 
       return builder;
@@ -97,6 +100,7 @@ public class FlowboxFactory {
           .localOrShuffleGrouping(AGGREGATE, boltName)
           .localOrShuffleGrouping(SELECT, boltName)
           .localOrShuffleGrouping(EACH, boltName)
+          .localOrShuffleGrouping(SORT, boltName)
           .localOrShuffleGrouping(STOP_GATE, boltName)
           .localOrShuffleGrouping(JOIN, boltName);
   }
@@ -108,6 +112,7 @@ public class FlowboxFactory {
       declarer.declareStream(SELECT, fields);
       declarer.declareStream(AGGREGATE, fields);
       declarer.declareStream(STOP_GATE, fields);
+      declarer.declareStream(SORT, fields);
       declarer.declareStream(JOIN, fields);
       declarer.declareStream(EACH, fields);
       declarer.declareStream(OUTPUT, fields);
@@ -120,6 +125,7 @@ public class FlowboxFactory {
       declarer.declareStream(SELECT, fields);
       declarer.declareStream(AGGREGATE, fields);
       declarer.declareStream(STOP_GATE, fields);
+      declarer.declareStream(SORT, fields);
       declarer.declareStream(EACH, fields);
       declarer.declareStream(JOIN, fields);
       declarer.declareStream(OUTPUT, fields);

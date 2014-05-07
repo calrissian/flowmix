@@ -36,7 +36,7 @@ public class SelectorBoltIT extends FlowTestCase {
       .id("myflow")
       .flowDefs()
         .stream("stream1")
-          .select().field("key1").field("key2").end()
+          .select().fields("key1", "key2").end()
         .endStream()
       .endDefs()
     .createFlow();

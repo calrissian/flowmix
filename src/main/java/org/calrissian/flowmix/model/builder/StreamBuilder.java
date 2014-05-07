@@ -58,8 +58,8 @@ public class StreamBuilder {
         return new PartitionBuilder(this);
     }
 
-    public StopGateBuilder stopGate() {
-        return new StopGateBuilder(this);
+    public SwitchBuilder stopGate() {
+        return new SwitchBuilder(this);
     }
 
     public JoinBuilder join(String stream1, String stream2) {

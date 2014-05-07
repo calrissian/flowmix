@@ -29,10 +29,10 @@ import static java.util.Arrays.asList;
 /**
  * An example showing how the StopGate flow op works. Conceptually this can be thought of as a governor, where,
  * untill a particular condition is met, events flow freely through it. However, when an activation condition is
- * triggered, the gate closes and all events are dropped. When an open condition is met, the gate is lifted and
+ * triggered, the gate closes and all events are dropped. When an close condition is met, the gate is lifted and
  * events can pass through once again
  */
-public class StopGateExample implements FlowProvider {
+public class SwitchExample implements FlowProvider {
 
   @Override
   public List<Flow> getFlows() {
@@ -48,7 +48,7 @@ public class StopGateExample implements FlowProvider {
             }).end()
           .select().fields("key3").end()
           .partition().fields("key3").end()
-          .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
+          .stopGate().open(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).close(Policy.TIME, 5).end()
         .endStream()
       .endDefs()
     .createFlow();
@@ -57,6 +57,6 @@ public class StopGateExample implements FlowProvider {
   }
 
   public static void main(String args[]) {
-    new ExampleRunner(new StopGateExample()).run();
+    new ExampleRunner(new SwitchExample()).run();
   }
 }

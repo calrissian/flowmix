@@ -15,18 +15,18 @@
  */
 package org.calrissian.flowmix.support;
 
-public class StopGateWindow extends Window {
+public class SwitchWindow extends Window {
 
     boolean stopped = false;
 
     int stopTicks = 0;
 
 
-    public StopGateWindow(String groupedIndex, long size) {
+    public SwitchWindow(String groupedIndex, long size) {
         super(groupedIndex, size);
     }
 
-    public StopGateWindow(String groupedIndex) {
+    public SwitchWindow(String groupedIndex) {
         super(groupedIndex);
     }
 

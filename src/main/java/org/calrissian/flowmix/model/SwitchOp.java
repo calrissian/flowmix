@@ -16,49 +16,49 @@
 package org.calrissian.flowmix.model;
 
 
-public class StopGateOp implements FlowOp, RequiresPartitioning{
+public class SwitchOp implements FlowOp, RequiresPartitioning{
 
     public static final String STOP_GATE = "stopGate";
-    private Policy activationPolicy;
-    private Policy evictionPolicy;
     private Policy openPolicy;
+    private Policy evictionPolicy;
+    private Policy closePolicy;
 
-    private long activationThreshold;
-    private long evictionThreshold;
     private long openThreshold;
+    private long evictionThreshold;
+    private long closeThreshold;
 
-    public StopGateOp(Policy activationPolicy, Policy evictionPolicy, Policy openPolicy, long activationThreshold,
-                      long evictionThreshold, long openThreshold) {
-        this.activationPolicy = activationPolicy;
-        this.evictionPolicy = evictionPolicy;
+    public SwitchOp(Policy openPolicy, Policy evictionPolicy, Policy closePolicy, long openThreshold,
+                    long evictionThreshold, long closeThreshold) {
         this.openPolicy = openPolicy;
-        this.activationThreshold = activationThreshold;
-        this.evictionThreshold = evictionThreshold;
+        this.evictionPolicy = evictionPolicy;
+        this.closePolicy = closePolicy;
         this.openThreshold = openThreshold;
-    }
-
-    public Policy getActivationPolicy() {
-        return activationPolicy;
-    }
-
-    public Policy getEvictionPolicy() {
-        return evictionPolicy;
+        this.evictionThreshold = evictionThreshold;
+        this.closeThreshold = closeThreshold;
     }
 
     public Policy getOpenPolicy() {
         return openPolicy;
     }
 
-    public long getActivationThreshold() {
-        return activationThreshold;
+    public Policy getEvictionPolicy() {
+        return evictionPolicy;
+    }
+
+    public Policy getClosePolicy() {
+        return closePolicy;
+    }
+
+    public long getOpenThreshold() {
+        return openThreshold;
     }
 
     public long getEvictionThreshold() {
         return evictionThreshold;
     }
 
-    public long getOpenThreshold() {
-        return openThreshold;
+    public long getCloseThreshold() {
+        return closeThreshold;
     }
 
     @Override

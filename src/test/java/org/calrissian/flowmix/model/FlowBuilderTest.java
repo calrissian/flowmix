@@ -44,7 +44,7 @@ public class FlowBuilderTest {
                   .select().fields("name", "age").end()
                   .partition().fields("name", "age", "country").end()
                   .aggregate().aggregator(LongSumAggregator.class).evict(Policy.COUNT, 500).trigger(Policy.TIME, 25).end()
-                  .stopGate().activate(Policy.TIME_DELTA_LT, 1).evict(Policy.COUNT, 5).open(Policy.TIME, 60).end()
+                  .stopGate().open(Policy.TIME_DELTA_LT, 1).evict(Policy.COUNT, 5).close(Policy.TIME, 60).end()
               .endStream()
           .endDefs()
       .createFlow();
@@ -177,7 +177,7 @@ public class FlowBuilderTest {
             .id("myTestFlow")
             .flowDefs()
             .stream("stream1")
-            .stopGate().evict(Policy.TIME, 1).open(Policy.TIME, 1).activate(Policy.TIME, 1).end()
+            .stopGate().evict(Policy.TIME, 1).open(Policy.TIME, 1).close(Policy.TIME, 1).end()
             .endStream()
             .endDefs()
             .createFlow();

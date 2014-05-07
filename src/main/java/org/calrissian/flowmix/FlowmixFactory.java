@@ -31,7 +31,7 @@ import static org.calrissian.flowmix.model.JoinOp.JOIN;
 import static org.calrissian.flowmix.model.PartitionOp.PARTITION;
 import static org.calrissian.flowmix.model.SelectOp.SELECT;
 import static org.calrissian.flowmix.model.SortOp.SORT;
-import static org.calrissian.flowmix.model.StopGateOp.STOP_GATE;
+import static org.calrissian.flowmix.model.SwitchOp.STOP_GATE;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 /**
@@ -79,7 +79,7 @@ public class FlowmixFactory {
       declarebolt(builder, FILTER, new FilterBolt(), parallelismHint);
       declarebolt(builder, SELECT, new SelectorBolt(), parallelismHint);
       declarebolt(builder, PARTITION, new PartitionBolt(), parallelismHint);
-      declarebolt(builder, STOP_GATE, new StopGateBolt(), parallelismHint);
+      declarebolt(builder, STOP_GATE, new SwitchBolt(), parallelismHint);
       declarebolt(builder, AGGREGATE, new AggregatorBolt(), parallelismHint);
       declarebolt(builder, JOIN, new JoinBolt(), parallelismHint);
       declarebolt(builder, EACH, new EachBolt(), parallelismHint);

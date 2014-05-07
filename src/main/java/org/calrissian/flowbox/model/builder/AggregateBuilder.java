@@ -16,11 +16,16 @@
 package org.calrissian.flowbox.model.builder;
 
 import org.calrissian.flowbox.model.AggregateOp;
+import org.calrissian.flowbox.model.FlowOp;
+import org.calrissian.flowbox.model.PartitionOp;
 import org.calrissian.flowbox.support.Aggregator;
 import org.calrissian.flowbox.model.Policy;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static java.util.Collections.EMPTY_LIST;
 
 public class AggregateBuilder extends AbstractOpBuilder {
 
@@ -62,17 +67,22 @@ public class AggregateBuilder extends AbstractOpBuilder {
 
     public StreamBuilder end() {
 
-        if(aggregatorClass == null)
-            throw new RuntimeException("Aggregator operator needs an aggregator class");
+      if(aggregatorClass == null)
+          throw new RuntimeException("Aggregator operator needs an aggregator class");
 
-        if(triggerPolicy == null || triggerThreshold == -1)
-            throw new RuntimeException("Aggregator operator needs to have trigger policy and threshold");
+      if(triggerPolicy == null || triggerThreshold == -1)
+          throw new RuntimeException("Aggregator operator needs to have trigger policy and threshold");
 
-        if(evictionPolicy == null || evictionThreshold == -1)
-            throw new RuntimeException("Aggregator operator needs to have eviction policy and threshold");
+      if(evictionPolicy == null || evictionThreshold == -1)
+          throw new RuntimeException("Aggregator operator needs to have eviction policy and threshold");
 
-        getStreamBuilder().addFlowOp(new AggregateOp(aggregatorClass, triggerPolicy, triggerThreshold, evictionPolicy,
-                evictionThreshold, config));
-        return getStreamBuilder();
+      List<FlowOp> flowOpList = getStreamBuilder().getFlowOpList();
+      FlowOp op = flowOpList.size() == 0 ? null : flowOpList.get(flowOpList.size()-1);
+      if(op == null || !(op instanceof PartitionOp))
+        flowOpList.add(new PartitionOp(EMPTY_LIST));
+
+      getStreamBuilder().addFlowOp(new AggregateOp(aggregatorClass, triggerPolicy, triggerThreshold, evictionPolicy,
+              evictionThreshold, config));
+      return getStreamBuilder();
     }
 }

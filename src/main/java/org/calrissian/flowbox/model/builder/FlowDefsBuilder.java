@@ -83,7 +83,7 @@ public class FlowDefsBuilder {
             String rhs = ((JoinOp) op).getRightStream();
 
             Set<String> outputs = inputs.get(def.getName());
-            if(!outputs.contains(lhs) && !outputs.contains(rhs))
+            if(!outputs.contains(lhs) || !outputs.contains(rhs))
               throw new RuntimeException("A join operator was found but the necessary streams are not being routed to it. Offending stream: " + def.getName());
           }
         }

@@ -15,8 +15,14 @@
  */
 package org.calrissian.flowbox.model.builder;
 
+import org.calrissian.flowbox.model.FlowOp;
+import org.calrissian.flowbox.model.PartitionOp;
 import org.calrissian.flowbox.model.StopGateOp;
 import org.calrissian.flowbox.model.Policy;
+
+import java.util.List;
+
+import static java.util.Collections.EMPTY_LIST;
 
 public class StopGateBuilder extends AbstractOpBuilder {
 
@@ -53,17 +59,22 @@ public class StopGateBuilder extends AbstractOpBuilder {
     @Override
     public StreamBuilder end() {
 
-        if(activationPolicy == null || activationThreshold == -1)
-            throw new RuntimeException("Stop gate operator must have an activation policy and threshold");
+      if(activationPolicy == null || activationThreshold == -1)
+          throw new RuntimeException("Stop gate operator must have an activation policy and threshold");
 
-        if(evictionPolicy == null || evictionThreshold == -1)
-            throw new RuntimeException("Stop gate operator must have an eviction policy and threshold");
+      if(evictionPolicy == null || evictionThreshold == -1)
+          throw new RuntimeException("Stop gate operator must have an eviction policy and threshold");
 
-        if(openPolicy == null || openThreshold == -1)
-            throw new RuntimeException("Stop gate operator must have an open policy and threshold");
+      if(openPolicy == null || openThreshold == -1)
+          throw new RuntimeException("Stop gate operator must have an open policy and threshold");
 
-        getStreamBuilder().addFlowOp(new StopGateOp(activationPolicy, evictionPolicy, openPolicy,
-                activationThreshold, evictionThreshold, openThreshold));
-        return getStreamBuilder();
+      List<FlowOp> flowOpList = getStreamBuilder().getFlowOpList();
+      FlowOp op = flowOpList.size() == 0 ? null : flowOpList.get(flowOpList.size()-1);
+      if(op == null || !(op instanceof PartitionOp))
+        flowOpList.add(new PartitionOp(EMPTY_LIST));
+
+      getStreamBuilder().addFlowOp(new StopGateOp(activationPolicy, evictionPolicy, openPolicy,
+              activationThreshold, evictionThreshold, openThreshold));
+      return getStreamBuilder();
     }
 }

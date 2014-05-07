@@ -16,8 +16,14 @@
 package org.calrissian.flowbox.model.builder;
 
 
+import org.calrissian.flowbox.model.FlowOp;
 import org.calrissian.flowbox.model.JoinOp;
+import org.calrissian.flowbox.model.PartitionOp;
 import org.calrissian.flowbox.model.Policy;
+
+import java.util.List;
+
+import static java.util.Collections.EMPTY_LIST;
 
 public class JoinBuilder extends AbstractOpBuilder{
 
@@ -48,8 +54,13 @@ public class JoinBuilder extends AbstractOpBuilder{
         if(lhs == null || rhs == null)
             throw new RuntimeException("Left and right side streams required by the join operator");
 
-        getStreamBuilder().addFlowOp(new JoinOp(lhs, rhs, evictionPolicy, evictionThreshold));
-        return getStreamBuilder();
+      List<FlowOp> flowOpList = getStreamBuilder().getFlowOpList();
+      FlowOp op = flowOpList.size() == 0 ? null : flowOpList.get(flowOpList.size()-1);
+      if(op == null || !(op instanceof PartitionOp))
+        flowOpList.add(new PartitionOp(EMPTY_LIST));
+
+      getStreamBuilder().addFlowOp(new JoinOp(lhs, rhs, evictionPolicy, evictionThreshold));
+      return getStreamBuilder();
     }
 }
 

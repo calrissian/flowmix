@@ -89,20 +89,13 @@ public class StreamBuilder {
       if(!def.isStdOutput() && def.getOutputs().length == 0)
         throw new RuntimeException("You must specify at least one output. Offending stream: " + name);
 
-      /**
-       * Guarantee partition is done before any operators that require it
-       */
-      for(int i = 0; i < flowOpList.size(); i++) {
-        FlowOp flowOp = flowOpList.get(i);
-        if(flowOp instanceof RequiresPartitioning) {
-          if(i == 0 || !(flowOpList.get(i-1) instanceof PartitionOp))
-            flowOpList.add(i == 0 ? 0 : i-1, new PartitionOp(EMPTY_LIST));
-        }
-      }
-
       flowOpsBuilder.addStream(def);
       return flowOpsBuilder;
     }
+
+  protected List<FlowOp> getFlowOpList() {
+    return flowOpList;
+  }
 
   public FlowDefsBuilder endStream(String... outputs) {
     return endStream(true, outputs);

@@ -15,11 +15,13 @@
  */
 package org.calrissian.flowbox.model.builder;
 
-import org.calrissian.flowbox.model.Policy;
-import org.calrissian.flowbox.model.SortOp;
+import org.calrissian.flowbox.model.*;
 
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import static java.util.Collections.EMPTY_LIST;
 
 public class SortBuilder extends AbstractOpBuilder {
 
@@ -71,6 +73,11 @@ public class SortBuilder extends AbstractOpBuilder {
 
       if(triggerPolicy == null || triggerThreshold == -1)
         throw new RuntimeException("Sort operator needs a trigger policy and threshold");
+
+      List<FlowOp> flowOpList = getStreamBuilder().getFlowOpList();
+      FlowOp op = flowOpList.size() == 0 ? null : flowOpList.get(flowOpList.size()-1);
+      if(op == null || !(op instanceof PartitionOp))
+        flowOpList.add(new PartitionOp(EMPTY_LIST));
 
       getStreamBuilder().addFlowOp(new SortOp(sortBy, clearOnTrigger, evictionPolicy, evictionThreshold,
               triggerPolicy, triggerThreshold));

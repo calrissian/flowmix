@@ -22,6 +22,7 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import org.calrissian.flowbox.model.Event;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -40,8 +41,11 @@ public class MockSinkBolt extends BaseRichBolt{
     @Override
     public void execute(Tuple tuple) {
 
-        if(tuple.contains(EVENT))
-            eventsReceived.add((Event) tuple.getValueByField(EVENT));
+      if(tuple.contains(EVENT)) {
+        synchronized (eventsReceived) {
+          eventsReceived.add((Event) tuple.getValueByField(EVENT));
+        }
+      }
     }
 
     @Override
@@ -50,6 +54,8 @@ public class MockSinkBolt extends BaseRichBolt{
     }
 
     public static List<Event> getEvents() {
-        return eventsReceived;
+      synchronized (eventsReceived) {
+        return new ArrayList<Event>(eventsReceived);
+      }
     }
 }

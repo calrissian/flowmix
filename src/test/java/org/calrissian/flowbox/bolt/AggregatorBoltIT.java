@@ -18,35 +18,21 @@ package org.calrissian.flowbox.bolt;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
-import org.calrissian.flowbox.FlowboxFactory;
 import org.calrissian.flowbox.model.Event;
 import org.calrissian.flowbox.model.Flow;
 import org.calrissian.flowbox.model.Policy;
 import org.calrissian.flowbox.model.builder.FlowBuilder;
-import org.calrissian.flowbox.spout.MockEventGeneratorSpout;
-import org.calrissian.flowbox.spout.MockFlowLoaderSpout;
+import org.calrissian.flowbox.model.kryo.EventSerializer;
 import org.calrissian.flowbox.support.aggregator.CountAggregator;
 import org.junit.Test;
 
-import static java.util.Collections.singletonList;
 import static org.calrissian.flowbox.support.aggregator.CountAggregator.OUTPUT_FIELD;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class AggregatorBoltIT {
+public class AggregatorBoltIT extends FlowTestCase {
 
-    private StormTopology buildTopology(Flow flow) {
-      StormTopology topology = new FlowboxFactory(
-          new MockFlowLoaderSpout(singletonList(flow), 60000),
-          new MockEventGeneratorSpout(10),
-          new MockSinkBolt(),
-          6)
-        .createFlowbox()
-      .createTopology();
-
-      return topology;
-    }
 
     @Test
     public void test_timeTrigger_timeEvict() {
@@ -65,8 +51,10 @@ public class AggregatorBoltIT {
             .endDefs()
         .createFlow();
 
-        StormTopology topology = buildTopology(flow);
+        StormTopology topology = buildTopology(flow, 10);
         Config conf = new Config();
+        conf.registerSerialization(Event.class, EventSerializer.class);
+        conf.setSkipMissingKryoRegistrations(false);
         conf.setNumWorkers(20);
 
         LocalCluster cluster = new LocalCluster();

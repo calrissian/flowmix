@@ -51,7 +51,10 @@ public class Event implements Serializable {
     }
 
     public <T>Tuple<T> get(String key) {
+      if(tuples.get(key) != null)
         return tuples.get(key).iterator().next();
+      else
+        return null;
     }
 
     public Set<Tuple> getAll(String key) {

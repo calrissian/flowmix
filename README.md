@@ -1,7 +1,7 @@
-Flowbox - A Flexible Event Processing Engine for Apache Storm
+Flowmix - A Flexible Event Processing Engine for Apache Storm
 =============================================================
 
-This is a proof of concept to implement an InfoSphere Streams-like (and Esper-like) distributed complex event processing engine written on top of Apache Storm. This framework's goal is to make use of Storm's groupings and tuple-at-a-time abilities (along with its guarantees of thread-safe parallelism in its bolts) to make different processed flows of streams possible in a single Storm topology. Trident is wonderful for building out streams of data and defining how to process those streams along the way, however each each trident topology needs to be deployed separately in Storm. You could, perhaps, write several streams in a trident topology, but this problem is exasberated by massive complexity in the client-side builder pattern required to make it possible. Similar to Hadoop MapReduce, a storm cluster is run with a finite amount of resources available. Each topology that gets deployed needs to make use of more resources. If I have 15 different analytics that I'm interested in writing to correllate the same couple streams of data, I'm left running 15 different topologies.
+This project is an attempt to create a high-speed distributed complex event processing engine written on top of Apache Storm. This framework's goal is to make use of Storm's groupings and tuple-at-a-time abilities (along with its guarantees of thread-safe parallelism in its bolts) to make different processed flows of streams possible in a single Storm topology. Trident is wonderful for building out streams of data and defining how to process those streams along the way, however each each trident topology needs to be deployed separately in Storm. You could, perhaps, write several streams in a trident topology, but this problem is exasberated by massive complexity in the client-side builder pattern required to make it possible. Similar to Hadoop MapReduce, a storm cluster is run with a finite amount of resources available. Each topology that gets deployed needs to make use of more resources. If I have 15 different analytics that I'm interested in writing to correllate the same couple streams of data, I'm left running 15 different topologies.
 
 
 One of the solutions this project offers is having a single topology deployed with a generic "stream" of domain-agnostic objects that can be split, aggregated, filtered from, selected from, etc...
@@ -64,10 +64,10 @@ Flow flow = new FlowBuilder()
 
 ##Examples: 
 
-Examples are provided in the org.calrissian.flowbox.examples package. These examples with fire up a local Apache Storm cluster and print the events received on the standard output component to the console. Each of the classes in the base examples package have main() methods that can be executed directly to run the example. You can run the examples with the following:
+Examples are provided in the org.calrissian.flowmix.examples package. These examples with fire up a local Apache Storm cluster and print the events received on the standard output component to the console. Each of the classes in the base examples package have main() methods that can be executed directly to run the example. You can run the examples with the following:
 
 ```java
-java -cp flowbox-<version>.jar org.calrissian.flowbox.examples.StreamBridgeExample 
+java -cp flowbox-<version>.jar org.calrissian.flowmix.examples.StreamBridgeExample
 ```
 
 Check the documentation of each example to find out more about the features they are exemplifying.

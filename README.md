@@ -1,13 +1,20 @@
 Flowmix - A Flexible Event Processing Engine for Apache Storm
 =============================================================
 
-This project is an attempt to create a high-speed distributed complex event processing engine written on top of Apache Storm. This framework's goal is to make use of Storm's groupings and tuple-at-a-time abilities (along with its guarantees of thread-safe parallelism in its bolts) to make different processed flows of streams possible in a single Storm topology. Trident is wonderful for building out streams of data and defining how to process those streams along the way, however each each trident topology needs to be deployed separately in Storm. You could, perhaps, write several streams in a trident topology, but this problem is exasberated by massive complexity in the client-side builder pattern required to make it possible. Similar to Hadoop MapReduce, a storm cluster is run with a finite amount of resources available. Each topology that gets deployed needs to make use of more resources. If I have 15 different analytics that I'm interested in writing to correllate the same couple streams of data, I'm left running 15 different topologies.
+This project is an attempt to create a high-speed distributed complex event processing engine written on top of Apache Storm. This framework's goal is to make use of Storm's guaranteed delivery, groupings and tuple-at-a-time abilities (along with its guarantees of thread-safe parallelism in its bolts) to make different processed flows of streams possible in a single Storm topology. 
+
+## Why another streams processing abstraction?
+
+Trident is wonderful for building out streams of data and defining how to process those streams along the way, however each each trident topology needs to be deployed separately in Storm. You could, perhaps, write several streams in a trident topology, but this problem is exaserbated by increasing complexity in the client-side builder pattern required to make it possible. Similar to Hadoop's MapReduce framework, an Apache Storm cluster is run with a finite amount of resources available. Each topology that gets deployed needs to make use of more resources. If I have 15 different analytics that I'm interested in writing to correlate the same couple streams of data, I'm left running 15 different topologies.
+
+Another problem encountered with Trident is that it does not make temporal operations and temporary state very easy to manage. Things like typical sliding & tumbling windows (with expiration and trigger functions that act independently of one another) mean having to write your own custom functions to do so, thereby making it harder or not possible to utilize the rich aggregation mechanisms already built into the framework. 
 
 
-One of the solutions this project offers is having a single topology deployed with a generic "stream" of domain-agnostic objects that can be split, aggregated, filtered from, selected from, etc...
+## So what is Flowmix?
 
+One of the solutions Flowmix offers to the resource and windowing problem is having a single topology deployed with a generic "stream" of domain-agnostic objects that can be routed around in different ways, applying different operations to the events on their way through the bolts of the topology. The streams can be split and joined together, bridged to other streams, and passed through a standard pluggable output bolt. Events can be passed through relational operations like partitioning, splitting, aggregating, collecting, sorting, filtering, selection, and joining.
 
-Another problem encountered with Trident is that it does not make temporal operations and state very easy to manage. Things like typical sliding windows (with expiration and trigger functions that act independently of one another) mean having to write your own custom functions to do so, thereby making it impossible to utilize the rich aggregation mechanisms already built into the framework. 
+Other non-relational operations like switches and governors can also be applied to orchestrate the flow of a stream of data. Generic functions can be applied to each event as it passes through a stream. 
 
 
 ##Planned Notable Features:

@@ -15,7 +15,7 @@
  */
 package org.calrissian.flowbox.model;
 
-public class JoinOp implements FlowOp {
+public class JoinOp implements FlowOp, RequiresPartitioning {
 
     public static final String JOIN = "join";
 

@@ -3,7 +3,7 @@ package org.calrissian.flowbox.model;
 
 import java.util.SortedSet;
 
-public class SortOp implements FlowOp{
+public class SortOp implements FlowOp, RequiresPartitioning {
 
   public static final String SORT = "sort";
 

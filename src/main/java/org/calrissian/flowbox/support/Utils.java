@@ -2,6 +2,9 @@ package org.calrissian.flowbox.support;
 
 import org.calrissian.flowbox.model.Event;
 import org.calrissian.flowbox.model.Tuple;
+import org.calrissian.mango.accumulo.types.AccumuloTypeEncoders;
+import org.calrissian.mango.types.TypeRegistry;
+import org.calrissian.mango.types.exception.TypeEncodingException;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -12,8 +15,12 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static org.apache.commons.lang.StringUtils.join;
+import static org.apache.commons.lang.StringUtils.remove;
+import static org.calrissian.mango.accumulo.types.AccumuloTypeEncoders.ACCUMULO_TYPES;
 
 public class Utils {
+
+  private static final TypeRegistry<String> registry = ACCUMULO_TYPES;
 
   private Utils() {}
 
@@ -21,9 +28,8 @@ public class Utils {
   public static String buildKeyIndexForEvent(String flowId, Event event, List<String> groupBy) {
     StringBuffer stringBuffer = new StringBuffer(flowId);
 
-    if(groupBy == null || groupBy.size() == 0) {
+    if(groupBy == null || groupBy.size() == 0)
       return stringBuffer.toString();  // default partition when no groupBy fields are specified.
-    }
 
     for(String groupField : groupBy) {
       Set<Tuple> tuples = event.getAll(groupField);
@@ -33,12 +39,16 @@ public class Utils {
         values.add("");
       } else {
         for(Tuple tuple : tuples)
-          values.add(tuple.getValue().toString());        // toString() for now until we have something better
+          try {
+            values.add(registry.encode(tuple.getValue()));
+          } catch (TypeEncodingException e) {
+            throw new RuntimeException(e);
+          }
       }
-      stringBuffer.append(groupBy + join(values, ""));
+      stringBuffer.append(groupField + join(values, "") + "|");
     }
     try {
-      return hashString(stringBuffer.toString());
+      return stringBuffer.toString();
     } catch (Exception e) {
       return null;
     }

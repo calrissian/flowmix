@@ -16,7 +16,7 @@
 package org.calrissian.flowbox.model;
 
 
-public class StopGateOp implements FlowOp{
+public class StopGateOp implements FlowOp, RequiresPartitioning{
 
     public static final String STOP_GATE = "stopGate";
     private Policy activationPolicy;

@@ -16,10 +16,15 @@
 package org.calrissian.flowbox.model.builder;
 
 import org.calrissian.flowbox.model.FlowOp;
+import org.calrissian.flowbox.model.PartitionOp;
+import org.calrissian.flowbox.model.RequiresPartitioning;
 import org.calrissian.flowbox.model.StreamDef;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
+import static java.util.Collections.EMPTY_LIST;
 
 public class StreamBuilder {
 
@@ -83,6 +88,17 @@ public class StreamBuilder {
       StreamDef def = new StreamDef(name, flowOpList, stdInput, stdOutput, outputs);
       if(!def.isStdOutput() && def.getOutputs().length == 0)
         throw new RuntimeException("You must specify at least one output. Offending stream: " + name);
+
+      /**
+       * Guarantee partition is done before any operators that require it
+       */
+      for(int i = 0; i < flowOpList.size(); i++) {
+        FlowOp flowOp = flowOpList.get(i);
+        if(flowOp instanceof RequiresPartitioning) {
+          if(i == 0 || !(flowOpList.get(i-1) instanceof PartitionOp))
+            flowOpList.add(i == 0 ? 0 : i-1, new PartitionOp(EMPTY_LIST));
+        }
+      }
 
       flowOpsBuilder.addStream(def);
       return flowOpsBuilder;

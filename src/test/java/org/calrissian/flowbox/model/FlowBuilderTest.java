@@ -17,10 +17,12 @@ package org.calrissian.flowbox.model;
 
 import org.calrissian.flowbox.model.builder.FlowBuilder;
 import org.calrissian.flowbox.support.Criteria;
+import org.calrissian.flowbox.support.aggregator.CountAggregator;
 import org.calrissian.flowbox.support.aggregator.LongSumAggregator;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class FlowBuilderTest {
@@ -34,11 +36,11 @@ public class FlowBuilderTest {
             .flowDefs()
                 .stream("stream1")
                     .filter().criteria(new Criteria() {
-                        @Override
-                        public boolean matches(Event event) {
-                            return false;
-                        }
-                    }).end()
+                  @Override
+                  public boolean matches(Event event) {
+                    return false;
+                  }
+                }).end()
                     .select().fields("name", "age").end()
                     .partition().fields("name", "age", "country").end()
                     .aggregate().aggregator(LongSumAggregator.class).evict(Policy.COUNT, 500).trigger(Policy.TIME, 25).end()
@@ -132,5 +134,22 @@ public class FlowBuilderTest {
 
         fail("An exception should have been thrown");
       } catch(Exception e) {}
+    }
+
+    @Test
+    public void testPartitionRequired_addedAutomatically() {
+
+      Flow flow = new FlowBuilder()
+              .id("myTestFlow")
+              .flowDefs()
+                .stream("stream1")
+                  .aggregate().aggregator(CountAggregator.class).trigger(Policy.COUNT, 1).evict(Policy.TIME, 1).end()
+                .endStream()
+              .endDefs()
+              .createFlow();
+
+
+      System.out.println(flow.getStreams().iterator().next().getFlowOps().get(0));
+      assertTrue(flow.getStreams().iterator().next().getFlowOps().get(0) instanceof PartitionOp);
     }
 }

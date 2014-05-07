@@ -19,7 +19,7 @@ import org.calrissian.flowbox.support.Aggregator;
 
 import java.util.Map;
 
-public class AggregateOp implements FlowOp {
+public class AggregateOp implements FlowOp, RequiresPartitioning {
 
     public static final String AGGREGATE = "aggregate";
 

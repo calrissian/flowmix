@@ -83,11 +83,9 @@ Check the documentation of each example to find out more about the features they
 
 
 
-##Planned Notable Features:
+##Current planned notable features:
+
 - Groovy-defined flows that get auto-classloaded by the Storm bolts to limit downtime and promote on-the-fly updates of flows.
-- Automatic synchronization of flow updates via Zookeeper. You modify your flow and submit it, the Storm topology will automatically update itself.
+- Dynamic updating of flows. You modify your flow and submit it, the Storm topology will automatically update itself.
 - Ability to expire partitioned windows by time
-- Aggregated windows with custom aggregation functions
-- Easy to define flow processing pipelines that automatically run in parallel.
-- Customizable output processing (the flow stops with output, you plug in your downstream handling)
 

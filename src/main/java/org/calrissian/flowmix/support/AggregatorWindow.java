@@ -54,7 +54,17 @@ public class AggregatorWindow extends Window{
         expire();
     }
 
-    public Collection<AggregatedEvent> getAggregate() {
+  /**
+   * Used for age-based expiration
+   */
+  public void timeEvict(long thresholdInSeconds) {
+    while(events != null && events.peek() != null &&
+            (System.currentTimeMillis() - events.peek().getTimestamp()) >= (thresholdInSeconds * 1000)) {
+      WindowItem item = events.poll();
+      aggregator.evicted(item);
+    }
+  }
+  public Collection<AggregatedEvent> getAggregate() {
         return aggregator.aggregate();
     }
 }

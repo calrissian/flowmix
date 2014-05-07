@@ -198,7 +198,10 @@ public class AggregatorBolt extends BaseRichBolt {
             }
           }
         }
-        window.clear();
+
+        if(op.isClearOnTrigger())
+          window.clear();
+
         window.resetTriggerTicks();
     }
 

@@ -53,6 +53,12 @@ public class MockSinkBolt extends BaseRichBolt{
 
     }
 
+    public static void clear() {
+      synchronized (eventsReceived) {
+        eventsReceived.clear();
+      }
+    }
+
     public static List<Event> getEvents() {
       synchronized (eventsReceived) {
         return new ArrayList<Event>(eventsReceived);

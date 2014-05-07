@@ -63,6 +63,7 @@ public class FilterBoltIT extends FlowTestCase {
       e.printStackTrace();
     }
 
+    cluster.shutdown();
     assertEquals(0, MockSinkBolt.getEvents().size());
   }
 
@@ -99,6 +100,7 @@ public class FilterBoltIT extends FlowTestCase {
       e.printStackTrace();
     }
 
+    cluster.shutdown();
     assertTrue(MockSinkBolt.getEvents().size() > 0);
 
   }

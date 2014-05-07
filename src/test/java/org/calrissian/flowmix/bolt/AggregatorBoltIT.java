@@ -24,6 +24,7 @@ import org.calrissian.flowmix.model.Policy;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.model.kryo.EventSerializer;
 import org.calrissian.flowmix.support.aggregator.CountAggregator;
+import org.junit.After;
 import org.junit.Test;
 
 import static org.calrissian.flowmix.support.aggregator.CountAggregator.OUTPUT_FIELD;
@@ -33,6 +34,11 @@ import static org.junit.Assert.assertTrue;
 
 public class AggregatorBoltIT extends FlowTestCase {
 
+    private static int counter = 0;
+
+    private String getTopologyName() {
+      return "test" + counter++;
+    }
 
     @Test
     public void test_timeTrigger_timeEvict() {
@@ -46,6 +52,7 @@ public class AggregatorBoltIT extends FlowTestCase {
                       .config(OUTPUT_FIELD, "aCount")
                       .trigger(Policy.TIME, 5)
                       .evict(Policy.TIME, 10)
+                      .clearOnTrigger()
                     .end()
                 .endStream()
             .endDefs()
@@ -55,10 +62,10 @@ public class AggregatorBoltIT extends FlowTestCase {
         Config conf = new Config();
         conf.registerSerialization(Event.class, EventSerializer.class);
         conf.setSkipMissingKryoRegistrations(false);
-        conf.setNumWorkers(20);
+        conf.setNumWorkers(1);
 
         LocalCluster cluster = new LocalCluster();
-        cluster.submitTopology("test", conf, topology);
+        cluster.submitTopology(getTopologyName(), conf, topology);
 
         try {
           Thread.sleep(25000);
@@ -66,13 +73,150 @@ public class AggregatorBoltIT extends FlowTestCase {
           e.printStackTrace();
         }
 
-        System.out.println(MockSinkBolt.getEvents());
+        cluster.shutdown();
+
+        System.out.println(MockSinkBolt.getEvents().size());
         assertEquals(4, MockSinkBolt.getEvents().size());
 
         for(Event event : MockSinkBolt.getEvents()) {
           assertNotNull(event.get("aCount"));
-          assertTrue(event.<Long>get("aCount").getValue() > 400);
+          assertTrue(event.<Long>get("aCount").getValue() > 350);
           assertTrue(event.<Long>get("aCount").getValue() < 500);
         }
     }
+
+
+  @Test
+  public void test_timeTrigger_countEvict() {
+
+    Flow flow = new FlowBuilder()
+            .id("myflow")
+            .flowDefs()
+            .stream("stream1")
+            .partition().fields("key3").end()
+            .aggregate().aggregator(CountAggregator.class)
+            .config(OUTPUT_FIELD, "aCount")
+            .trigger(Policy.TIME, 2)
+            .evict(Policy.COUNT, 10)
+            .clearOnTrigger()
+            .end()
+            .endStream()
+            .endDefs()
+            .createFlow();
+
+    StormTopology topology = buildTopology(flow, 10);
+    Config conf = new Config();
+    conf.registerSerialization(Event.class, EventSerializer.class);
+    conf.setSkipMissingKryoRegistrations(false);
+    conf.setNumWorkers(1);
+
+    LocalCluster cluster = new LocalCluster();
+    cluster.submitTopology(getTopologyName(), conf, topology);
+
+
+    try {
+      Thread.sleep(10000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    cluster.shutdown();
+    System.out.println(MockSinkBolt.getEvents());
+    assertEquals(4, MockSinkBolt.getEvents().size());
+
+    for(Event event : MockSinkBolt.getEvents()) {
+      assertNotNull(event.get("aCount"));
+      assertTrue(event.<Long>get("aCount").getValue() == 10);
+    }
+  }
+
+
+  @Test
+  public void test_countTrigger_timeEvict() {
+
+    Flow flow = new FlowBuilder()
+            .id("myflow")
+            .flowDefs()
+            .stream("stream1")
+            .partition().fields("key3").end()
+            .aggregate().aggregator(CountAggregator.class)
+            .config(OUTPUT_FIELD, "aCount")
+            .trigger(Policy.COUNT, 600)       // trigger every 500 events received
+            .evict(Policy.TIME, 1)            // only keep last 1 second in the window
+            .end()
+            .endStream()
+            .endDefs()
+            .createFlow();
+
+    StormTopology topology = buildTopology(flow, 10);
+    Config conf = new Config();
+    conf.registerSerialization(Event.class, EventSerializer.class);
+    conf.setSkipMissingKryoRegistrations(false);
+    conf.setNumWorkers(1);
+
+    LocalCluster cluster = new LocalCluster();
+    cluster.submitTopology(getTopologyName(), conf, topology);
+
+    try {
+      Thread.sleep(10000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+
+    cluster.shutdown();
+    System.out.println(MockSinkBolt.getEvents());
+    assertEquals(1, MockSinkBolt.getEvents().size());
+
+    for(Event event : MockSinkBolt.getEvents()) {
+      assertNotNull(event.get("aCount"));
+      assertTrue(event.<Long>get("aCount").getValue() > 90);
+      assertTrue(event.<Long>get("aCount").getValue() < 100);
+    }
+  }
+
+
+
+  @Test
+  public void test_countTrigger_countEvict() {
+
+    Flow flow = new FlowBuilder()
+            .id("myflow")
+            .flowDefs()
+            .stream("stream1")
+            .partition().fields("key3").end()
+            .aggregate().aggregator(CountAggregator.class)
+            .config(OUTPUT_FIELD, "aCount")
+            .trigger(Policy.COUNT, 5)
+            .evict(Policy.COUNT, 2)
+            .end()
+            .endStream()
+            .endDefs()
+            .createFlow();
+
+    StormTopology topology = buildTopology(flow, 10);
+    Config conf = new Config();
+    conf.registerSerialization(Event.class, EventSerializer.class);
+    conf.setSkipMissingKryoRegistrations(false);
+    conf.setNumWorkers(1);
+
+    LocalCluster cluster = new LocalCluster();
+    cluster.submitTopology(getTopologyName(), conf, topology);
+
+    try {
+      Thread.sleep(10000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    cluster.shutdown();
+    System.out.println(MockSinkBolt.getEvents().size());
+    assertTrue(MockSinkBolt.getEvents().size() > 130);
+    assertTrue(MockSinkBolt.getEvents().size() < 160);
+
+    for(Event event : MockSinkBolt.getEvents()) {
+      assertNotNull(event.get("aCount"));
+      assertTrue(event.<Long>get("aCount").getValue() == 2);
+    }
+  }
 }

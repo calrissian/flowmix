@@ -28,18 +28,24 @@ public class AggregateOp implements FlowOp, RequiresPartitioning {
     private Policy evictionPolicy;
     private long triggerThreshold;
     private long evictionThreshold;
+    private boolean clearOnTrigger = false;
 
     private Map<String,String> config;
 
     public AggregateOp(Class<? extends Aggregator> aggregatorClass, Policy triggerPolicy, long triggerThreshold,
-                       Policy evictionPolicy, long evictionThreshold, Map<String,String> config) {
+                       Policy evictionPolicy, long evictionThreshold, Map<String,String> config, boolean clearOnTrigger) {
         this.aggregatorClass = aggregatorClass;
         this.triggerPolicy = triggerPolicy;
         this.evictionPolicy = evictionPolicy;
         this.triggerThreshold = triggerThreshold;
         this.evictionThreshold = evictionThreshold;
         this.config = config;
+        this.clearOnTrigger = clearOnTrigger;
 
+    }
+
+    public boolean isClearOnTrigger() {
+      return clearOnTrigger;
     }
 
     public Class<? extends Aggregator> getAggregatorClass() {

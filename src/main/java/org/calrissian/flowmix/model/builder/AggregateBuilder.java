@@ -34,6 +34,7 @@ public class AggregateBuilder extends AbstractOpBuilder {
     private long triggerThreshold = -1;
     private Policy evictionPolicy;
     private long evictionThreshold = -1;
+    private boolean clearOnTrigger = false;
 
     private Map<String,String> config = new HashMap<String,String>();
 
@@ -44,6 +45,11 @@ public class AggregateBuilder extends AbstractOpBuilder {
     public AggregateBuilder aggregator(Class<? extends Aggregator> aggregatorClass) {
         this.aggregatorClass = aggregatorClass;
         return this;
+    }
+
+    public AggregateBuilder clearOnTrigger() {
+      this.clearOnTrigger = true;
+      return this;
     }
 
 
@@ -82,7 +88,7 @@ public class AggregateBuilder extends AbstractOpBuilder {
         flowOpList.add(new PartitionOp(EMPTY_LIST));
 
       getStreamBuilder().addFlowOp(new AggregateOp(aggregatorClass, triggerPolicy, triggerThreshold, evictionPolicy,
-              evictionThreshold, config));
+              evictionThreshold, config, clearOnTrigger));
       return getStreamBuilder();
     }
 }

@@ -56,6 +56,7 @@ public class SelectorBoltIT extends FlowTestCase {
       e.printStackTrace();
     }
 
+    cluster.shutdown();
     System.out.println(MockSinkBolt.getEvents());
     assertTrue(MockSinkBolt.getEvents().size() > 0);
 
@@ -95,6 +96,7 @@ public class SelectorBoltIT extends FlowTestCase {
       e.printStackTrace();
     }
 
+    cluster.shutdown();
     assertEquals(0, MockSinkBolt.getEvents().size());
   }
 }

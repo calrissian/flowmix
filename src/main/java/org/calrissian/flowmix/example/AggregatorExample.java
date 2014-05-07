@@ -40,7 +40,7 @@ public class AggregatorExample implements FlowProvider {
            * items to exist in the window at any point in time (maxCount = 50000)
            */
           .partition().fields("key3").end()  // remove this to get the total number of events
-          .aggregate().aggregator(CountAggregator.class).evict(Policy.COUNT, 50000).trigger(Policy.TIME, 5).end()
+          .aggregate().aggregator(CountAggregator.class).evict(Policy.COUNT, 50000).trigger(Policy.TIME, 5).clearOnTrigger().end()
         .endStream()
       .endDefs()
     .createFlow();

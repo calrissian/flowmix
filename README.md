@@ -16,15 +16,6 @@ One of the solutions Flowmix offers to the resource and windowing problem is hav
 
 Other non-relational operations like switches and governors can also be applied to orchestrate the flow of a stream of data. Generic functions can be applied to each event as it passes through a stream. 
 
-
-##Planned Notable Features:
-- Groovy-defined flows that get auto-classloaded by the Storm bolts to limit downtime and promote on-the-fly updates of flows.
-- Automatic synchronization of flow updates via Zookeeper. You modify your flow and submit it, the Storm topology will automatically update itself.
-- Ability to expire partitioned windows by time
-- Aggregated windows with custom aggregation functions
-- Easy to define flow processing pipelines that automatically run in parallel.
-- Customizable output processing (the flow stops with output, you plug in your downstream handling)
-
 ##Concepts:
 
 ###What are events?
@@ -38,6 +29,17 @@ event.put(new Tuple("key1", "val1"));
 
 ###What is a flow?
 A flow is a processing pipeline that defines how to manipulate a set of data streams. A flow runs in parallel, processing as many streams as possible at the same time. Flows also define algorithms that use windowing, partitions, and aggregations to manage the data so that analytics and alerting can be orchestrated easily. 
+
+### Inputs and outputs
+
+Flowmix provides a factory for wiring up the standard operators (with a configurable amount of parallel executors/tasks) so that flows can be parsed and route the events to the correct bolts. The factory needs 2 input spouts and an output bolt to wire into the topology:
+
+- A spout to feed the flows into the topology
+- A spout to feed events into the topology.
+- A bolt to accept output events 
+
+The input stream of events for which at least one flow stream must subscribe is referred to as _standard input_. The output stream of events which at least one flow stream much publish to is called the _standard output_. By default, unless turned off in the ```FlowBuilder```, streams will subscribe to standard input by default and publish to standard output by default. In place of this, however, they can specify some number of different streams which they can subscribe to for their events and publish to for their output.
+
 
 ###How are flows defined?
 
@@ -81,4 +83,11 @@ Check the documentation of each example to find out more about the features they
 
 
 
+##Planned Notable Features:
+- Groovy-defined flows that get auto-classloaded by the Storm bolts to limit downtime and promote on-the-fly updates of flows.
+- Automatic synchronization of flow updates via Zookeeper. You modify your flow and submit it, the Storm topology will automatically update itself.
+- Ability to expire partitioned windows by time
+- Aggregated windows with custom aggregation functions
+- Easy to define flow processing pipelines that automatically run in parallel.
+- Customizable output processing (the flow stops with output, you plug in your downstream handling)
 

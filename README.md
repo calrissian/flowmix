@@ -38,7 +38,7 @@ Flowmix provides a factory for wiring up the standard operators (with a configur
 - A spout to feed events into the topology.
 - A bolt to accept output events 
 
-The input stream of events for which at least one flow stream must subscribe is referred to as _standard input_. The output stream of events which at least one flow stream much publish to is called the _standard output_. By default, unless turned off in the ```FlowBuilder```, streams will subscribe to standard input by default and publish to standard output by default. In place of this, however, they can specify some number of different streams which they can subscribe to for their events and publish to for their output.
+The input stream of events for which at least one flow stream must subscribe is referred to as _standard input_. The output stream of events which at least one flow stream much publish to is called the _standard output_. By default, unless turned off in the ```FlowBuilder```, streams will subscribe to standard input and publish to standard output. In place of this, however, they can specify some number of different streams which they can subscribe to for their events and publish to for their output.
 
 
 ###How are flows defined?
@@ -76,11 +76,10 @@ Flow flow = new FlowBuilder()
 Examples are provided in the org.calrissian.flowmix.examples package. These examples with fire up a local Apache Storm cluster and print the events received on the standard output component to the console. Each of the classes in the base examples package have main() methods that can be executed directly to run the example. You can run the examples with the following:
 
 ```java
-java -cp flowbox-<version>.jar org.calrissian.flowmix.examples.StreamBridgeExample
+java -cp flowmix-<version>.jar org.calrissian.flowmix.examples.StreamBridgeExample
 ```
 
 Check the documentation of each example to find out more about the features they are exemplifying.
-
 
 
 ##Current planned notable features:
@@ -88,4 +87,4 @@ Check the documentation of each example to find out more about the features they
 - Groovy-defined flows that get auto-classloaded by the Storm bolts to limit downtime and promote on-the-fly updates of flows.
 - Dynamic updating of flows. You modify your flow and submit it, the Storm topology will automatically update itself.
 - Ability to expire partitioned windows by time
-
+- Event broadcast operators for intra-topology event handling (similar to Punctuations in Infosphere Streams).

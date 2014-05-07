@@ -55,7 +55,7 @@ public class StreamBridgeExample implements FlowProvider {
                 return true;
               }
             }).end()
-          .select().field("key4").end()
+          .select().fields("key4").end()
           .each().function(new Function() {
             @Override
             public List<Event> execute(Event event) {

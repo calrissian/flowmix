@@ -37,8 +37,9 @@ public class SortBuilder extends AbstractOpBuilder {
         super(flowOpsBuilder);
     }
 
-    public SortBuilder sortBy(String field) {
-      sortBy.add(field);
+    public SortBuilder sortBy(String... fields) {
+      for(String field : fields)
+        sortBy.add(field);
       return this;
     }
 

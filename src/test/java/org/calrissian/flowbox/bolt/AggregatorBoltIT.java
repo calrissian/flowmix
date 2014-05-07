@@ -41,7 +41,7 @@ public class AggregatorBoltIT extends FlowTestCase {
             .id("myflow")
             .flowDefs()
                 .stream("stream1")
-                    .partition().field("key3").end()
+                    .partition().fields("key3").end()
                     .aggregate().aggregator(CountAggregator.class)
                       .config(OUTPUT_FIELD, "aCount")
                       .trigger(Policy.TIME, 5)

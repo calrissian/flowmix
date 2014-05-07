@@ -59,7 +59,7 @@ public class SortExample implements FlowProvider {
                 return singletonList(newEvent);
               }
             }).end()
-        .partition().field("key1").end()
+        .partition().fields("key1").end()
         .sort().sortBy("count").evict(Policy.COUNT, 5).trigger(Policy.COUNT, 500).clearOnTrigger().end()
       .endStream()
       .endDefs()

@@ -32,7 +32,7 @@ import java.util.Map;
 import static org.calrissian.flowbox.Constants.*;
 import static org.calrissian.flowbox.FlowboxFactory.declarePartitionedOutputStreams;
 import static org.calrissian.flowbox.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
-import static org.calrissian.flowbox.support.Window.buildKeyIndexForEvent;
+import static org.calrissian.flowbox.support.Utils.buildKeyIndexForEvent;
 
 public class PartitionBolt extends BaseRichBolt {
 
@@ -66,7 +66,7 @@ public class PartitionBolt extends BaseRichBolt {
                 PartitionOp partitionOp = (PartitionOp) flow.getStream(streamName).getFlowOps().get(idx);
 
                 String nextStream = idx+1 < flow.getStream(streamName).getFlowOps().size() ? flow.getStream(streamName).getFlowOps().get(idx + 1).getComponentName() : "output";
-                String hash = buildKeyIndexForEvent(event, partitionOp.getFields());
+                String hash = buildKeyIndexForEvent(flowId, event, partitionOp.getFields());
 
                 if((nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output"))
                   collector.emit(nextStream, tuple, new Values(flowId, event, idx, streamName, hash, previousStream));

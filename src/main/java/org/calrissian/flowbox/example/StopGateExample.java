@@ -46,8 +46,8 @@ public class StopGateExample implements FlowProvider {
                 return true;
               }
             }).end()
-          .select().field("key3").end()
-          .partition().field("key3").end()
+          .select().fields("key3").end()
+          .partition().fields("key3").end()
           .stopGate().activate(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).open(Policy.TIME, 5).end()
         .endStream()
       .endDefs()

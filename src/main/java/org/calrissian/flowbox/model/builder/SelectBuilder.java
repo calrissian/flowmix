@@ -22,22 +22,23 @@ import java.util.List;
 
 public class SelectBuilder extends AbstractOpBuilder {
 
-    private List<String> fields = new ArrayList<String>();
+    private List<String> fieldsList = new ArrayList<String>();
 
     public SelectBuilder(StreamBuilder fob) {
         super(fob);
     }
 
-    public SelectBuilder field(String field) {
-        fields.add(field);
+    public SelectBuilder fields(String... fields) {
+      for(String field : fields)
+          fieldsList.add(field);
         return this;
     }
 
     public StreamBuilder end() {
-        if(fields == null || fields.size() == 0)
+        if(fieldsList == null || fieldsList.size() == 0)
             throw new RuntimeException("Selector operator needs to select at least 1 field");
 
-        getStreamBuilder().addFlowOp(new SelectOp(fields));
+        getStreamBuilder().addFlowOp(new SelectOp(fieldsList));
         return getStreamBuilder();
     }
 }

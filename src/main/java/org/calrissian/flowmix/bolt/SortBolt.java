@@ -187,6 +187,9 @@ public class SortBolt extends BaseRichBolt {
           windows.put(flow.getId() + "\0" + streamName + "\0" + idx, buffersForRule);
         }
 
+        if(op.getEvictionPolicy() == Policy.COUNT && op.getEvictionThreshold() == buffer.size())
+          buffer.expire();
+
         buffer.add(event, previousStream);
 
         /**
@@ -225,8 +228,10 @@ public class SortBolt extends BaseRichBolt {
     if(op.isClearOnTrigger())
       items = window.getEvents();
     else {
-      if(window.size() == op.getEvictionThreshold())    // we know if it's a progressive window, the eviction policy is count.
+      if(op.getTriggerThreshold() == 1 && window.size() == op.getEvictionThreshold())    // we know if it's a progressive window, the eviction policy is count.
         items = singleton(window.expire());
+      else
+        items = window.getEvents();
     }
 
     if(items != null) {

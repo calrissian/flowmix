@@ -19,10 +19,7 @@ import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
 import com.google.common.collect.Iterables;
-import org.calrissian.flowmix.model.Event;
-import org.calrissian.flowmix.model.Flow;
-import org.calrissian.flowmix.model.Policy;
-import org.calrissian.flowmix.model.Tuple;
+import org.calrissian.flowmix.model.*;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.model.kryo.EventSerializer;
 import org.calrissian.flowmix.support.Function;
@@ -30,9 +27,12 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static java.lang.Math.random;
 import static java.util.Collections.singletonList;
+import static org.calrissian.flowmix.model.Order.ASC;
 import static org.calrissian.flowmix.model.Order.DESC;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SortBoltIT extends FlowTestCase {
 
@@ -40,7 +40,7 @@ public class SortBoltIT extends FlowTestCase {
 
 
   @Test
-  public void test_tumblingWindow_countEviction() {
+  public void test_tumblingWindow_countEviction_ascending() {
     Flow flow = new FlowBuilder()
         .id("flow")
         .flowDefs()
@@ -50,11 +50,12 @@ public class SortBoltIT extends FlowTestCase {
             public List<Event> execute(Event event) {
               Event newEvent = new Event(event.getId(), event.getTimestamp());
               newEvent.putAll(Iterables.concat(event.getTuples().values()));
-              newEvent.put(new Tuple("n", counter++));
+              newEvent.put(new Tuple("n", (int)(random() * 10)));
               return singletonList(newEvent);
             }
           }).end()
-          .sort().sortBy("count").tumbling(Policy.COUNT, 25).end()   //tumbling means it clears on trigger
+          .select().fields("n").end()
+          .sort().sortBy("n").tumbling(Policy.COUNT, 25).end()   //tumbling means it clears on trigger
         .endStream()   // send ALL results to stream2 and not to standard output
         .endDefs()
       .createFlow();
@@ -79,12 +80,70 @@ public class SortBoltIT extends FlowTestCase {
     cluster.shutdown();
     System.out.println(MockSinkBolt.getEvents());
     assertEquals(25, MockSinkBolt.getEvents().size());
-    Integer count = 0;
+
+    Integer lastValue = null;
     for(Event event : MockSinkBolt.getEvents()) {
-      assertEquals(count++, event.<Integer>get("n").getValue());
+      if(lastValue == null)
+        lastValue = event.<Integer>get("n").getValue();
+
+      assertTrue(lastValue <= event.<Integer>get("n").getValue());
+      lastValue = event.<Integer>get("n").getValue();
     }
   }
 
+
+
+  @Test
+  public void test_tumblingWindow_countEviction_descending() {
+    Flow flow = new FlowBuilder()
+            .id("flow")
+            .flowDefs()
+            .stream("stream1")
+            .each().function(new Function() {
+              @Override
+              public List<Event> execute(Event event) {
+                Event newEvent = new Event(event.getId(), event.getTimestamp());
+                newEvent.putAll(Iterables.concat(event.getTuples().values()));
+                newEvent.put(new Tuple("n", (int) (random() * 10)));
+                return singletonList(newEvent);
+              }
+            }).end()
+            .select().fields("n").end()
+            .sort().sortBy("n", DESC).tumbling(Policy.COUNT, 25).end()   //tumbling means it clears on trigger
+            .endStream()   // send ALL results to stream2 and not to standard output
+            .endDefs()
+            .createFlow();
+
+    StormTopology topology = buildTopology(flow, 50);
+    Config conf = new Config();
+    conf.setNumWorkers(20);
+    conf.registerSerialization(Event.class, EventSerializer.class);
+    conf.setSkipMissingKryoRegistrations(false);
+
+    LocalCluster cluster = new LocalCluster();
+    cluster.submitTopology("test", conf, topology);
+
+    while(MockSinkBolt.getEvents().size() < 25) {
+      try {
+        Thread.sleep(10);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+
+    cluster.shutdown();
+    System.out.println(MockSinkBolt.getEvents());
+    assertEquals(25, MockSinkBolt.getEvents().size());
+
+    Integer lastValue = null;
+    for(Event event : MockSinkBolt.getEvents()) {
+      if(lastValue == null)
+        lastValue = event.<Integer>get("n").getValue();
+
+      assertTrue(lastValue >= event.<Integer>get("n").getValue());
+      lastValue = event.<Integer>get("n").getValue();
+    }
+  }
 
   @Test
   public void test_progressiveSort_ascending() {
@@ -177,4 +236,59 @@ public class SortBoltIT extends FlowTestCase {
     for(Event event : MockSinkBolt.getEvents()) {
       assertEquals(count++, event.<Integer>get("n").getValue());
     }
-  }}
+  }
+
+
+
+  @Test
+  public void test_topN_flushed() {
+    Flow flow = new FlowBuilder()
+            .id("flow")
+            .flowDefs()
+            .stream("stream1")
+            .each().function(new Function() {
+              @Override
+              public List<Event> execute(Event event) {
+                Event newEvent = new Event(event.getId(), event.getTimestamp());
+                newEvent.putAll(Iterables.concat(event.getTuples().values()));
+                newEvent.put(new Tuple("n", counter++));
+                return singletonList(newEvent);
+              }
+            }).end()
+            .select().fields("n").end()
+            .sort().sortBy("n", DESC).topN(10, 5, false).end()   //tumbling means it clears on trigger
+            .endStream()   // send ALL results to stream2 and not to standard output
+            .endDefs()
+            .createFlow();
+
+    StormTopology topology = buildTopology(flow, 50);
+    Config conf = new Config();
+    conf.setNumWorkers(20);
+    conf.registerSerialization(Event.class, EventSerializer.class);
+    conf.setSkipMissingKryoRegistrations(false);
+
+    LocalCluster cluster = new LocalCluster();
+    cluster.submitTopology("test", conf, topology);
+
+    while(MockSinkBolt.getEvents().size() < 10) {
+      try {
+        Thread.sleep(10);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+
+    cluster.shutdown();
+    System.out.println(MockSinkBolt.getEvents());
+    Integer count = 0;
+    assertEquals(10, MockSinkBolt.getEvents().size());
+    Integer lastValue = null;
+    for(Event event : MockSinkBolt.getEvents()) {
+      if(lastValue == null)
+        lastValue = event.<Integer>get("n").getValue();
+
+      assertTrue(lastValue >= event.<Integer>get("n").getValue());
+      lastValue = event.<Integer>get("n").getValue();
+    }
+  }
+}

@@ -52,12 +52,10 @@ public class AggregateBuilder extends AbstractOpBuilder {
       return this;
     }
 
-
     public AggregateBuilder config(String key, String value) {
       config.put(key, value);
       return this;
     }
-
 
     public AggregateBuilder trigger(Policy policy, long threshold) {
         this.triggerPolicy = policy;

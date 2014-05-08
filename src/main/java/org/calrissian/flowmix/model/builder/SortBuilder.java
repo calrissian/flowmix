@@ -53,6 +53,7 @@ public class SortBuilder extends AbstractOpBuilder {
       evictionThreshold = countEvictionThreshold;
       triggerPolicy = Policy.COUNT;
       triggerThreshold = 1;
+      clearOnTrigger = false;
       return this;
     }
 
@@ -60,10 +61,22 @@ public class SortBuilder extends AbstractOpBuilder {
       clearOnTrigger = true;
       triggerPolicy = policy;
       triggerThreshold = threshold;
+      evictionPolicy = null;
+      evictionThreshold = -1;
       return this;
     }
 
-    @Override
+
+    public SortBuilder topN(int n, long timeInSeconds, boolean flushOnTrigger) {
+      evictionPolicy = Policy.COUNT;
+      evictionThreshold = n;
+      triggerPolicy = Policy.TIME;
+      triggerThreshold = timeInSeconds;
+      this.clearOnTrigger = flushOnTrigger;
+      return this;
+    }
+
+  @Override
     public StreamBuilder end() {
 
       if(sortBy.size() == 0)

@@ -39,7 +39,7 @@ public class ExampleRunner {
         new MockFlowLoaderSpout(provider.getFlows(), 60000),
         new MockEventGeneratorSpout(10),
         new PrinterBolt(), 6)
-      .createFlowbox()
+      .create()
     .createTopology();
 
     Config conf = new Config();

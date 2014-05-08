@@ -16,16 +16,15 @@
 package org.calrissian.flowmix.model.builder;
 
 import org.calrissian.flowmix.model.*;
+import org.calrissian.flowmix.support.Pair;
 
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 import static java.util.Collections.EMPTY_LIST;
 
 public class SortBuilder extends AbstractOpBuilder {
 
-    private SortedSet<String> sortBy = new TreeSet<String>();
+    private List<Pair<String, Order>> sortBy = new ArrayList<Pair<String, Order>>();
 
     private Policy evictionPolicy;
     private long evictionThreshold = -1;
@@ -39,26 +38,28 @@ public class SortBuilder extends AbstractOpBuilder {
         super(flowOpsBuilder);
     }
 
-    public SortBuilder sortBy(String... fields) {
-      for(String field : fields)
-        sortBy.add(field);
+    public SortBuilder sortBy(String field, Order order) {
+      sortBy.add(new Pair<String, Order>(field, order));
       return this;
     }
 
-    public SortBuilder evict(Policy policy, long threshold) {
-      evictionPolicy = policy;
-      evictionThreshold = threshold;
+    public SortBuilder sortBy(String field) {
+      sortBy.add(new Pair<String, Order>(field, Order.ASC));
       return this;
     }
 
-    public SortBuilder trigger(Policy policy, long threshold) {
+    public SortBuilder progressive(long countEvictionThreshold) {
+      evictionPolicy = Policy.COUNT;
+      evictionThreshold = countEvictionThreshold;
+      triggerPolicy = Policy.COUNT;
+      triggerThreshold = 1;
+      return this;
+    }
+
+    public SortBuilder tumbling(Policy policy, long threshold) {
+      clearOnTrigger = true;
       triggerPolicy = policy;
       triggerThreshold = threshold;
-      return this;
-    }
-
-    public SortBuilder clearOnTrigger() {
-      this.clearOnTrigger = true;
       return this;
     }
 
@@ -68,7 +69,7 @@ public class SortBuilder extends AbstractOpBuilder {
       if(sortBy.size() == 0)
         throw new RuntimeException("Sort operator needs at least one field name to sort by");
 
-      if(evictionPolicy == null || evictionThreshold == -1)
+      if(clearOnTrigger == false && (evictionPolicy == null || evictionThreshold == -1))
         throw new RuntimeException("Sort operator needs an eviction policy and threshold");
 
       if(triggerPolicy == null || triggerThreshold == -1)

@@ -32,7 +32,7 @@ public class Window {
   protected int triggerTicks = 0;
 
   /**
-   * A sliding window buffer which automatically evicts by count
+   * A progressive window buffer which automatically evicts by count
    */
   public Window(String groupedIndex, long size) {
     this(groupedIndex);

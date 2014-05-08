@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An aggregator over a sliding/tumbling window allows aggregate values like sums and averages to be
+ * An aggregator over a progressive/tumbling window allows aggregate values like sums and averages to be
  * maintained for some window at some point in time without the whole window being available at any point in time.
  *
  * This is very useful for associative algorithms that can be implemented without the entire dataset being available.

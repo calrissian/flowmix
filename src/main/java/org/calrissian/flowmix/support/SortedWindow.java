@@ -27,7 +27,10 @@ public class SortedWindow extends Window {
    * Used for count-based expiration
    */
   public WindowItem expire() {
-    return events.removeFirst();
+
+    WindowItem first = events.getFirst();
+    WindowItem last = events.getLast();
+    return events.removeLast();
   }
 
   public SortedWindow(String groupedIndex, Comparator<WindowItem> comparator, boolean sortOnGet) {

@@ -24,7 +24,7 @@ public class FlowTestCase implements Serializable {
             new MockEventGeneratorSpout(intervalBetweenEvents),
             new MockSinkBolt(),
             6)
-            .createFlowbox()
+            .create()
             .createTopology();
 
     return topology;

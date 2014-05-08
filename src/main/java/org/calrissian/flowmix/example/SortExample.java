@@ -60,7 +60,7 @@ public class SortExample implements FlowProvider {
               }
             }).end()
         .partition().fields("key1").end()
-        .sort().sortBy("count").evict(Policy.COUNT, 5).trigger(Policy.COUNT, 500).clearOnTrigger().end()
+        .sort().sortBy("count").tumbling(Policy.COUNT, 5).end()
       .endStream()
       .endDefs()
     .createFlow();

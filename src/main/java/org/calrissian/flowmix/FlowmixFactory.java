@@ -65,7 +65,7 @@ public class FlowmixFactory {
   /**
    * @return A topology builder than can further be customized.
    */
-  public TopologyBuilder createFlowbox() {
+  public TopologyBuilder create() {
 
       TopologyBuilder builder = new TopologyBuilder();
 

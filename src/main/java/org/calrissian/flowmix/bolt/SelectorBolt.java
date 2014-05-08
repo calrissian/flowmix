@@ -68,9 +68,8 @@ public class SelectorBolt extends BaseRichBolt {
                 Event newEvent = new Event(event.getId(), event.getTimestamp());
                 for(Map.Entry<String, Set<org.calrissian.flowmix.model.Tuple>> eventTuple : event.getTuples().entrySet()) {
                     if(selectOp.getFields().contains(eventTuple.getKey())) {
-                        for(org.calrissian.flowmix.model.Tuple curTuple : eventTuple.getValue()) {
+                        for(org.calrissian.flowmix.model.Tuple curTuple : eventTuple.getValue())
                             newEvent.put(curTuple);
-                        }
                     }
                 }
 

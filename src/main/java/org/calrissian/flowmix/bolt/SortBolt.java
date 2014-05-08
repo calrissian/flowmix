@@ -200,14 +200,14 @@ public class SortBolt extends BaseRichBolt {
         } else if(op.getTriggerPolicy() == Policy.TIME_DELTA_LT && buffer.timeRange() > -1 && buffer.timeRange() <= op.getTriggerThreshold() * 1000)
           emitWindow(flow, streamName, op, buffer, idx);
 
-        /**
-         * If we aren't supposed to clear the window right now, then we need to emit
-         */
-        else if(!op.isClearOnTrigger()) {
-
-          if(op.getEvictionPolicy() != Policy.COUNT || (op.getEvictionPolicy() == Policy.COUNT && op.getTriggerThreshold() == windows.size()))
-            emitWindow(flow, streamName, op, buffer, idx);
-        }
+//        /**
+//         * If we aren't supposed to clear the window right now, then we need to emit
+//         */
+//        else if(!op.isClearOnTrigger()) {
+//
+//          if(op.getEvictionPolicy() != Policy.COUNT || (op.getEvictionPolicy() == Policy.COUNT && op.getTriggerThreshold() == windows.size()))
+//            emitWindow(flow, streamName, op, buffer, idx);
+//        }
       }
 
     }
@@ -221,14 +221,16 @@ public class SortBolt extends BaseRichBolt {
     /**
      * If the window is set to be cleared, we need to emit everything. Otherwise, just emit the last item in the list.
      */
-    Iterable<WindowItem> items;
+    Iterable<WindowItem> items = null;
     if(op.isClearOnTrigger())
       items = window.getEvents();
     else {
-      items = singleton(window.expire());
+      if(window.size() == op.getEvictionThreshold())    // we know if it's a progressive window, the eviction policy is count.
+        items = singleton(window.expire());
     }
 
-    for(WindowItem item : items) {
+    if(items != null) {
+      for(WindowItem item : items) {
         if((nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output"))
           collector.emit(nextStream, new Values(flow.getId(), item.getEvent(), idx, streamName, item.getPreviousStream()));
 
@@ -239,13 +241,13 @@ public class SortBolt extends BaseRichBolt {
             collector.emit(outputStream, new Values(flow.getId(), item.getEvent(), -1, output, streamName));
           }
         }
+      }
+
+      if(op.isClearOnTrigger())
+        window.clear();
     }
 
-    if(op.isClearOnTrigger())
-      window.clear();
-
     window.resetTriggerTicks();
-
   }
 
   private SortedWindow buildWindow(String hash, SortOp op) {

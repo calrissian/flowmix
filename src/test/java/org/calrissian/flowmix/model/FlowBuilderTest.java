@@ -160,7 +160,7 @@ public class FlowBuilderTest {
             .id("myTestFlow")
             .flowDefs()
             .stream("stream1")
-            .sort().sortBy("key1").trigger(Policy.COUNT, 1).evict(Policy.TIME, 1).end()
+            .sort().sortBy("key1").tumbling(Policy.COUNT, 1).end()
             .endStream()
             .endDefs()
             .createFlow();

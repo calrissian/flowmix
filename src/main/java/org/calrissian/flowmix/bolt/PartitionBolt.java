@@ -63,6 +63,7 @@ public class PartitionBolt extends BaseRichBolt {
             Flow flow = flows.get(flowId);
 
             if(flow != null) {
+
                 PartitionOp partitionOp = (PartitionOp) flow.getStream(streamName).getFlowOps().get(idx);
 
                 String nextStream = idx+1 < flow.getStream(streamName).getFlowOps().size() ? flow.getStream(streamName).getFlowOps().get(idx + 1).getComponentName() : "output";

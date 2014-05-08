@@ -80,9 +80,8 @@ Some number of events are expected in the standard input stream that contain a c
 Obviously, this is just a test flow, but it's a great demonstration of how an unscalable stream of data can be turned into a completely scalable data flow by grouping items of interest and orchestrating the groupings to provide meaningful outputs.
 
 This is essentially implementing this SQL continuously while the data is streaming through the topology:
-
 ```sql
-SELECT age, county, COUNT(*) FROM input GROUP BY age, country WHERE country = 'USA' ORDER BY age DESC limit 10;
+SELECT age, country, COUNT(*) FROM input GROUP BY age, country WHERE country = 'USA' ORDER BY age DESC limit 10;
 ```
 
 ##Examples: 

@@ -81,7 +81,9 @@ Obviously, this is just a test flow, but it's a great demonstration of how an un
 
 This is essentially implementing this SQL continuously while the data is streaming through the topology:
 
-```SELECT age, county, COUNT(*) FROM input GROUP BY age, country WHERE country = 'USA' ORDER BY age DESC limit 10;```
+```sql
+SELECT age, county, COUNT(*) FROM input GROUP BY age, country WHERE country = 'USA' ORDER BY age DESC limit 10;
+```
 
 ##Examples: 
 

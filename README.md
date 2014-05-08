@@ -67,7 +67,7 @@ Flow flow = new FlowBuilder()
               .evict(Policy.COUNT, 1000)
               .trigger(Policy.COUNT, 10)
               .clearOnTrigger().end()
-            .sort().sortBy("sum", Order.DESC).topN(10, Policy.TIME, 5, false).end()
+            .sort().sortBy("sum", Order.DESC).topN(10, Policy.TIME, 1000*60*10, false).end()
         .endStream()
     .endDefs()
 .createFlow();
@@ -75,7 +75,7 @@ Flow flow = new FlowBuilder()
 
 ####What does this do?
 
-Some number of events are expected in the standard input stream that contain a country with a value USA and an age field. For each event that comes in, group by the age and country fields, aggregate and count the number of events received for each age/country combination and emit the counts every 5 seconds (clearing the buffers). Aggregate the counts to formulate sums of each count and emit the sums every 10 that are received (that means for each age/country grouping, wait for 10 * 5 seconds or 50 seconds). Collect the sums into an ongoing Top N which will emit every 5 seconds. The topN window will not be cleared- this allows trending algorithms to be written. 
+Some number of events are expected in the standard input stream that contain a country with a value USA and an age field. For each event that comes in, group by the age and country fields, aggregate and count the number of events received for each age/country combination and emit the counts every 5 seconds (clearing the buffers). Aggregate the counts to formulate sums of each count and emit the sums every 10 that are received (that means for each age/country grouping, wait for 10 * 5 seconds or 50 seconds). Collect the sums into an ongoing Top N which will emit every 10 minutes. The topN window will not be cleared- this allows trending algorithms to be written. 
 
 Obviously, this is just a test flow, but it's a great demonstration of how an unscalable stream of data can be turned into a completely scalable data flow by grouping items of interest and orchestrating the groupings to provide meaningful outputs.
 

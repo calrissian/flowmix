@@ -1,7 +1,7 @@
 package org.calrissian.flowmix.model;
 
 
-import org.calrissian.flowmix.support.Pair;
+import com.sun.tools.javac.util.Pair;
 
 import java.util.List;
 

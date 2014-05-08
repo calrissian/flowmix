@@ -15,8 +15,8 @@
  */
 package org.calrissian.flowmix.model.builder;
 
+import com.sun.tools.javac.util.Pair;
 import org.calrissian.flowmix.model.*;
-import org.calrissian.flowmix.support.Pair;
 
 import java.util.*;
 

@@ -40,7 +40,7 @@ limitations under the License.
       <dependency>
         <groupId>org.calrissian.mango</groupId>
         <artifactId>mango-accumulo</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.1-SNAPSHOT</version>
         <exclusions>
           <exclusion>
             <groupId>org.slf4j</groupId>

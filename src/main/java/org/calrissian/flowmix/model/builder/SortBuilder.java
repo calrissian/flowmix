@@ -33,6 +33,7 @@ public class SortBuilder extends AbstractOpBuilder {
     private long triggerThreshold = -1;
 
     private boolean clearOnTrigger = false;
+    private boolean progressive = false;
 
     public SortBuilder(StreamBuilder flowOpsBuilder) {
         super(flowOpsBuilder);
@@ -54,6 +55,7 @@ public class SortBuilder extends AbstractOpBuilder {
       triggerPolicy = Policy.COUNT;
       triggerThreshold = 1;
       clearOnTrigger = false;
+      progressive = true;
       return this;
     }
 
@@ -66,12 +68,11 @@ public class SortBuilder extends AbstractOpBuilder {
       return this;
     }
 
-
-    public SortBuilder topN(int n, long timeInSeconds, boolean flushOnTrigger) {
+    public SortBuilder topN(int n, Policy triggerPolicy, long triggerThreshold, boolean flushOnTrigger) {
       evictionPolicy = Policy.COUNT;
       evictionThreshold = n;
-      triggerPolicy = Policy.TIME;
-      triggerThreshold = timeInSeconds;
+      this.triggerPolicy = triggerPolicy;
+      this.triggerThreshold = triggerThreshold;
       this.clearOnTrigger = flushOnTrigger;
       return this;
     }
@@ -94,7 +95,7 @@ public class SortBuilder extends AbstractOpBuilder {
         flowOpList.add(new PartitionOp(EMPTY_LIST));
 
       getStreamBuilder().addFlowOp(new SortOp(sortBy, clearOnTrigger, evictionPolicy, evictionThreshold,
-              triggerPolicy, triggerThreshold));
+              triggerPolicy, triggerThreshold, progressive));
       return getStreamBuilder();
     }
 }

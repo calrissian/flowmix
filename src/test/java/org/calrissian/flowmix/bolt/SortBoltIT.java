@@ -256,7 +256,7 @@ public class SortBoltIT extends FlowTestCase {
               }
             }).end()
             .select().fields("n").end()
-            .sort().sortBy("n", DESC).topN(10, 5, false).end()   //tumbling means it clears on trigger
+            .sort().sortBy("n", DESC).topN(10, Policy.TIME, 5, false).end()   //tumbling means it clears on trigger
             .endStream()   // send ALL results to stream2 and not to standard output
             .endDefs()
             .createFlow();
@@ -288,6 +288,59 @@ public class SortBoltIT extends FlowTestCase {
         lastValue = event.<Integer>get("n").getValue();
 
       assertTrue(lastValue >= event.<Integer>get("n").getValue());
+      lastValue = event.<Integer>get("n").getValue();
+    }
+  }
+
+
+  @Test
+  public void test_bottomN_flushed() {
+    Flow flow = new FlowBuilder()
+            .id("flow")
+            .flowDefs()
+            .stream("stream1")
+            .each().function(new Function() {
+              @Override
+              public List<Event> execute(Event event) {
+                Event newEvent = new Event(event.getId(), event.getTimestamp());
+                newEvent.putAll(Iterables.concat(event.getTuples().values()));
+                newEvent.put(new Tuple("n", counter++));
+                return singletonList(newEvent);
+              }
+            }).end()
+            .select().fields("n").end()
+            .sort().sortBy("n", ASC).topN(10, Policy.TIME, 5, false).end()   //tumbling means it clears on trigger
+            .endStream()   // send ALL results to stream2 and not to standard output
+            .endDefs()
+            .createFlow();
+
+    StormTopology topology = buildTopology(flow, 50);
+    Config conf = new Config();
+    conf.setNumWorkers(20);
+    conf.registerSerialization(Event.class, EventSerializer.class);
+    conf.setSkipMissingKryoRegistrations(false);
+
+    LocalCluster cluster = new LocalCluster();
+    cluster.submitTopology("test", conf, topology);
+
+    while(MockSinkBolt.getEvents().size() < 10) {
+      try {
+        Thread.sleep(10);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+
+    cluster.shutdown();
+    System.out.println(MockSinkBolt.getEvents());
+    Integer count = 0;
+    assertEquals(10, MockSinkBolt.getEvents().size());
+    Integer lastValue = null;
+    for(Event event : MockSinkBolt.getEvents()) {
+      if(lastValue == null)
+        lastValue = event.<Integer>get("n").getValue();
+
+      assertTrue(lastValue <= event.<Integer>get("n").getValue());
       lastValue = event.<Integer>get("n").getValue();
     }
   }

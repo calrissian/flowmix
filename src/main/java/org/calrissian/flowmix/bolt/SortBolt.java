@@ -228,7 +228,7 @@ public class SortBolt extends BaseRichBolt {
     if(op.isClearOnTrigger())
       items = window.getEvents();
     else {
-      if(op.getTriggerThreshold() == 1 && window.size() == op.getEvictionThreshold())    // we know if it's a progressive window, the eviction policy is count.
+      if(op.isProgressive() && window.size() == op.getEvictionThreshold())    // we know if it's a progressive window, the eviction policy is count.
         items = singleton(window.expire());
       else
         items = window.getEvents();

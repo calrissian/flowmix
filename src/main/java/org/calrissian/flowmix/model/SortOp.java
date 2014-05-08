@@ -15,14 +15,21 @@ public class SortOp implements FlowOp, RequiresPartitioning {
   private long evictionThreshold;
   private Policy triggerPolicy;
   private long triggerThreshold;
+  private boolean progressive;
 
-  public SortOp(List<Pair<String,Order>> sortBy, boolean clearOnTrigger, Policy evictionPolicy, long evictionThreshold, Policy triggerPolicy, long triggerThreshold) {
+  public SortOp(List<Pair<String,Order>> sortBy, boolean clearOnTrigger, Policy evictionPolicy, long evictionThreshold, Policy triggerPolicy, long triggerThreshold, boolean progressive) {
     this.sortBy = sortBy;
     this.clearOnTrigger = clearOnTrigger;
     this.evictionPolicy = evictionPolicy;
     this.evictionThreshold = evictionThreshold;
     this.triggerPolicy = triggerPolicy;
     this.triggerThreshold = triggerThreshold;
+    this.progressive = progressive;
+  }
+
+
+  public boolean isProgressive() {
+    return progressive;
   }
 
   public List<Pair<String,Order>> getSortBy() {

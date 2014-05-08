@@ -79,6 +79,9 @@ Some number of events are expected in the standard input stream that contain a c
 
 Obviously, this is just a test flow, but it's a great demonstration of how an unscalable stream of data can be turned into a completely scalable data flow by grouping items of interest and orchestrating the groupings to provide meaningful outputs.
 
+This is essentially implementing this SQL as a continuous query while the data is streaming
+```SELECT age, county, COUNT(*) FROM input GROUP BY age, country WHERE country = 'USA' ORDER BY age DESC limit 10;```
+
 ##Examples: 
 
 Examples are provided in the org.calrissian.flowmix.examples package. These examples with fire up a local Apache Storm cluster and print the events received on the standard output component to the console. Each of the classes in the base examples package have main() methods that can be executed directly to run the example. You can run the examples with the following:

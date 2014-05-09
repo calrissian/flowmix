@@ -22,20 +22,23 @@ limitations under the License.
   <name>Root</name>
   <description>Calrissian Flowmix- A Flexible Event Processing Engine for Apache Storm</description>
 
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
 
   <repositories>
-      <repository>
-          <id>clojars.org</id>
-          <url>http://clojars.org/repo</url>
-      </repository>
+    <repository>
+      <id>clojars.org</id>
+      <url>http://clojars.org/repo</url>
+    </repository>
   </repositories>
 
   <dependencies>
-
       <dependency>
         <groupId>org.calrissian.mango</groupId>
         <artifactId>mango-core</artifactId>
-        <version>1.1.0</version>
+        <version>1.1.1-SNAPSHOT</version>
       </dependency>
       <dependency>
         <groupId>org.calrissian.mango</groupId>
@@ -81,7 +84,179 @@ limitations under the License.
 
   </dependencies>
 
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.4.2</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.apache.maven.scm</groupId>
+              <artifactId>maven-scm-provider-gitexe</artifactId>
+              <version>1.9</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.1</version>
+          <configuration>
+            <source>1.6</source>
+            <target>1.6</target>
+            <optimize>true</optimize>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.9.1</version>
+          <configuration>
+            <quiet>true</quiet>
+            <links>
+              <link>http://download.oracle.com/javase/6/docs/api/</link>
+              <link>http://download.oracle.com/javaee/6/api/</link>
+              <link>http://docs.guava-libraries.googlecode.com/git/javadoc/</link>
+            </links>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>2.2.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.rat</groupId>
+          <artifactId>apache-rat-plugin</artifactId>
+          <version>0.9</version>
+          <configuration>
+            <excludes>
+              <exclude>**\README.md</exclude>
+              <exclude>**\.travis.yml</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>com.google.code.sortpom</groupId>
+          <artifactId>maven-sortpom-plugin</artifactId>
+          <version>2.3.0</version>
+          <configuration>
+            <predefinedSortOrder>custom_1</predefinedSortOrder>
+            <lineSeparator>\n</lineSeparator>
+            <encoding>${project.build.sourceEncoding}</encoding>
+            <sortProperties>true</sortProperties>
+            <sortDependencies>scope,groupId,artifactId</sortDependencies>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>com.google.code.sortpom</groupId>
+        <artifactId>maven-sortpom-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>sort-pom</id>
+            <goals>
+              <goal>sort</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.5</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+            <phase>verify</phase>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <url>http://www.calrissian.org</url>
+  <organization>
+    <name>Calrissian</name>
+    <url>http://www.calrissian.org</url>
+  </organization>
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+      <comments>A business-friendly OSS license</comments>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <name>Corey Nolet</name>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:git@github.com:calrissian/flowmix.git</connection>
+    <developerConnection>scm:git:git@github.com:calrissian/flowmix.git</developerConnection>
+    <tag>HEAD</tag>
+    <url>git@github.com:calrissian/flowmix.git</url>
+  </scm>
+  <distributionManagement>
+    <repository>
+      <id>sonatype-nexus-staging</id>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+      <layout>default</layout>
+    </repository>
+    <snapshotRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+      <layout>default</layout>
+    </snapshotRepository>
+  </distributionManagement>
   <profiles>
+    <profile>
+      <id>full</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.rat</groupId>
+            <artifactId>apache-rat-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+                <phase>verify</phase>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <profile>
       <id>it</id>
       <build>

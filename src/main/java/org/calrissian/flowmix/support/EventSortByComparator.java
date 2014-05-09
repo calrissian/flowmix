@@ -1,6 +1,7 @@
 package org.calrissian.flowmix.support;
 
 import org.calrissian.flowmix.model.Order;
+import org.calrissian.mango.domain.Pair;
 import org.calrissian.mango.types.TypeRegistry;
 import org.calrissian.mango.types.exception.TypeEncodingException;
 

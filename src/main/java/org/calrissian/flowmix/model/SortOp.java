@@ -1,7 +1,8 @@
 package org.calrissian.flowmix.model;
 
 
-import com.sun.tools.javac.util.Pair;
+
+import org.calrissian.mango.domain.Pair;
 
 import java.util.List;
 

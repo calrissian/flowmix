@@ -14,12 +14,11 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static org.apache.commons.lang.StringUtils.join;
-import static org.apache.commons.lang.StringUtils.remove;
-import static org.calrissian.mango.accumulo.types.AccumuloTypeEncoders.ACCUMULO_TYPES;
+import static org.calrissian.mango.types.LexiTypeEncoders.LEXI_TYPES;
 
 public class Utils {
 
-  private static final TypeRegistry<String> registry = ACCUMULO_TYPES;
+  private static final TypeRegistry<String> registry = LEXI_TYPES;
 
   private Utils() {}
 

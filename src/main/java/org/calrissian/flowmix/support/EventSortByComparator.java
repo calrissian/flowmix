@@ -10,11 +10,11 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.calrissian.mango.accumulo.types.AccumuloTypeEncoders.ACCUMULO_TYPES;
+import static org.calrissian.mango.types.LexiTypeEncoders.LEXI_TYPES;
 
 public class EventSortByComparator implements Comparator<WindowItem> {
 
-  private TypeRegistry<String> registry = ACCUMULO_TYPES;
+  private TypeRegistry<String> registry = LEXI_TYPES;
   private List<Pair<String,Order>> sortBy;
 
   public EventSortByComparator(List<Pair<String,Order>> sortBy) {

@@ -26,11 +26,11 @@ import org.calrissian.mango.types.exception.TypeDecodingException;
 
 import java.util.Set;
 
-import static org.calrissian.mango.accumulo.types.AccumuloTypeEncoders.ACCUMULO_TYPES;
+import static org.calrissian.mango.types.LexiTypeEncoders.LEXI_TYPES;
 
 public class EventSerializer extends Serializer<Event> {
 
-    TypeRegistry<String> registry = ACCUMULO_TYPES;
+    TypeRegistry<String> registry = LEXI_TYPES;
 
     @Override
     public void write(Kryo kryo, Output output, Event event) {

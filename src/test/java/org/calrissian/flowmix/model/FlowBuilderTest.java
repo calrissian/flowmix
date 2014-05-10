@@ -16,11 +16,13 @@
 package org.calrissian.flowmix.model;
 
 import org.calrissian.flowmix.model.builder.FlowBuilder;
-import org.calrissian.flowmix.support.Criteria;
-import org.calrissian.flowmix.support.aggregator.CountAggregator;
-import org.calrissian.flowmix.support.aggregator.LongSumAggregator;
+import org.calrissian.flowmix.aggregator.CountAggregator;
+import org.calrissian.flowmix.aggregator.LongSumAggregator;
+import org.calrissian.mango.criteria.builder.QueryBuilder;
+import org.calrissian.mango.criteria.utils.NodeUtils;
 import org.junit.Test;
 
+import static org.calrissian.mango.criteria.utils.NodeUtils.criteriaFromNode;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -35,12 +37,7 @@ public class FlowBuilderTest {
           .description("This is a test flow just to prove that we can use the builder effectively")
           .flowDefs()
               .stream("stream1")
-                  .filter().criteria(new Criteria() {
-                @Override
-                public boolean matches(Event event) {
-                  return false;
-                }
-              }).end()
+                  .filter().criteria(criteriaFromNode(new QueryBuilder().eq("500", "1000").build())).end()
                   .select().fields("name", "age").end()
                   .partition().fields("name", "age", "country").end()
                   .aggregate().aggregator(LongSumAggregator.class).evict(Policy.COUNT, 500).trigger(Policy.TIME, 25).end()

@@ -19,12 +19,11 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import org.calrissian.flowmix.model.Event;
-import org.calrissian.flowmix.model.Tuple;
+import org.calrissian.mango.domain.BaseEvent;
+import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.Tuple;
 import org.calrissian.mango.types.TypeRegistry;
 import org.calrissian.mango.types.exception.TypeDecodingException;
-
-import java.util.Set;
 
 import static org.calrissian.mango.types.LexiTypeEncoders.LEXI_TYPES;
 
@@ -39,12 +38,10 @@ public class EventSerializer extends Serializer<Event> {
         output.writeString(event.getId());
         output.writeLong(event.getTimestamp());
         output.writeInt(event.getTuples().size());
-        for(Set<Tuple> tupleSet : event.getTuples().values()) {
-          for(Tuple tuple : tupleSet) {
-            output.writeString(tuple.getKey());
-            output.writeString(registry.getAlias(tuple.getValue()));
-            output.writeString(registry.encode(tuple.getValue()));
-          }
+        for(Tuple tupleSet : event.getTuples()) {
+          output.writeString(tupleSet.getKey());
+          output.writeString(registry.getAlias(tupleSet.getValue()));
+          output.writeString(registry.encode(tupleSet.getValue()));
         }
 
       } catch(Exception e) {
@@ -58,7 +55,7 @@ public class EventSerializer extends Serializer<Event> {
         long timestamp = input.readLong();
 
       try {
-        Event event = new Event(uuid, timestamp);
+        Event event = new BaseEvent(uuid, timestamp);
         int numTuples = input.readInt();
         for(int i = 0; i < numTuples; i++) {
 
@@ -67,7 +64,6 @@ public class EventSerializer extends Serializer<Event> {
           String val = input.readString();
 
           event.put(new Tuple(key, registry.decode(alias, val)));
-
         }
 
         return event;

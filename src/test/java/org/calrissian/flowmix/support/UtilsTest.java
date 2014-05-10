@@ -1,8 +1,9 @@
 package org.calrissian.flowmix.support;
 
 
-import org.calrissian.flowmix.model.Event;
-import org.calrissian.flowmix.model.Tuple;
+import org.calrissian.mango.domain.BaseEvent;
+import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.Tuple;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -36,7 +37,7 @@ public class UtilsTest {
 
 
   private Event buildTestEvent() {
-    Event event = new Event(randomUUID().toString(), currentTimeMillis());
+    Event event = new BaseEvent(randomUUID().toString(), currentTimeMillis());
     event.put(new Tuple("key1", "val5"));
     event.put(new Tuple("key1", "val1"));
     event.put(new Tuple("key2", "val2"));

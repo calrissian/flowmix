@@ -22,9 +22,10 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import org.calrissian.flowmix.FlowmixFactory;
-import org.calrissian.flowmix.model.Event;
 import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.SelectOp;
+import org.calrissian.mango.domain.BaseEvent;
+import org.calrissian.mango.domain.Event;
 
 import java.util.*;
 
@@ -65,12 +66,10 @@ public class SelectorBolt extends BaseRichBolt {
 
                 String nextStream = idx+1 < flow.getStream(streamName).getFlowOps().size() ? flow.getStream(streamName).getFlowOps().get(idx + 1).getComponentName() : "output";
 
-                Event newEvent = new Event(event.getId(), event.getTimestamp());
-                for(Map.Entry<String, Set<org.calrissian.flowmix.model.Tuple>> eventTuple : event.getTuples().entrySet()) {
-                    if(selectOp.getFields().contains(eventTuple.getKey())) {
-                        for(org.calrissian.flowmix.model.Tuple curTuple : eventTuple.getValue())
-                            newEvent.put(curTuple);
-                    }
+                Event newEvent = new BaseEvent(event.getId(), event.getTimestamp());
+                for(org.calrissian.mango.domain.Tuple eventTuple : event.getTuples()) {
+                    if(selectOp.getFields().contains(eventTuple.getKey()))
+                      newEvent.put(eventTuple);
                 }
 
                 /**

@@ -26,6 +26,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.calrissian.flowmix.model.*;
 import org.calrissian.flowmix.support.SwitchWindow;
+import org.calrissian.mango.domain.Event;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;

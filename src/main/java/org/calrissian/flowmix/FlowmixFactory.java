@@ -49,7 +49,7 @@ public class FlowmixFactory {
   private int parallelismHint;
 
   /**
-   * @param ruleSpout A spout that feeds rules into flowmix. This just needs to emit a Collection<Flow> in the tuple
+   * @param ruleSpout A spout that feeds rules into flowmix. This just needs to emit a Collection<Flow> in each tuple
    *                  at index 0 with a field name of "flows".
    * @param eventsSpout A spout that provides the events to std input.
    * @param outputBolt  A bolt to accept the output events (with the field name "event")

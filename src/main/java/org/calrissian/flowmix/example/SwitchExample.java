@@ -17,15 +17,17 @@ package org.calrissian.flowmix.example;
 
 import org.calrissian.flowmix.example.support.ExampleRunner;
 import org.calrissian.flowmix.example.support.FlowProvider;
-import org.calrissian.flowmix.model.Event;
 import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.Policy;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
-import org.calrissian.flowmix.support.Criteria;
+import org.calrissian.mango.criteria.builder.QueryBuilder;
+import org.calrissian.mango.criteria.utils.NodeUtils;
 
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static org.calrissian.mango.criteria.utils.NodeUtils.criteriaFromNode;
+
 /**
  * An example showing how the StopGate flow op works. Conceptually this can be thought of as a governor, where,
  * untill a particular condition is met, events flow freely through it. However, when an activation condition is
@@ -40,12 +42,7 @@ public class SwitchExample implements FlowProvider {
       .id("flow1")
       .flowDefs()
         .stream("stream1")
-          .filter().criteria(new Criteria() {
-              @Override
-              public boolean matches(Event event) {
-                return true;
-              }
-            }).end()
+          .filter().criteria(criteriaFromNode(new QueryBuilder().eq("key3", "val3").build())).end()
           .select().fields("key3").end()
           .partition().fields("key3").end()
           .stopGate().open(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).close(Policy.TIME, 5).end()

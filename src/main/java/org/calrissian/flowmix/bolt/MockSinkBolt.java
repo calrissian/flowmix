@@ -20,7 +20,7 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
-import org.calrissian.flowmix.model.Event;
+import org.calrissian.mango.domain.Event;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

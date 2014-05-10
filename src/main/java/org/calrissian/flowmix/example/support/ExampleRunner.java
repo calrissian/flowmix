@@ -20,10 +20,11 @@ import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
 import org.calrissian.flowmix.FlowmixFactory;
 import org.calrissian.flowmix.bolt.PrinterBolt;
-import org.calrissian.flowmix.model.Event;
 import org.calrissian.flowmix.model.kryo.EventSerializer;
 import org.calrissian.flowmix.spout.MockEventGeneratorSpout;
 import org.calrissian.flowmix.spout.MockFlowLoaderSpout;
+import org.calrissian.mango.domain.BaseEvent;
+import org.calrissian.mango.domain.Event;
 
 public class ExampleRunner {
 
@@ -46,7 +47,7 @@ public class ExampleRunner {
     conf.setNumWorkers(20);
     conf.setMaxSpoutPending(5000);
     conf.setDebug(false);
-    conf.registerSerialization(Event.class, EventSerializer.class);
+    conf.registerSerialization(BaseEvent.class, EventSerializer.class);
     conf.setSkipMissingKryoRegistrations(false);
 
     LocalCluster cluster = new LocalCluster();

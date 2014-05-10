@@ -1,17 +1,14 @@
 package org.calrissian.flowmix.support;
 
-import org.calrissian.flowmix.model.Event;
-import org.calrissian.flowmix.model.Tuple;
+import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.Tuple;
 import org.calrissian.mango.types.TypeRegistry;
 import org.calrissian.mango.types.exception.TypeEncodingException;
 
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 
 import static org.apache.commons.lang.StringUtils.join;
 import static org.calrissian.mango.types.LexiTypeEncoders.LEXI_TYPES;
@@ -30,7 +27,7 @@ public class Utils {
       return stringBuffer.toString();  // default partition when no groupBy fields are specified.
 
     for(String groupField : groupBy) {
-      Set<Tuple> tuples = event.getAll(groupField);
+      Collection<Tuple> tuples = event.getAll(groupField);
       SortedSet<String> values = new TreeSet<String>();
 
       if(tuples == null) {

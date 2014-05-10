@@ -18,10 +18,10 @@ package org.calrissian.flowmix.bolt;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
-import org.calrissian.flowmix.model.Event;
 import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.model.kryo.EventSerializer;
+import org.calrissian.mango.domain.Event;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

@@ -15,7 +15,7 @@
  */
 package org.calrissian.flowmix.model;
 
-import org.calrissian.flowmix.support.Criteria;
+import org.calrissian.mango.criteria.domain.criteria.Criteria;
 
 public class FilterOp implements FlowOp {
 

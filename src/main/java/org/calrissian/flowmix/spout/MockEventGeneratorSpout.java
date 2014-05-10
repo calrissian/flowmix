@@ -22,8 +22,9 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import org.calrissian.flowmix.model.Event;
-import org.calrissian.flowmix.model.Tuple;
+import org.calrissian.mango.domain.BaseEvent;
+import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.Tuple;
 
 import java.util.Map;
 import java.util.UUID;
@@ -53,7 +54,7 @@ public class MockEventGeneratorSpout extends BaseRichSpout{
     @Override
     public void nextTuple() {
 
-        Event event = new Event(UUID.randomUUID().toString(), System.currentTimeMillis());
+        Event event = new BaseEvent(UUID.randomUUID().toString(), System.currentTimeMillis());
         event.put(new Tuple("key1", "val1"));
         event.put(new Tuple("key2", "val2"));
         event.put(new Tuple("key3", "val3"));

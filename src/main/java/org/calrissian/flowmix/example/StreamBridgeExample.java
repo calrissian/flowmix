@@ -17,16 +17,22 @@ package org.calrissian.flowmix.example;
 
 import org.calrissian.flowmix.example.support.ExampleRunner;
 import org.calrissian.flowmix.example.support.FlowProvider;
-import org.calrissian.flowmix.model.Event;
 import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
-import org.calrissian.flowmix.support.Criteria;
 import org.calrissian.flowmix.support.Function;
+import org.calrissian.mango.criteria.builder.QueryBuilder;
+import org.calrissian.mango.criteria.domain.criteria.AbstractKeyValueLeafCriteria;
+import org.calrissian.mango.criteria.domain.criteria.Criteria;
+import org.calrissian.mango.criteria.utils.NodeUtils;
+import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.TupleCollection;
 
 import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static org.calrissian.mango.criteria.utils.NodeUtils.criteriaFromNode;
+
 /**
  * An example showing how a stream can output directly to another stream without sending its output events to the
  * standard output component (stream bridging). This essentially leads to streams feeding directly into other
@@ -41,27 +47,17 @@ public class StreamBridgeExample implements FlowProvider {
       .id("flow")
       .flowDefs()
         .stream("stream1")
-          .filter().criteria(new Criteria() {
-              @Override
-              public boolean matches(Event event) {
-                return true;
-              }
-            }).end()
+          .filter().criteria(criteriaFromNode(new QueryBuilder().eq("key1", "val1").build())).end()
         .endStream(false, "stream2")   // send ALL results to stream2 and not to standard output
         .stream("stream2", false)      // don't read any events from standard input
-          .filter().criteria(new Criteria() {
-              @Override
-              public boolean matches(Event event) {
-                return true;
-              }
-            }).end()
+          .filter().criteria(criteriaFromNode(new QueryBuilder().eq("key4", "val4").build())).end()
           .select().fields("key4").end()
           .each().function(new Function() {
-            @Override
-            public List<Event> execute(Event event) {
-              return singletonList(event);
-            }
-          }).end()
+              @Override
+              public List<Event> execute(Event event) {
+                return singletonList(event);
+              }
+            }).end()
         .endStream()
       .endDefs()
     .createFlow();

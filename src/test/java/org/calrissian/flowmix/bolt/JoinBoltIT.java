@@ -19,13 +19,14 @@ import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
 import com.google.common.collect.Iterables;
-import org.calrissian.flowmix.model.Event;
 import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.Policy;
-import org.calrissian.flowmix.model.Tuple;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.model.kryo.EventSerializer;
 import org.calrissian.flowmix.support.Function;
+import org.calrissian.mango.domain.BaseEvent;
+import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.Tuple;
 import org.junit.Test;
 
 import java.util.List;
@@ -47,8 +48,8 @@ public class JoinBoltIT extends FlowTestCase {
           .each().function(new Function() {
             @Override
             public List<Event> execute(Event event) {
-              Event newEvent = new Event(event.getId(), event.getTimestamp());
-              newEvent.putAll(Iterables.concat(event.getTuples().values()));
+              Event newEvent = new BaseEvent(event.getId(), event.getTimestamp());
+              newEvent.putAll(Iterables.concat(event.getTuples()));
               newEvent.put(new Tuple("stream", "stream1"));
               return singletonList(newEvent);
             }
@@ -58,8 +59,8 @@ public class JoinBoltIT extends FlowTestCase {
           .each().function(new Function() {
             @Override
             public List<Event> execute(Event event) {
-              Event newEvent = new Event(event.getId(), event.getTimestamp());
-              newEvent.putAll(Iterables.concat(event.getTuples().values()));
+              Event newEvent = new BaseEvent(event.getId(), event.getTimestamp());
+              newEvent.putAll(Iterables.concat(event.getTuples()));
               newEvent.put(new Tuple("stream", "stream2"));
               return singletonList(newEvent);
             }
@@ -113,8 +114,8 @@ public class JoinBoltIT extends FlowTestCase {
           .each().function(new Function() {
             @Override
             public List<Event> execute(Event event) {
-              Event newEvent = new Event(event.getId(), event.getTimestamp());
-              newEvent.putAll(Iterables.concat(event.getTuples().values()));
+              Event newEvent = new BaseEvent(event.getId(), event.getTimestamp());
+              newEvent.putAll(Iterables.concat(event.getTuples()));
               newEvent.put(new Tuple("stream", "stream1"));
               return singletonList(newEvent);
             }
@@ -124,8 +125,8 @@ public class JoinBoltIT extends FlowTestCase {
           .each().function(new Function() {
             @Override
             public List<Event> execute(Event event) {
-              Event newEvent = new Event(event.getId(), event.getTimestamp());
-              newEvent.putAll(Iterables.concat(event.getTuples().values()));
+              Event newEvent = new BaseEvent(event.getId(), event.getTimestamp());
+              newEvent.putAll(Iterables.concat(event.getTuples()));
               newEvent.put(new Tuple("stream", "stream2"));
               return singletonList(newEvent);
             }

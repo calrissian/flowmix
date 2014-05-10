@@ -18,13 +18,15 @@ package org.calrissian.flowmix.bolt;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
-import org.calrissian.flowmix.model.Event;
 import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.model.kryo.EventSerializer;
-import org.calrissian.flowmix.support.Criteria;
+import org.calrissian.mango.criteria.builder.QueryBuilder;
+import org.calrissian.mango.criteria.utils.NodeUtils;
+import org.calrissian.mango.domain.Event;
 import org.junit.Test;
 
+import static org.calrissian.mango.criteria.utils.NodeUtils.criteriaFromNode;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -38,12 +40,7 @@ public class FilterBoltIT extends FlowTestCase {
       .id("myflow")
       .flowDefs()
         .stream("stream1")
-            .filter().criteria(new Criteria() {
-            @Override
-            public boolean matches(Event event) {
-              return event.get("key1").getValue().equals("val2");
-            }
-          }).end()
+            .filter().criteria(criteriaFromNode(new QueryBuilder().eq("key3", "val50").build())).end()
         .endStream()
       .endDefs()
     .createFlow();
@@ -75,12 +72,7 @@ public class FilterBoltIT extends FlowTestCase {
       .id("myflow")
       .flowDefs()
         .stream("stream1")
-          .filter().criteria(new Criteria() {
-            @Override
-            public boolean matches(Event event) {
-              return event.get("key1").getValue().equals("val1");
-            }
-          }).end()
+            .filter().criteria(criteriaFromNode(new QueryBuilder().eq("key1", "val1").build())).end()
         .endStream()
       .endDefs()
     .createFlow();

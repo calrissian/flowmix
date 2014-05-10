@@ -15,7 +15,7 @@
  */
 package org.calrissian.flowmix.support;
 
-import org.calrissian.flowmix.model.Event;
+import org.calrissian.mango.domain.Event;
 
 import java.io.Serializable;
 import java.util.List;

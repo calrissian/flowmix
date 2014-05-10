@@ -23,6 +23,9 @@ import org.calrissian.flowmix.model.*;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.model.kryo.EventSerializer;
 import org.calrissian.flowmix.support.Function;
+import org.calrissian.mango.domain.BaseEvent;
+import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.Tuple;
 import org.junit.Test;
 
 import java.util.List;
@@ -48,8 +51,8 @@ public class SortBoltIT extends FlowTestCase {
           .each().function(new Function() {
               @Override
             public List<Event> execute(Event event) {
-              Event newEvent = new Event(event.getId(), event.getTimestamp());
-              newEvent.putAll(Iterables.concat(event.getTuples().values()));
+              Event newEvent = new BaseEvent(event.getId(), event.getTimestamp());
+              newEvent.putAll(Iterables.concat(event.getTuples()));
               newEvent.put(new Tuple("n", (int)(random() * 10)));
               return singletonList(newEvent);
             }
@@ -102,9 +105,9 @@ public class SortBoltIT extends FlowTestCase {
             .each().function(new Function() {
               @Override
               public List<Event> execute(Event event) {
-                Event newEvent = new Event(event.getId(), event.getTimestamp());
-                newEvent.putAll(Iterables.concat(event.getTuples().values()));
-                newEvent.put(new Tuple("n", (int) (random() * 10)));
+                Event newEvent = new BaseEvent(event.getId(), event.getTimestamp());
+                newEvent.putAll(Iterables.concat(event.getTuples()));
+                newEvent.put(new Tuple("n", (int)(random() * 10)));
                 return singletonList(newEvent);
               }
             }).end()
@@ -151,12 +154,12 @@ public class SortBoltIT extends FlowTestCase {
       .id("flow")
       .flowDefs()
       .stream("stream1")
-        .each().function(new Function() {
+            .each().function(new Function() {
               @Override
               public List<Event> execute(Event event) {
-                Event newEvent = new Event(event.getId(), event.getTimestamp());
-                newEvent.putAll(Iterables.concat(event.getTuples().values()));
-                newEvent.put(new Tuple("n", counter++));
+                Event newEvent = new BaseEvent(event.getId(), event.getTimestamp());
+                newEvent.putAll(Iterables.concat(event.getTuples()));
+                newEvent.put(new Tuple("n", (int)(random() * 10)));
                 return singletonList(newEvent);
               }
             }).end()
@@ -198,15 +201,15 @@ public class SortBoltIT extends FlowTestCase {
       .id("flow")
       .flowDefs()
         .stream("stream1")
-          .each().function(new Function() {
-            @Override
-            public List<Event> execute(Event event) {
-              Event newEvent = new Event(event.getId(), event.getTimestamp());
-              newEvent.putAll(Iterables.concat(event.getTuples().values()));
-              newEvent.put(new Tuple("n", counter++));
-              return singletonList(newEvent);
-            }
-          }).end()
+            .each().function(new Function() {
+              @Override
+              public List<Event> execute(Event event) {
+                Event newEvent = new BaseEvent(event.getId(), event.getTimestamp());
+                newEvent.putAll(Iterables.concat(event.getTuples()));
+                newEvent.put(new Tuple("n", (int)(random() * 10)));
+                return singletonList(newEvent);
+              }
+            }).end()
           .select().fields("n").end()
           .sort().sortBy("n", DESC).progressive(10).end()   //tumbling means it clears on trigger
         .endStream()   // send ALL results to stream2 and not to standard output
@@ -249,9 +252,9 @@ public class SortBoltIT extends FlowTestCase {
             .each().function(new Function() {
               @Override
               public List<Event> execute(Event event) {
-                Event newEvent = new Event(event.getId(), event.getTimestamp());
-                newEvent.putAll(Iterables.concat(event.getTuples().values()));
-                newEvent.put(new Tuple("n", counter++));
+                Event newEvent = new BaseEvent(event.getId(), event.getTimestamp());
+                newEvent.putAll(Iterables.concat(event.getTuples()));
+                newEvent.put(new Tuple("n", (int)(random() * 10)));
                 return singletonList(newEvent);
               }
             }).end()
@@ -302,12 +305,13 @@ public class SortBoltIT extends FlowTestCase {
             .each().function(new Function() {
               @Override
               public List<Event> execute(Event event) {
-                Event newEvent = new Event(event.getId(), event.getTimestamp());
-                newEvent.putAll(Iterables.concat(event.getTuples().values()));
-                newEvent.put(new Tuple("n", counter++));
+                Event newEvent = new BaseEvent(event.getId(), event.getTimestamp());
+                newEvent.putAll(Iterables.concat(event.getTuples()));
+                newEvent.put(new Tuple("n", (int)(random() * 10)));
                 return singletonList(newEvent);
               }
             }).end()
+
             .select().fields("n").end()
             .sort().sortBy("n", ASC).topN(10, Policy.TIME, 5, false).end()   //tumbling means it clears on trigger
             .endStream()   // send ALL results to stream2 and not to standard output

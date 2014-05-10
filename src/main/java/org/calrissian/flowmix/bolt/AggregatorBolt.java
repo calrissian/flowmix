@@ -27,6 +27,7 @@ import org.calrissian.flowmix.model.*;
 import org.calrissian.flowmix.support.AggregatedEvent;
 import org.calrissian.flowmix.support.Aggregator;
 import org.calrissian.flowmix.support.AggregatorWindow;
+import org.calrissian.mango.domain.Event;
 
 import java.util.Collection;
 import java.util.HashMap;

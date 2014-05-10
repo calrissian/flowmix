@@ -20,7 +20,7 @@ import org.calrissian.flowmix.example.support.FlowProvider;
 import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.Policy;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
-import org.calrissian.flowmix.support.aggregator.CountAggregator;
+import org.calrissian.flowmix.aggregator.CountAggregator;
 
 import java.util.List;
 

@@ -27,6 +27,8 @@ import com.google.common.cache.CacheBuilder;
 import org.calrissian.flowmix.model.*;
 import org.calrissian.flowmix.support.Window;
 import org.calrissian.flowmix.support.WindowItem;
+import org.calrissian.mango.domain.BaseEvent;
+import org.calrissian.mango.domain.Event;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -189,10 +191,10 @@ public class JoinBolt extends BaseRichBolt {
                         buffer = buffersForRule.getIfPresent(hash);
 
                         for(WindowItem bufferedEvent : buffer.getEvents()) {
-                          Event joined = new Event(bufferedEvent.getEvent().getId(), bufferedEvent.getEvent().getTimestamp());
+                          Event joined = new BaseEvent(bufferedEvent.getEvent().getId(), bufferedEvent.getEvent().getTimestamp());
                           // the hashcode will filter duplicates
-                          joined.putAll(concat(bufferedEvent.getEvent().getTuples().values()));
-                          joined.putAll(concat(event.getTuples().values()));
+                          joined.putAll(concat(bufferedEvent.getEvent().getTuples()));
+                          joined.putAll(concat(event.getTuples()));
                           String nextStream = idx+1 < flow.getStream(streamName).getFlowOps().size() ? flow.getStream(streamName).getFlowOps().get(idx+1).getComponentName() : "output";
 
                           if((nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output"))

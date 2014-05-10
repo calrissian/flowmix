@@ -19,8 +19,9 @@ package org.calrissian.flowmix.model.kryo;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import org.calrissian.flowmix.model.Event;
-import org.calrissian.flowmix.model.Tuple;
+import org.calrissian.mango.domain.BaseEvent;
+import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.Tuple;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -36,9 +37,9 @@ public class EventSerializerTest {
     public void test() {
 
         Kryo kryo = new Kryo();
-        kryo.register(Event.class, new EventSerializer());
+        kryo.register(BaseEvent.class, new EventSerializer());
 
-        Event event = new Event(UUID.randomUUID().toString(), currentTimeMillis());
+        Event event = new BaseEvent(UUID.randomUUID().toString(), currentTimeMillis());
         event.put(new Tuple("key1", "value1"));
         event.put(new Tuple("key2", "value2"));
 

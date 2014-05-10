@@ -17,12 +17,13 @@ package org.calrissian.flowmix.example;
 
 import org.calrissian.flowmix.example.support.ExampleRunner;
 import org.calrissian.flowmix.example.support.FlowProvider;
-import org.calrissian.flowmix.model.Event;
 import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.Policy;
-import org.calrissian.flowmix.model.Tuple;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.support.Function;
+import org.calrissian.mango.domain.BaseEvent;
+import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.Tuple;
 
 import java.util.List;
 
@@ -48,8 +49,8 @@ public class SortExample implements FlowProvider {
 
               @Override
               public List<Event> execute(Event event) {
-                Event newEvent = new Event(event.getId(), event.getTimestamp());
-                newEvent.putAll(concat(event.getTuples().values()));
+                Event newEvent = new BaseEvent(event.getId(), event.getTimestamp());
+                newEvent.putAll(concat(event.getTuples()));
                 newEvent.put(new Tuple("count", count));
 
                 count--;

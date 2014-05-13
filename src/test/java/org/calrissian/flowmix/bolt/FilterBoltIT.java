@@ -22,11 +22,10 @@ import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.model.kryo.EventSerializer;
 import org.calrissian.mango.criteria.builder.QueryBuilder;
-import org.calrissian.mango.criteria.utils.NodeUtils;
 import org.calrissian.mango.domain.Event;
 import org.junit.Test;
 
-import static org.calrissian.mango.criteria.utils.NodeUtils.criteriaFromNode;
+import static org.calrissian.mango.criteria.support.NodeUtils.criteriaFromNode;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

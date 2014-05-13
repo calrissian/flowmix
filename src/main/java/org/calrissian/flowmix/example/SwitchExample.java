@@ -21,12 +21,11 @@ import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.Policy;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.mango.criteria.builder.QueryBuilder;
-import org.calrissian.mango.criteria.utils.NodeUtils;
 
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static org.calrissian.mango.criteria.utils.NodeUtils.criteriaFromNode;
+import static org.calrissian.mango.criteria.support.NodeUtils.criteriaFromNode;
 
 /**
  * An example showing how the StopGate flow op works. Conceptually this can be thought of as a governor, where,

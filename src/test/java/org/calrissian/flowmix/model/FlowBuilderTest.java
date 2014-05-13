@@ -15,17 +15,14 @@
  */
 package org.calrissian.flowmix.model;
 
-import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.aggregator.CountAggregator;
 import org.calrissian.flowmix.aggregator.LongSumAggregator;
+import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.mango.criteria.builder.QueryBuilder;
-import org.calrissian.mango.criteria.utils.NodeUtils;
 import org.junit.Test;
 
-import static org.calrissian.mango.criteria.utils.NodeUtils.criteriaFromNode;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.calrissian.mango.criteria.support.NodeUtils.criteriaFromNode;
+import static org.junit.Assert.*;
 
 public class FlowBuilderTest {
 

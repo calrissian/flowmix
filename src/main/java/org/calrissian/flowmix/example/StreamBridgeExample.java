@@ -21,17 +21,13 @@ import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.support.Function;
 import org.calrissian.mango.criteria.builder.QueryBuilder;
-import org.calrissian.mango.criteria.domain.criteria.AbstractKeyValueLeafCriteria;
-import org.calrissian.mango.criteria.domain.criteria.Criteria;
-import org.calrissian.mango.criteria.utils.NodeUtils;
 import org.calrissian.mango.domain.Event;
-import org.calrissian.mango.domain.TupleCollection;
 
 import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static org.calrissian.mango.criteria.utils.NodeUtils.criteriaFromNode;
+import static org.calrissian.mango.criteria.support.NodeUtils.criteriaFromNode;
 
 /**
  * An example showing how a stream can output directly to another stream without sending its output events to the

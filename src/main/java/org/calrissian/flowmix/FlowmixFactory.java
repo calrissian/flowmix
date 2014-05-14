@@ -24,14 +24,14 @@ import org.calrissian.flowmix.bolt.*;
 import org.calrissian.flowmix.spout.TickSpout;
 
 import static org.calrissian.flowmix.Constants.*;
-import static org.calrissian.flowmix.model.AggregateOp.AGGREGATE;
-import static org.calrissian.flowmix.model.EachOp.EACH;
-import static org.calrissian.flowmix.model.FilterOp.FILTER;
-import static org.calrissian.flowmix.model.JoinOp.JOIN;
-import static org.calrissian.flowmix.model.PartitionOp.PARTITION;
-import static org.calrissian.flowmix.model.SelectOp.SELECT;
-import static org.calrissian.flowmix.model.SortOp.SORT;
-import static org.calrissian.flowmix.model.SwitchOp.SWITCH;
+import static org.calrissian.flowmix.model.op.AggregateOp.AGGREGATE;
+import static org.calrissian.flowmix.model.op.EachOp.EACH;
+import static org.calrissian.flowmix.model.op.FilterOp.FILTER;
+import static org.calrissian.flowmix.model.op.JoinOp.JOIN;
+import static org.calrissian.flowmix.model.op.PartitionOp.PARTITION;
+import static org.calrissian.flowmix.model.op.SelectOp.SELECT;
+import static org.calrissian.flowmix.model.op.SortOp.SORT;
+import static org.calrissian.flowmix.model.op.SwitchOp.SWITCH;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 /**
@@ -102,6 +102,7 @@ public class FlowmixFactory {
           .localOrShuffleGrouping(SORT, boltName)
           .localOrShuffleGrouping(SWITCH, boltName)
           .localOrShuffleGrouping(JOIN, boltName)
+          // control stream is all-grouped
           .allGrouping(INITIALIZER, CONTROL_STREAM)
           .allGrouping(FILTER, CONTROL_STREAM)
           .allGrouping(PARTITION, CONTROL_STREAM)

@@ -1,7 +1,10 @@
-package org.calrissian.flowmix.model;
+package org.calrissian.flowmix.model.op;
 
 
 
+import org.calrissian.flowmix.model.Order;
+import org.calrissian.flowmix.model.Policy;
+import org.calrissian.flowmix.model.RequiresPartitioning;
 import org.calrissian.mango.domain.Pair;
 
 import java.util.List;

@@ -15,7 +15,7 @@
  */
 package org.calrissian.flowmix.model.builder;
 
-import org.calrissian.flowmix.model.SelectOp;
+import org.calrissian.flowmix.model.op.SelectOp;
 
 import java.util.ArrayList;
 import java.util.List;

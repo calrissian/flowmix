@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.model;
+package org.calrissian.flowmix.model.op;
 
-import org.calrissian.mango.criteria.domain.criteria.Criteria;
+import java.util.List;
 
-public class FilterOp implements FlowOp {
+public class SelectOp implements FlowOp {
 
-    public static final String FILTER = "filter";
-    Criteria criteria;
+    public static final String SELECT = "select";
+    List<String> fields;
 
-    public void setCriteria(Criteria criteria) {
-        this.criteria = criteria;
+    public SelectOp(List<String> fields) {
+        this.fields = fields;
     }
-
-    public Criteria getCriteria() {
-        return criteria;
-    }
-
     @Override
     public String getComponentName() {
-        return FILTER;
+        return SELECT;
+    }
+
+    public List<String> getFields() {
+        return fields;
     }
 }

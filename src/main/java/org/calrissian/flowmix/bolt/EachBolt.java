@@ -22,7 +22,7 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import org.calrissian.flowmix.FlowmixFactory;
-import org.calrissian.flowmix.model.EachOp;
+import org.calrissian.flowmix.model.op.EachOp;
 import org.calrissian.flowmix.model.Flow;
 import org.calrissian.mango.domain.Event;
 

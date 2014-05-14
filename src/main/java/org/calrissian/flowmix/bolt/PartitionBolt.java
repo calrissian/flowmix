@@ -22,7 +22,7 @@ import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import org.calrissian.flowmix.model.Flow;
-import org.calrissian.flowmix.model.PartitionOp;
+import org.calrissian.flowmix.model.op.PartitionOp;
 import org.calrissian.mango.domain.Event;
 
 import java.util.Collection;

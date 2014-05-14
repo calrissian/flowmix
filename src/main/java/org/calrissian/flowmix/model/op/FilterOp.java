@@ -13,32 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.model;
+package org.calrissian.flowmix.model.op;
 
-import java.util.List;
+import org.calrissian.mango.criteria.domain.criteria.Criteria;
 
-public class PartitionOp implements FlowOp {
+public class FilterOp implements FlowOp {
 
-  public static final String PARTITION = "partition";
-  private List<String> fields;
+    public static final String FILTER = "filter";
+    Criteria criteria;
 
-  public PartitionOp(List<String> fields) {
-      this.fields = fields;
-  }
+    public void setCriteria(Criteria criteria) {
+        this.criteria = criteria;
+    }
 
-  public List<String> getFields() {
-      return fields;
-  }
+    public Criteria getCriteria() {
+        return criteria;
+    }
 
-  @Override
-  public String getComponentName() {
-      return PARTITION;
-  }
-
-  @Override
-  public String toString() {
-    return "PartitionOp{" +
-            "fields=" + fields +
-            '}';
-  }
+    @Override
+    public String getComponentName() {
+        return FILTER;
+    }
 }

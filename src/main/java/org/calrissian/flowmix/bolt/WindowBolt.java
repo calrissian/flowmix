@@ -27,6 +27,7 @@ import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.calrissian.flowmix.model.*;
+import org.calrissian.flowmix.model.op.AggregateOp;
 import org.calrissian.flowmix.support.Window;
 import org.calrissian.mango.domain.Event;
 

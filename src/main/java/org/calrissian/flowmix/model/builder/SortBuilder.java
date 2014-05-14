@@ -16,6 +16,9 @@
 package org.calrissian.flowmix.model.builder;
 
 import org.calrissian.flowmix.model.*;
+import org.calrissian.flowmix.model.op.FlowOp;
+import org.calrissian.flowmix.model.op.PartitionOp;
+import org.calrissian.flowmix.model.op.SortOp;
 import org.calrissian.mango.domain.Pair;
 
 import java.util.ArrayList;

@@ -13,24 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.model;
+package org.calrissian.flowmix.model.op;
 
-import java.util.List;
 
-public class SelectOp implements FlowOp {
+import java.io.Serializable;
 
-    public static final String SELECT = "select";
-    List<String> fields;
+public interface FlowOp extends Serializable {
 
-    public SelectOp(List<String> fields) {
-        this.fields = fields;
-    }
-    @Override
-    public String getComponentName() {
-        return SELECT;
-    }
-
-    public List<String> getFields() {
-        return fields;
-    }
+    String getComponentName();
 }

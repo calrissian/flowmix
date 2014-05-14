@@ -15,6 +15,8 @@
  */
 package org.calrissian.flowmix.model;
 
+import org.calrissian.flowmix.model.op.FlowOp;
+
 import java.io.Serializable;
 import java.util.List;
 

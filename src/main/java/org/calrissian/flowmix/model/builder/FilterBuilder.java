@@ -15,7 +15,7 @@
  */
 package org.calrissian.flowmix.model.builder;
 
-import org.calrissian.flowmix.model.FilterOp;
+import org.calrissian.flowmix.model.op.FilterOp;
 import org.calrissian.mango.criteria.domain.criteria.Criteria;
 
 public class FilterBuilder extends AbstractOpBuilder {

@@ -18,6 +18,8 @@ package org.calrissian.flowmix.model;
 import org.calrissian.flowmix.aggregator.CountAggregator;
 import org.calrissian.flowmix.aggregator.LongSumAggregator;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
+import org.calrissian.flowmix.model.op.PartitionOp;
+import org.calrissian.flowmix.model.op.SelectOp;
 import org.calrissian.mango.criteria.builder.QueryBuilder;
 import org.junit.Test;
 

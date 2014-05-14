@@ -24,8 +24,9 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.calrissian.flowmix.FlowmixFactory;
 import org.calrissian.flowmix.model.*;
+import org.calrissian.flowmix.model.op.FlowOp;
+import org.calrissian.flowmix.model.op.SwitchOp;
 import org.calrissian.flowmix.support.SwitchWindow;
 import org.calrissian.mango.domain.Event;
 

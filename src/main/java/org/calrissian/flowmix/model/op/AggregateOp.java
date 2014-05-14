@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.model;
+package org.calrissian.flowmix.model.op;
 
+import org.calrissian.flowmix.model.Policy;
+import org.calrissian.flowmix.model.RequiresPartitioning;
 import org.calrissian.flowmix.support.Aggregator;
 
 import java.util.Map;

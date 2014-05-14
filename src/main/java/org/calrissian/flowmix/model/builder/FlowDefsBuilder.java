@@ -15,8 +15,8 @@
  */
 package org.calrissian.flowmix.model.builder;
 
-import org.calrissian.flowmix.model.FlowOp;
-import org.calrissian.flowmix.model.JoinOp;
+import org.calrissian.flowmix.model.op.FlowOp;
+import org.calrissian.flowmix.model.op.JoinOp;
 import org.calrissian.flowmix.model.StreamDef;
 
 import java.util.*;

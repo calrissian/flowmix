@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.model;
+package org.calrissian.flowmix.model.op;
+
+import org.calrissian.flowmix.model.Policy;
+import org.calrissian.flowmix.model.RequiresPartitioning;
 
 public class JoinOp implements FlowOp, RequiresPartitioning {
 

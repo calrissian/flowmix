@@ -16,7 +16,7 @@
 package org.calrissian.flowmix.model.builder;
 
 
-import org.calrissian.flowmix.model.EachOp;
+import org.calrissian.flowmix.model.op.EachOp;
 import org.calrissian.flowmix.support.Function;
 
 public class EachBuilder extends AbstractOpBuilder{

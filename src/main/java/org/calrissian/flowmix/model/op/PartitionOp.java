@@ -13,12 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.model;
+package org.calrissian.flowmix.model.op;
 
+import java.util.List;
 
-import java.io.Serializable;
+public class PartitionOp implements FlowOp {
 
-public interface FlowOp extends Serializable {
+  public static final String PARTITION = "partition";
+  private List<String> fields;
 
-    String getComponentName();
+  public PartitionOp(List<String> fields) {
+      this.fields = fields;
+  }
+
+  public List<String> getFields() {
+      return fields;
+  }
+
+  @Override
+  public String getComponentName() {
+      return PARTITION;
+  }
+
+  @Override
+  public String toString() {
+    return "PartitionOp{" +
+            "fields=" + fields +
+            '}';
+  }
 }

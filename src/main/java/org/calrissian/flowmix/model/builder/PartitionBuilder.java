@@ -15,7 +15,7 @@
  */
 package org.calrissian.flowmix.model.builder;
 
-import org.calrissian.flowmix.model.PartitionOp;
+import org.calrissian.flowmix.model.op.PartitionOp;
 
 import java.util.ArrayList;
 import java.util.List;

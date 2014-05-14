@@ -1,5 +1,6 @@
 package org.calrissian.flowmix.support;
 
+import org.apache.commons.collections.comparators.ComparableComparator;
 import org.calrissian.flowmix.model.Order;
 import org.calrissian.mango.domain.Pair;
 import org.calrissian.mango.types.TypeRegistry;
@@ -14,7 +15,7 @@ import static org.calrissian.mango.types.LexiTypeEncoders.LEXI_TYPES;
 
 public class EventSortByComparator implements Comparator<WindowItem> {
 
-  private TypeRegistry<String> registry = LEXI_TYPES;
+  private static ComparableComparator comparator = new ComparableComparator();
   private List<Pair<String,Order>> sortBy;
 
   public EventSortByComparator(List<Pair<String,Order>> sortBy) {
@@ -27,23 +28,14 @@ public class EventSortByComparator implements Comparator<WindowItem> {
   public int compare(WindowItem windowItem, WindowItem windowItem2) {
 
     for(Pair<String,Order> sortField : sortBy) {
-      try {
-        String val1 = windowItem.getEvent().get(sortField.getOne()) != null ?
-                registry.encode(windowItem.getEvent().get(sortField.getOne()).getValue())
-                : "";
 
-        String val2 = windowItem2.getEvent().get(sortField.getOne()) != null ?
-                registry.encode(windowItem2.getEvent().get(sortField.getOne()).getValue())
-                : "";
+      Object val1 = windowItem.getEvent().get(sortField.getOne()).getValue();
+      Object val2 = windowItem2.getEvent().get(sortField.getOne()).getValue();
 
-        int compare = val1.compareTo(val2);
+      int compare = comparator.compare(val1,val2);
 
-        if(compare != 0)
-          return sortField.getTwo() == Order.DESC ? compare * -1 : compare;
-
-      } catch (TypeEncodingException e) {
-        throw new RuntimeException(e);
-      }
+      if(compare != 0)
+        return sortField.getTwo() == Order.DESC ? compare * -1 : compare;
     }
 
     return 0; // if they are the same then they're the same...

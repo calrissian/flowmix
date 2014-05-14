@@ -16,9 +16,9 @@
 package org.calrissian.flowmix.model.builder;
 
 
-import org.calrissian.flowmix.model.FlowOp;
-import org.calrissian.flowmix.model.JoinOp;
-import org.calrissian.flowmix.model.PartitionOp;
+import org.calrissian.flowmix.model.op.FlowOp;
+import org.calrissian.flowmix.model.op.JoinOp;
+import org.calrissian.flowmix.model.op.PartitionOp;
 import org.calrissian.flowmix.model.Policy;
 
 import java.util.List;

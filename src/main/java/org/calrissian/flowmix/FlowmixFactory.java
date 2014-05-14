@@ -15,10 +15,7 @@
  */
 package org.calrissian.flowmix;
 
-import backtype.storm.topology.IRichBolt;
-import backtype.storm.topology.IRichSpout;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.TopologyBuilder;
+import backtype.storm.topology.*;
 import backtype.storm.tuple.Fields;
 import org.calrissian.flowmix.bolt.*;
 import org.calrissian.flowmix.spout.TickSpout;
@@ -76,21 +73,21 @@ public class FlowmixFactory {
               .shuffleGrouping(EVENT)
               .allGrouping(FLOW_LOADER_STREAM, FLOW_LOADER_STREAM);
 
-      declarebolt(builder, FILTER, new FilterBolt(), parallelismHint);
-      declarebolt(builder, SELECT, new SelectorBolt(), parallelismHint);
-      declarebolt(builder, PARTITION, new PartitionBolt(), parallelismHint);
-      declarebolt(builder, SWITCH, new SwitchBolt(), parallelismHint);
-      declarebolt(builder, AGGREGATE, new AggregatorBolt(), parallelismHint);
-      declarebolt(builder, JOIN, new JoinBolt(), parallelismHint);
-      declarebolt(builder, EACH, new EachBolt(), parallelismHint);
-      declarebolt(builder, SORT, new SortBolt(), parallelismHint);
-      declarebolt(builder, OUTPUT, outputBolt, parallelismHint);
+      declarebolt(builder, FILTER, new FilterBolt(), parallelismHint, true);
+      declarebolt(builder, SELECT, new SelectorBolt(), parallelismHint, true);
+      declarebolt(builder, PARTITION, new PartitionBolt(), parallelismHint, true);
+      declarebolt(builder, SWITCH, new SwitchBolt(), parallelismHint, true);
+      declarebolt(builder, AGGREGATE, new AggregatorBolt(), parallelismHint, true);
+      declarebolt(builder, JOIN, new JoinBolt(), parallelismHint, true);
+      declarebolt(builder, EACH, new EachBolt(), parallelismHint, true);
+      declarebolt(builder, SORT, new SortBolt(), parallelismHint, true);
+      declarebolt(builder, OUTPUT, outputBolt, parallelismHint, false);
 
       return builder;
   }
 
-  private static void declarebolt(TopologyBuilder builder, String boltName, IRichBolt bolt, int parallelism) {
-      builder.setBolt(boltName, bolt, parallelism)
+  private static void declarebolt(TopologyBuilder builder, String boltName, IRichBolt bolt, int parallelism, boolean control) {
+      BoltDeclarer declarer = builder.setBolt(boltName, bolt, parallelism)
           .allGrouping(FLOW_LOADER_STREAM, FLOW_LOADER_STREAM)
           .allGrouping("tick", "tick")
           .localOrShuffleGrouping(INITIALIZER, boltName)
@@ -101,18 +98,21 @@ public class FlowmixFactory {
           .localOrShuffleGrouping(EACH, boltName)
           .localOrShuffleGrouping(SORT, boltName)
           .localOrShuffleGrouping(SWITCH, boltName)
-          .localOrShuffleGrouping(JOIN, boltName)
-          // control stream is all-grouped
-          .allGrouping(INITIALIZER, CONTROL_STREAM)
-          .allGrouping(FILTER, CONTROL_STREAM)
-          .allGrouping(PARTITION, CONTROL_STREAM)
-          .allGrouping(AGGREGATE, CONTROL_STREAM)
-          .allGrouping(SELECT, CONTROL_STREAM)
-          .allGrouping(EACH, CONTROL_STREAM)
-          .allGrouping(SORT, CONTROL_STREAM)
-          .allGrouping(SWITCH, CONTROL_STREAM)
-          .allGrouping(JOIN, CONTROL_STREAM);
+          .localOrShuffleGrouping(JOIN, boltName);
 
+          if(control) {
+            // control stream is all-grouped
+            declarer.allGrouping(INITIALIZER, CONTROL_STREAM + boltName)
+                    .allGrouping(FILTER, CONTROL_STREAM + boltName)
+                    .allGrouping(PARTITION, CONTROL_STREAM + boltName)
+                    .allGrouping(AGGREGATE, CONTROL_STREAM + boltName)
+                    .allGrouping(SELECT, CONTROL_STREAM + boltName)
+                    .allGrouping(EACH, CONTROL_STREAM + boltName)
+                    .allGrouping(SORT, CONTROL_STREAM + boltName)
+                    .allGrouping(SWITCH, CONTROL_STREAM + boltName)
+                    .allGrouping(JOIN, CONTROL_STREAM + boltName);
+
+          }
   }
 
   public static Fields fields = new Fields(FLOW_ID, EVENT, FLOW_OP_IDX, STREAM_NAME, LAST_STREAM);
@@ -128,6 +128,13 @@ public class FlowmixFactory {
       declarer.declareStream(JOIN, fields);
       declarer.declareStream(EACH, fields);
       declarer.declareStream(OUTPUT, fields);
-      declarer.declareStream(CONTROL_STREAM, fields);
+      declarer.declareStream(CONTROL_STREAM + PARTITION, fields);
+      declarer.declareStream(CONTROL_STREAM + FILTER, fields);
+      declarer.declareStream(CONTROL_STREAM + SELECT, fields);
+      declarer.declareStream(CONTROL_STREAM + AGGREGATE, fields);
+      declarer.declareStream(CONTROL_STREAM + SWITCH, fields);
+      declarer.declareStream(CONTROL_STREAM + SORT, fields);
+      declarer.declareStream(CONTROL_STREAM + JOIN, fields);
+      declarer.declareStream(CONTROL_STREAM + EACH, fields);
   }
 }

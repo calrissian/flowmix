@@ -27,9 +27,6 @@ public class SortedWindow extends Window {
    * Used for count-based expiration
    */
   public WindowItem expire() {
-
-    WindowItem first = events.getFirst();
-    WindowItem last = events.getLast();
     return events.removeLast();
   }
 

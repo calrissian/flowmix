@@ -75,7 +75,7 @@ public class JoinBoltIT extends FlowTestCase {
     StormTopology topology = buildTopology(flow, 500);
     Config conf = new Config();
     conf.setNumWorkers(20);
-    conf.registerSerialization(Event.class, EventSerializer.class);
+    conf.registerSerialization(BaseEvent.class, EventSerializer.class);
     conf.setSkipMissingKryoRegistrations(false);
 
     LocalCluster cluster = new LocalCluster();
@@ -141,7 +141,7 @@ public class JoinBoltIT extends FlowTestCase {
     StormTopology topology = buildTopology(flow, 1000);
     Config conf = new Config();
     conf.setNumWorkers(20);
-    conf.registerSerialization(Event.class, EventSerializer.class);
+    conf.registerSerialization(BaseEvent.class, EventSerializer.class);
     conf.setSkipMissingKryoRegistrations(false);
 
     LocalCluster cluster = new LocalCluster();

@@ -23,6 +23,7 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.calrissian.flowmix.FlowmixFactory;
 import org.calrissian.flowmix.model.*;
 import org.calrissian.flowmix.support.AggregatedEvent;
 import org.calrissian.flowmix.support.Aggregator;
@@ -37,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.calrissian.flowmix.Constants.*;
 import static org.calrissian.flowmix.FlowmixFactory.declareOutputStreams;
+import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 import static org.calrissian.flowmix.support.Aggregator.GROUP_BY;
 import static org.calrissian.flowmix.support.Aggregator.GROUP_BY_DELIM;
@@ -208,6 +210,6 @@ public class AggregatorBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        declareOutputStreams(outputFieldsDeclarer);
+        declareOutputStreams(outputFieldsDeclarer, fields);
     }
 }

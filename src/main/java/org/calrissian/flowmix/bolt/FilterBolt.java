@@ -21,6 +21,7 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
+import org.calrissian.flowmix.FlowmixFactory;
 import org.calrissian.flowmix.model.FilterOp;
 import org.calrissian.flowmix.model.Flow;
 import org.calrissian.mango.domain.Event;
@@ -31,6 +32,7 @@ import java.util.Map;
 
 import static org.calrissian.flowmix.Constants.*;
 import static org.calrissian.flowmix.FlowmixFactory.declareOutputStreams;
+import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 public class FilterBolt extends BaseRichBolt {
@@ -86,6 +88,6 @@ public class FilterBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        declareOutputStreams(outputFieldsDeclarer);
+        declareOutputStreams(outputFieldsDeclarer, fields);
     }
 }

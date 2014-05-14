@@ -18,7 +18,7 @@ package org.calrissian.flowmix.model;
 
 public class SwitchOp implements FlowOp, RequiresPartitioning{
 
-    public static final String STOP_GATE = "stopGate";
+    public static final String SWITCH = "stopGate";
     private Policy openPolicy;
     private Policy evictionPolicy;
     private Policy closePolicy;
@@ -63,6 +63,6 @@ public class SwitchOp implements FlowOp, RequiresPartitioning{
 
     @Override
     public String getComponentName() {
-        return STOP_GATE;
+        return SWITCH;
     }
 }

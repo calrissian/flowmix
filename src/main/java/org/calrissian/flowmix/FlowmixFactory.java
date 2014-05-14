@@ -31,7 +31,7 @@ import static org.calrissian.flowmix.model.JoinOp.JOIN;
 import static org.calrissian.flowmix.model.PartitionOp.PARTITION;
 import static org.calrissian.flowmix.model.SelectOp.SELECT;
 import static org.calrissian.flowmix.model.SortOp.SORT;
-import static org.calrissian.flowmix.model.SwitchOp.STOP_GATE;
+import static org.calrissian.flowmix.model.SwitchOp.SWITCH;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 /**
@@ -79,7 +79,7 @@ public class FlowmixFactory {
       declarebolt(builder, FILTER, new FilterBolt(), parallelismHint);
       declarebolt(builder, SELECT, new SelectorBolt(), parallelismHint);
       declarebolt(builder, PARTITION, new PartitionBolt(), parallelismHint);
-      declarebolt(builder, STOP_GATE, new SwitchBolt(), parallelismHint);
+      declarebolt(builder, SWITCH, new SwitchBolt(), parallelismHint);
       declarebolt(builder, AGGREGATE, new AggregatorBolt(), parallelismHint);
       declarebolt(builder, JOIN, new JoinBolt(), parallelismHint);
       declarebolt(builder, EACH, new EachBolt(), parallelismHint);
@@ -100,33 +100,33 @@ public class FlowmixFactory {
           .localOrShuffleGrouping(SELECT, boltName)
           .localOrShuffleGrouping(EACH, boltName)
           .localOrShuffleGrouping(SORT, boltName)
-          .localOrShuffleGrouping(STOP_GATE, boltName)
-          .localOrShuffleGrouping(JOIN, boltName);
+          .localOrShuffleGrouping(SWITCH, boltName)
+          .localOrShuffleGrouping(JOIN, boltName)
+          .allGrouping(INITIALIZER, CONTROL_STREAM)
+          .allGrouping(FILTER, CONTROL_STREAM)
+          .allGrouping(PARTITION, CONTROL_STREAM)
+          .allGrouping(AGGREGATE, CONTROL_STREAM)
+          .allGrouping(SELECT, CONTROL_STREAM)
+          .allGrouping(EACH, CONTROL_STREAM)
+          .allGrouping(SORT, CONTROL_STREAM)
+          .allGrouping(SWITCH, CONTROL_STREAM)
+          .allGrouping(JOIN, CONTROL_STREAM);
+
   }
 
-  public static void declareOutputStreams(OutputFieldsDeclarer declarer) {
-      Fields fields = new Fields(FLOW_ID, EVENT, FLOW_OP_IDX, STREAM_NAME, LAST_STREAM);
+  public static Fields fields = new Fields(FLOW_ID, EVENT, FLOW_OP_IDX, STREAM_NAME, LAST_STREAM);
+  public static Fields partitionFields = new Fields(FLOW_ID, EVENT, FLOW_OP_IDX, STREAM_NAME, PARTITION, LAST_STREAM);
+
+  public static void declareOutputStreams(OutputFieldsDeclarer declarer, Fields fields) {
       declarer.declareStream(PARTITION, fields);
       declarer.declareStream(FILTER, fields);
       declarer.declareStream(SELECT, fields);
       declarer.declareStream(AGGREGATE, fields);
-      declarer.declareStream(STOP_GATE, fields);
+      declarer.declareStream(SWITCH, fields);
       declarer.declareStream(SORT, fields);
       declarer.declareStream(JOIN, fields);
       declarer.declareStream(EACH, fields);
       declarer.declareStream(OUTPUT, fields);
-  }
-
-  public static void declarePartitionedOutputStreams(OutputFieldsDeclarer declarer) {
-      Fields fields = new Fields(FLOW_ID, EVENT, FLOW_OP_IDX, STREAM_NAME, PARTITION, LAST_STREAM);
-      declarer.declareStream(PARTITION, fields);
-      declarer.declareStream(FILTER, fields);
-      declarer.declareStream(SELECT, fields);
-      declarer.declareStream(AGGREGATE, fields);
-      declarer.declareStream(STOP_GATE, fields);
-      declarer.declareStream(SORT, fields);
-      declarer.declareStream(EACH, fields);
-      declarer.declareStream(JOIN, fields);
-      declarer.declareStream(OUTPUT, fields);
+      declarer.declareStream(CONTROL_STREAM, fields);
   }
 }

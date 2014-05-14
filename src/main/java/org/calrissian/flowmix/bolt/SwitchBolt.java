@@ -24,6 +24,7 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.calrissian.flowmix.FlowmixFactory;
 import org.calrissian.flowmix.model.*;
 import org.calrissian.flowmix.support.SwitchWindow;
 import org.calrissian.mango.domain.Event;
@@ -33,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.calrissian.flowmix.Constants.*;
 import static org.calrissian.flowmix.FlowmixFactory.declareOutputStreams;
+import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 /**
@@ -248,7 +250,7 @@ public class SwitchBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        declareOutputStreams(outputFieldsDeclarer);
+        declareOutputStreams(outputFieldsDeclarer, fields);
     }
 
 }

@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.calrissian.flowmix.Constants.*;
+import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 /**
@@ -96,6 +97,6 @@ public class EachBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        FlowmixFactory.declareOutputStreams(outputFieldsDeclarer);
+        FlowmixFactory.declareOutputStreams(outputFieldsDeclarer, fields);
     }
 }

@@ -30,6 +30,7 @@ import org.calrissian.mango.domain.Event;
 import java.util.*;
 
 import static org.calrissian.flowmix.Constants.*;
+import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 public class SelectorBolt extends BaseRichBolt {
@@ -95,6 +96,6 @@ public class SelectorBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        FlowmixFactory.declareOutputStreams(outputFieldsDeclarer);
+        FlowmixFactory.declareOutputStreams(outputFieldsDeclarer, fields);
     }
 }

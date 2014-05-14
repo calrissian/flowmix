@@ -30,6 +30,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 public class FlowInitializerBolt extends BaseRichBolt {
@@ -73,6 +74,6 @@ public class FlowInitializerBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        FlowmixFactory.declareOutputStreams(outputFieldsDeclarer);
+        FlowmixFactory.declareOutputStreams(outputFieldsDeclarer, fields);
     }
 }

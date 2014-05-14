@@ -31,4 +31,6 @@ public class Constants {
     public static final String LAST_STREAM = "lastStream";
 
     public static final String INITIALIZER = "initializer";
+
+    public static final String CONTROL_STREAM = "control";
 }

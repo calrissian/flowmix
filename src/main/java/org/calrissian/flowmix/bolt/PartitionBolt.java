@@ -30,7 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.calrissian.flowmix.Constants.*;
-import static org.calrissian.flowmix.FlowmixFactory.declarePartitionedOutputStreams;
+import static org.calrissian.flowmix.FlowmixFactory.declareOutputStreams;
+import static org.calrissian.flowmix.FlowmixFactory.partitionFields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 import static org.calrissian.flowmix.support.Utils.buildKeyIndexForEvent;
 
@@ -87,6 +88,6 @@ public class PartitionBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        declarePartitionedOutputStreams(outputFieldsDeclarer);
+        declareOutputStreams(outputFieldsDeclarer, partitionFields);
     }
 }

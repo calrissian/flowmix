@@ -19,8 +19,8 @@ package org.calrissian.flowmix.model.kryo;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import org.calrissian.mango.domain.BaseEvent;
-import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.event.BaseEvent;
+import org.calrissian.mango.domain.event.Event;
 import org.calrissian.mango.domain.Tuple;
 import org.junit.Test;
 

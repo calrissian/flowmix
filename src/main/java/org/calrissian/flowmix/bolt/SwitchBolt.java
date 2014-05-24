@@ -24,11 +24,13 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.calrissian.flowmix.model.*;
+import org.calrissian.flowmix.model.Flow;
+import org.calrissian.flowmix.model.Policy;
+import org.calrissian.flowmix.model.StreamDef;
 import org.calrissian.flowmix.model.op.FlowOp;
 import org.calrissian.flowmix.model.op.SwitchOp;
 import org.calrissian.flowmix.support.SwitchWindow;
-import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.event.Event;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -112,7 +114,7 @@ public class SwitchBolt extends BaseRichBolt {
                                 /**
                                  * If we need to trigger any time-based policies, let's do that here.
                                  */
-                                if(op.getOpenPolicy() == Policy.TIME || op.getClosePolicy() == Policy.TIME) {
+                                if(op.getOpenPolicy() == Policy.TIME || op.getClosePolicy() == Policy.TIME || op.getEvictionPolicy() == Policy.TIME) {
                                     Cache<String, SwitchWindow> buffersForRule = windows.get(flow.getId() + "\0" + stream.getName() + "\0" + idx);
                                     if(buffersForRule != null) {
                                         for (SwitchWindow buffer : buffersForRule.asMap().values()) {
@@ -125,12 +127,25 @@ public class SwitchBolt extends BaseRichBolt {
                                                 }
                                             }
 
-                                            else if(op.getClosePolicy() == Policy.TIME && buffer.isStopped()) {
+                                            boolean justOpened = false;
+                                            if(op.getClosePolicy() == Policy.TIME && buffer.isStopped()) {
                                                 if(buffer.getStopTicks() == op.getCloseThreshold()) {
+                                                    System.out.println("OPENING" + " " + System.currentTimeMillis());
                                                     buffer.setStopped(false);
                                                     buffer.resetStopTicks();
                                                 } else {
                                                     buffer.incrementStopTicks();
+                                                }
+                                            }
+
+                                            if(!justOpened)
+                                            if(op.getEvictionPolicy() == Policy.TIME && !buffer.isStopped()) {
+                                                if(buffer.getEvictionTicks() == op.getEvictionThreshold()) {
+                                                    System.out.println("IN HERE!");
+                                                    activateOpenPolicy(buffer, op);
+                                                } else {
+                                                    buffer.incrementEvictionTicks();
+                                                    System.out.println("EVICT TICKS: " + buffer.getEvictionTicks() + " - " + System.currentTimeMillis());
                                                 }
                                             }
                                         }
@@ -210,20 +225,9 @@ public class SwitchBolt extends BaseRichBolt {
                  */
                 if(!buffer.isStopped()) {
 
-                    if (op.getOpenPolicy() == Policy.COUNT)
+                    if (op.getOpenPolicy() == Policy.COUNT) {
                         buffer.incrTriggerTicks();
-
-                    if(buffer.getTriggerTicks() == op.getOpenThreshold()) {
-                        buffer.setStopped(true);
-                        buffer.resetTriggerTicks();
-                        buffer.clear();
-                    }
-
-                    if(op.getOpenPolicy() == Policy.TIME_DELTA_LT && buffer.timeRange() > -1 && buffer.timeRange() <= op.getOpenThreshold() * 1000) {
-                        if((op.getEvictionPolicy() == Policy.COUNT && buffer.size() == op.getEvictionThreshold()) || op.getEvictionPolicy() != Policy.COUNT) {
-                            buffer.setStopped(true);
-                            buffer.clear();
-                        }
+                        activateOpenPolicy(buffer, op);
                     }
                 }
 
@@ -247,6 +251,31 @@ public class SwitchBolt extends BaseRichBolt {
         }
 
       collector.ack(tuple);
+    }
+
+    private boolean isWindowFull(SwitchOp op, SwitchWindow window) {
+
+       return (op.getEvictionPolicy() == Policy.COUNT && op.getEvictionThreshold() == window.size()) ||
+              (op.getEvictionPolicy() == Policy.TIME && op.getEvictionThreshold() == window.getEvictionTicks());
+    }
+
+    private void activateOpenPolicy(SwitchWindow buffer, SwitchOp op) {
+
+        if(buffer.getTriggerTicks() == op.getOpenThreshold()) {
+            buffer.setStopped(true);
+            buffer.resetTriggerTicks();
+            buffer.clear();
+            buffer.resetEvictionTicks();
+        }
+
+        if(op.getOpenPolicy() == Policy.TIME_DELTA_LT && buffer.timeRange() > -1 && buffer.timeRange() <= op.getOpenThreshold() * 1000) {
+            if(isWindowFull(op, buffer)) {
+                System.out.println("CLOSING " + System.currentTimeMillis());
+                buffer.setStopped(true);
+                buffer.clear();
+                buffer.resetEvictionTicks();
+            }
+        }
     }
 
     @Override

@@ -1,6 +1,6 @@
 package org.calrissian.flowmix.aggregator;
 
-public class RateAggregator {
+public class RateAggregator extends CountAggregator {
 
 
 }

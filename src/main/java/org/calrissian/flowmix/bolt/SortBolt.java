@@ -28,7 +28,7 @@ import org.calrissian.flowmix.model.*;
 import org.calrissian.flowmix.model.op.FlowOp;
 import org.calrissian.flowmix.model.op.SortOp;
 import org.calrissian.flowmix.support.*;
-import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.event.Event;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;

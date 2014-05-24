@@ -1,6 +1,6 @@
 package org.calrissian.flowmix.model.event;
 
-import org.calrissian.mango.domain.BaseEvent;
+import org.calrissian.mango.domain.event.BaseEvent;
 
 import static java.lang.System.currentTimeMillis;
 import static java.util.UUID.randomUUID;

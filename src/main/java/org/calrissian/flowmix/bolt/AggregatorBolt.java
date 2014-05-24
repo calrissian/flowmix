@@ -30,7 +30,7 @@ import org.calrissian.flowmix.model.op.PartitionOp;
 import org.calrissian.flowmix.support.AggregatedEvent;
 import org.calrissian.flowmix.support.Aggregator;
 import org.calrissian.flowmix.support.AggregatorWindow;
-import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.event.Event;
 
 import java.util.Collection;
 import java.util.HashMap;

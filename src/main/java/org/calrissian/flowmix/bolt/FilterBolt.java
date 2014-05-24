@@ -23,7 +23,7 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import org.calrissian.flowmix.model.op.FilterOp;
 import org.calrissian.flowmix.model.Flow;
-import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.event.Event;
 
 import java.util.Collection;
 import java.util.HashMap;

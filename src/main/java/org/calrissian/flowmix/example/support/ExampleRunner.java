@@ -23,8 +23,8 @@ import org.calrissian.flowmix.bolt.PrinterBolt;
 import org.calrissian.flowmix.model.kryo.EventSerializer;
 import org.calrissian.flowmix.spout.MockEventGeneratorSpout;
 import org.calrissian.flowmix.spout.MockFlowLoaderSpout;
-import org.calrissian.mango.domain.BaseEvent;
-import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.event.BaseEvent;
+import org.calrissian.mango.domain.event.Event;
 
 public class ExampleRunner {
 

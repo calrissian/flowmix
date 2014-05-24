@@ -29,7 +29,7 @@ import com.google.common.cache.CacheBuilder;
 import org.calrissian.flowmix.model.*;
 import org.calrissian.flowmix.model.op.AggregateOp;
 import org.calrissian.flowmix.support.Window;
-import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.event.Event;
 
 import java.util.HashMap;
 import java.util.HashSet;

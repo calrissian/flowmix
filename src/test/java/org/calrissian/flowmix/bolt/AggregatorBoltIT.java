@@ -23,7 +23,7 @@ import org.calrissian.flowmix.model.Policy;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.model.kryo.EventSerializer;
 import org.calrissian.flowmix.aggregator.CountAggregator;
-import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.event.Event;
 import org.junit.Test;
 
 import static org.calrissian.flowmix.aggregator.CountAggregator.OUTPUT_FIELD;

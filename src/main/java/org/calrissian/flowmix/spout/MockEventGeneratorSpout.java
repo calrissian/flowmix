@@ -22,8 +22,8 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import org.calrissian.mango.domain.BaseEvent;
-import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.event.BaseEvent;
+import org.calrissian.mango.domain.event.Event;
 import org.calrissian.mango.domain.Tuple;
 
 import java.util.Map;

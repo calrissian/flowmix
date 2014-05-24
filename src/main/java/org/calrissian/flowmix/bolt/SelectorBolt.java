@@ -24,8 +24,8 @@ import backtype.storm.tuple.Values;
 import org.calrissian.flowmix.FlowmixFactory;
 import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.op.SelectOp;
-import org.calrissian.mango.domain.BaseEvent;
-import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.event.BaseEvent;
+import org.calrissian.mango.domain.event.Event;
 
 import java.util.*;
 

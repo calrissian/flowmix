@@ -22,8 +22,8 @@ import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.Policy;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.support.Function;
-import org.calrissian.mango.domain.BaseEvent;
-import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.event.BaseEvent;
+import org.calrissian.mango.domain.event.Event;
 import org.calrissian.mango.domain.Tuple;
 
 import java.util.List;

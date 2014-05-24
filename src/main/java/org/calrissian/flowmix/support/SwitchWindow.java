@@ -21,6 +21,8 @@ public class SwitchWindow extends Window {
 
     int stopTicks = 0;
 
+    int evictionTicks = 0;
+
 
     public SwitchWindow(String groupedIndex, long size) {
         super(groupedIndex, size);
@@ -48,5 +50,17 @@ public class SwitchWindow extends Window {
 
     public void resetStopTicks() {
         stopTicks = 0;
+    }
+
+    public int getEvictionTicks() {
+        return evictionTicks;
+    }
+
+    public void incrementEvictionTicks() {
+        this.evictionTicks++;
+    }
+
+    public void resetEvictionTicks() {
+        evictionTicks = 0;
     }
 }

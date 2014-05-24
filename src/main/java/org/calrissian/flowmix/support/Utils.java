@@ -1,6 +1,6 @@
 package org.calrissian.flowmix.support;
 
-import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.event.Event;
 import org.calrissian.mango.domain.Tuple;
 import org.calrissian.mango.types.TypeRegistry;
 import org.calrissian.mango.types.exception.TypeEncodingException;

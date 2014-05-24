@@ -21,7 +21,7 @@ import backtype.storm.generated.StormTopology;
 import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.model.kryo.EventSerializer;
-import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.event.Event;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

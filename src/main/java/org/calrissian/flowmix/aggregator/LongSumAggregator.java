@@ -19,8 +19,8 @@ import org.apache.commons.lang.StringUtils;
 import org.calrissian.flowmix.support.AggregatedEvent;
 import org.calrissian.flowmix.support.Aggregator;
 import org.calrissian.flowmix.support.WindowItem;
-import org.calrissian.mango.domain.BaseEvent;
-import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.event.BaseEvent;
+import org.calrissian.mango.domain.event.Event;
 import org.calrissian.mango.domain.Tuple;
 
 import java.util.*;

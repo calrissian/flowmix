@@ -29,8 +29,8 @@ import org.calrissian.flowmix.model.op.FlowOp;
 import org.calrissian.flowmix.model.op.JoinOp;
 import org.calrissian.flowmix.support.Window;
 import org.calrissian.flowmix.support.WindowItem;
-import org.calrissian.mango.domain.BaseEvent;
-import org.calrissian.mango.domain.Event;
+import org.calrissian.mango.domain.event.BaseEvent;
+import org.calrissian.mango.domain.event.Event;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;

@@ -18,24 +18,13 @@ package org.calrissian.flowmix.bolt;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
-import com.google.common.collect.Iterables;
-import org.calrissian.flowmix.model.*;
+import org.calrissian.flowmix.model.Flow;
+import org.calrissian.flowmix.model.Policy;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.model.kryo.EventSerializer;
-import org.calrissian.flowmix.spout.MockEventGeneratorSpout;
-import org.calrissian.flowmix.support.Function;
 import org.calrissian.mango.domain.event.BaseEvent;
-import org.calrissian.mango.domain.event.Event;
-import org.calrissian.mango.domain.Tuple;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.List;
-
-import static java.lang.Math.random;
-import static java.util.Collections.singletonList;
-import static org.calrissian.flowmix.model.Order.ASC;
-import static org.calrissian.flowmix.model.Order.DESC;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -90,6 +79,7 @@ public class SwitchBoltIT extends FlowTestCase {
         Thread.sleep(7000);
 
         int size = MockSinkBolt.getEvents().size();
-        assertTrue(size >= 50 && size <= 60);
+        System.out.println("SIZE: " + size);
+        assertTrue(size >= 50 && size <= 65);
     }
 }

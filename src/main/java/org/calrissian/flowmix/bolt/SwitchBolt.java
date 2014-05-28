@@ -225,7 +225,7 @@ public class SwitchBolt extends BaseRichBolt {
                  */
                 if(!buffer.isStopped()) {
 
-                    if (op.getOpenPolicy() == Policy.COUNT) {
+                    if (op.getOpenPolicy() == Policy.COUNT || op.getEvictionPolicy() == Policy.COUNT) {
                         buffer.incrTriggerTicks();
                         activateOpenPolicy(buffer, op);
                     }

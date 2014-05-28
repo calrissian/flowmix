@@ -135,7 +135,7 @@ public class AggregatorBolt extends BaseRichBolt {
                         if(op.getEvictionPolicy() == Policy.TIME)
                             window.timeEvict(op.getEvictionThreshold());
                     } else {
-                        buildWindow(op, streamName, idx, partition, flowId, windowCache);
+                        window = buildWindow(op, streamName, idx, partition, flowId, windowCache);
                     }
                 } else {
                     windowCache = CacheBuilder.newBuilder().expireAfterWrite(60, TimeUnit.MINUTES).expireAfterAccess(60, TimeUnit.MINUTES).build(); // just in case we get some rogue data we should make sure it gets cleaned up.

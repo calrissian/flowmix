@@ -200,6 +200,10 @@ public class SwitchBolt extends BaseRichBolt {
                             if(op.getEvictionPolicy() == Policy.TIME)
                                 buffer.timeEvict(op.getEvictionThreshold());
                         }
+                    } else {
+                        buffer = op.getEvictionPolicy() == Policy.TIME ? new SwitchWindow(hash) :
+                            new SwitchWindow(hash, op.getEvictionThreshold());
+                        buffersForRule.put(hash, buffer);
                     }
                 } else {
                     buffersForRule = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).build(); // just in case we get some rogue data, we don't wan ti to sit for too long.

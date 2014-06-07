@@ -19,11 +19,10 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import org.calrissian.mango.domain.Tuple;
 import org.calrissian.mango.domain.event.BaseEvent;
 import org.calrissian.mango.domain.event.Event;
-import org.calrissian.mango.domain.Tuple;
 import org.calrissian.mango.types.TypeRegistry;
-import org.calrissian.mango.types.exception.TypeDecodingException;
 
 import static org.calrissian.mango.types.LexiTypeEncoders.LEXI_TYPES;
 
@@ -34,19 +33,19 @@ public class EventSerializer extends Serializer<Event> {
     @Override
     public void write(Kryo kryo, Output output, Event event) {
 
-      try {
-        output.writeString(event.getId());
-        output.writeLong(event.getTimestamp());
-        output.writeInt(event.getTuples().size());
-        for(Tuple tupleSet : event.getTuples()) {
-          output.writeString(tupleSet.getKey());
-          output.writeString(registry.getAlias(tupleSet.getValue()));
-          output.writeString(registry.encode(tupleSet.getValue()));
-        }
+        try {
+            output.writeString(event.getId());
+            output.writeLong(event.getTimestamp());
+            output.writeInt(event.getTuples().size());
+            for(Tuple tupleSet : event.getTuples()) {
+                output.writeString(tupleSet.getKey());
+                output.writeString(registry.getAlias(tupleSet.getValue()));
+                output.writeString(registry.encode(tupleSet.getValue()));
+            }
 
-      } catch(Exception e) {
-        throw new RuntimeException(e);
-      }
+        } catch(Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -54,21 +53,18 @@ public class EventSerializer extends Serializer<Event> {
         String uuid = input.readString();
         long timestamp = input.readLong();
 
-      try {
         Event event = new BaseEvent(uuid, timestamp);
         int numTuples = input.readInt();
         for(int i = 0; i < numTuples; i++) {
 
-          String key = input.readString();
-          String alias = input.readString();
-          String val = input.readString();
+            String key = input.readString();
+            String alias = input.readString();
+            String val = input.readString();
 
-          event.put(new Tuple(key, registry.decode(alias, val)));
+            event.put(new Tuple(key, registry.decode(alias, val)));
         }
 
         return event;
-      } catch (TypeDecodingException e) {
-        throw new RuntimeException(e);
-      }
+
     }
 }

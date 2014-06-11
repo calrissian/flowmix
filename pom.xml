@@ -159,7 +159,7 @@ limitations under the License.
   <scm>
     <connection>scm:git:git@github.com:calrissian/flowmix.git</connection>
     <developerConnection>scm:git:git@github.com:calrissian/flowmix.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>flowmix-0.1.0</tag>
     <url>git@github.com:calrissian/flowmix.git</url>
   </scm>
   <repositories>

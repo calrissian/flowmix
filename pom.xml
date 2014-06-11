@@ -18,7 +18,7 @@ limitations under the License.
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.calrissian.flowmix</groupId>
   <artifactId>flowmix</artifactId>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>0.0.1-SNAPSHOT</version>
   <name>Root</name>
   <description>Calrissian Flowmix- A Flexible Event Processing Engine for Apache Storm</description>
   <properties>

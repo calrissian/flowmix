@@ -18,7 +18,7 @@ limitations under the License.
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.calrissian.flowmix</groupId>
   <artifactId>flowmix</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.1-SNAPSHOT</version>
   <name>Root</name>
   <description>Calrissian Flowmix- A Flexible Event Processing Engine for Apache Storm</description>
   <properties>
@@ -159,7 +159,7 @@ limitations under the License.
   <scm>
     <connection>scm:git:git@github.com:calrissian/flowmix.git</connection>
     <developerConnection>scm:git:git@github.com:calrissian/flowmix.git</developerConnection>
-    <tag>flowmix-0.1.0</tag>
+    <tag>HEAD</tag>
     <url>git@github.com:calrissian/flowmix.git</url>
   </scm>
   <repositories>

@@ -29,7 +29,7 @@ event.put(new Tuple("key1", "val1"));
 
 
 ###What is a flow?
-A flow is a processing pipeline that defines how to manipulate a set of data streams that it takes of orchestrating. A flow runs in parallel, processing as many streams as possible at the same time. Flows also define algorithms that use sliding & tumbling windows, partitions, and aggregations to manage the data so that analytics and alerting can be orchestrated easily. 
+A flow is a processing pipeline that defines how to manipulate a set of data streams. A flow runs in parallel, processing as many streams as possible at the same time. Flows also define algorithms that use sliding & tumbling windows, partitions, and aggregations to manage the data so that analytics and alerting can be orchestrated easily. 
 
 ### Inputs and outputs
 

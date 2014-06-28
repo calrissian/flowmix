@@ -1,20 +1,21 @@
 Flowmix - A Flexible Event Processing Engine for Apache Storm
 =============================================================
 
-This project is an attempt to create a high-speed distributed complex event processing engine written on top of Apache Storm. This framework's goal is to make use of Storm's guaranteed delivery, groupings and tuple-at-a-time abilities (along with its guarantees of thread-safe parallelism in its bolts) to make different processed flows of streams possible in a single Storm topology. 
+This project is an attempt to create a high-speed distributed complex event processing engine written on top of Apache Storm. Many of the semantics are borrowed from CEP frameworks like Esper & IBM's Infosphere Streams. This framework's goal is to make use of Storm's guaranteed delivery, groupings and tuple-at-a-time abilities (along with its guarantees of thread-safe parallelism in its bolts) to make different processed flows of streams possible in a single Storm topology. Storm also gives Flowmix high fault tolerance and the ability to scale.
 
 ## Why another streams processing abstraction?
 
 Trident is wonderful for building out streams of data and defining how to process those streams along the way, however each each trident topology needs to be deployed separately in Storm. You could, perhaps, write several streams in a trident topology, but this problem is exaserbated by increasing complexity in the client-side builder pattern required to make it possible. Similar to Hadoop's MapReduce framework, an Apache Storm cluster is run with a finite amount of resources available. Each topology that gets deployed needs to make use of more resources. If I have 15 different analytics that I'm interested in writing to correlate the same couple streams of data, I'm left running 15 different topologies.
 
-Another problem encountered with Trident is that it does not make temporal operations and temporary state very easy to manage. Things like typical sliding & tumbling windows (with expiration and trigger functions that act independently of one another) mean having to write your own custom functions to do so, thereby making it harder or not possible to utilize the rich aggregation mechanisms already built into the framework. 
+Another problem encountered with Trident is that it does not make temporal operations and temporary state very easy to manage. Things like typical sliding & tumbling windows (with expiration and trigger functions that act independently of one another) mean having to write your own custom functions to do so, thereby making it harder or not possible to utilize the rich aggregation mechanisms already built into the framework.
 
 
 ## So what is Flowmix?
 
-One of the solutions Flowmix offers to the resource and windowing problem is having a single topology deployed with a generic "stream" of domain-agnostic objects that can be routed around in different ways, applying different operations to the events on their way through the bolts of the topology. The streams can be split and joined together, bridged to other streams, and passed through a standard pluggable output bolt. Events can be passed through relational operations like partitioning, splitting, aggregating, collecting, sorting, filtering, selection, and joining.
+One of the solutions Flowmix offers to the resource and sliding window orchestration problem is having a single topology deployed with a generic "stream" of domain-agnostic objects that can be routed around in different ways, applying different operations to the events on their way through the bolts of the topology. The streams can be split and joined together, bridged to other streams, and passed through a standard pluggable output bolt. Events can be passed through relational operations like partitioning, aggregating, collecting, sorting, filtering, selection, and joining.
 
-Other non-relational operations like switches and governors can also be applied to orchestrate the flow of a stream of data. Generic functions can be applied to each event as it passes through a stream. 
+Other non-relational operations like switches and governors can also be applied to orchestrate the flow of a stream of data. Generic functions can be applied to each event as it passes through a stream.
+
 
 ##Concepts:
 
@@ -28,7 +29,7 @@ event.put(new Tuple("key1", "val1"));
 
 
 ###What is a flow?
-A flow is a processing pipeline that defines how to manipulate a set of data streams. A flow runs in parallel, processing as many streams as possible at the same time. Flows also define algorithms that use windowing, partitions, and aggregations to manage the data so that analytics and alerting can be orchestrated easily. 
+A flow is a processing pipeline that defines how to manipulate a set of data streams that it takes of orchestrating. A flow runs in parallel, processing as many streams as possible at the same time. Flows also define algorithms that use sliding & tumbling windows, partitions, and aggregations to manage the data so that analytics and alerting can be orchestrated easily. 
 
 ### Inputs and outputs
 
@@ -38,12 +39,12 @@ Flowmix provides a factory for wiring up the standard operators (with a configur
 - A spout to feed events into the topology.
 - A bolt to accept output events 
 
-The input stream of events for which at least one flow stream must subscribe is referred to as _standard input_. The output stream of events which at least one flow stream much publish to is called the _standard output_. By default, unless turned off in the ```FlowBuilder```, streams will subscribe to standard input and publish to standard output. In place of this, however, they can specify some number of different streams which they can subscribe to for their events and publish to for their output.
+The input stream of events for which at least one flow stream must subscribe is referred to as _standard input_. The output stream of events which at least one flow stream must publish to is called the _standard output_. By default, unless turned off in the ```FlowBuilder``` class, streams will subscribe to standard input and publish to standard output. In place of this, however, each stream can specify some number of different streams which they can subscribe to for their events and publish to for their output. This allows the streams within a flow to be "mixed" together and correlated in various ways.
 
 
 ###How are flows defined?
 
-Flows are defined using an object called a Flow. FlowOps are added to a flow to define executions that need to occur on the flow. Note that the placement of the executions in the flow are important. In the flow defined below, every tuple will first begin with a filtering operator, then move on to a selection operator, then move on to be partitioned, etc...
+Flows are defined using an object called a Flow. ```FlowOp``` objects are added to a flow to define executions that need to occur on the flow. Note that the placement of the executions in the flow are important. In the flow defined below, every tuple will first begin with a filtering operator, then move on to a selection operator, then move on to be partitioned, etc...
 
 ```Java
 Flow flow = new FlowBuilder()
@@ -82,6 +83,30 @@ Obviously, this is just a test flow, but it's a great demonstration of how an un
 This is essentially implementing this SQL continuously while the data is streaming through the topology:
 ```sql
 SELECT age, country, COUNT(*) FROM input WHERE country = 'USA' GROUP BY age, country  ORDER BY age DESC LIMIT 10;
+```
+
+###Creating the topology
+
+Wiring up a Flowmix topology to deploy to a live storm cluster is actually pretty easy.
+```java
+List<Flow> flows = // create list of flows using the FlowBuilder
+
+StormTopology topology = new FlowmixFactory(
+    new MockFlowLoaderSpout(flows, 60000),      // spout to provide the flows
+    new MockEventGeneratorSpout(10),            // spout to provide the events
+    new PrinterBolt(), 6)                       // standard output bolt 
+  .create()
+.createTopology();
+
+Config conf = new Config();
+conf.setNumWorkers(20);
+conf.setMaxSpoutPending(5000);
+conf.setDebug(false);
+conf.registerSerialization(BaseEvent.class, EventSerializer.class);
+conf.setSkipMissingKryoRegistrations(false);
+
+LocalCluster cluster = new LocalCluster();
+cluster.submitTopology("example-flowmix-topology", conf, topology);
 ```
 
 ##Examples: 

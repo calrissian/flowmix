@@ -90,10 +90,12 @@ public class SplitBolt extends BaseRichBolt {
         }
 
         // then check all other paths
-        for(Pair<Filter, String> pathPair : splitOp.getPaths()) {
-          if(pathPair.getOne().accept(event)) {
+        if(splitOp.getPaths() != null) {
+          for(Pair<Filter, String> pathPair : splitOp.getPaths()) {
+            if(pathPair.getOne().accept(event)) {
               String outputStream = flow.getStream(pathPair.getTwo()).getFlowOps().get(0).getComponentName();
               collector.emit(outputStream, tuple, new Values(flowId, event, -1, pathPair.getTwo(), streamName));
+            }
           }
         }
       }

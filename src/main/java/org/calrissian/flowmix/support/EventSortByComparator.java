@@ -17,6 +17,7 @@ package org.calrissian.flowmix.support;
 
 import org.apache.commons.collections.comparators.ComparableComparator;
 import org.calrissian.flowmix.model.Order;
+import org.calrissian.flowmix.support.window.WindowItem;
 import org.calrissian.mango.domain.Pair;
 
 import java.util.Comparator;

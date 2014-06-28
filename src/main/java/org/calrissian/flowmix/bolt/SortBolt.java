@@ -28,6 +28,9 @@ import org.calrissian.flowmix.model.*;
 import org.calrissian.flowmix.model.op.FlowOp;
 import org.calrissian.flowmix.model.op.SortOp;
 import org.calrissian.flowmix.support.*;
+import org.calrissian.flowmix.support.window.SortedWindow;
+import org.calrissian.flowmix.support.window.Window;
+import org.calrissian.flowmix.support.window.WindowItem;
 import org.calrissian.mango.domain.event.Event;
 
 import java.util.*;
@@ -52,7 +55,7 @@ import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREA
 public class SortBolt extends BaseRichBolt {
 
   Map<String, Flow> flowMap;
-  Map<String, Cache<String, SortedWindow>> windows;
+  Map<String, Cache<String,SortedWindow>> windows;
 
   OutputCollector collector;
 

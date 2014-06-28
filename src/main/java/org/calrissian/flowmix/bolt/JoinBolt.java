@@ -27,8 +27,8 @@ import com.google.common.cache.CacheBuilder;
 import org.calrissian.flowmix.model.*;
 import org.calrissian.flowmix.model.op.FlowOp;
 import org.calrissian.flowmix.model.op.JoinOp;
-import org.calrissian.flowmix.support.Window;
-import org.calrissian.flowmix.support.WindowItem;
+import org.calrissian.flowmix.support.window.Window;
+import org.calrissian.flowmix.support.window.WindowItem;
 import org.calrissian.mango.domain.event.BaseEvent;
 import org.calrissian.mango.domain.event.Event;
 

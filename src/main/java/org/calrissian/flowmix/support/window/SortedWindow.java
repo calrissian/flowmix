@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.support;
+package org.calrissian.flowmix.support.window;
+
+import org.calrissian.flowmix.support.LimitingDeque;
+import org.calrissian.flowmix.support.LimitingPriorityDeque;
+import org.calrissian.flowmix.support.PriorityBlockingDeque;
 
 import java.util.Comparator;
 import java.util.concurrent.LinkedBlockingDeque;

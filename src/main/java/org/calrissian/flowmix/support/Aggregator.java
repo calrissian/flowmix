@@ -15,6 +15,9 @@
  */
 package org.calrissian.flowmix.support;
 
+import org.calrissian.flowmix.model.event.AggregatedEvent;
+import org.calrissian.flowmix.support.window.WindowItem;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;

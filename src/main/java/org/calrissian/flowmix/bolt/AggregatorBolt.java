@@ -27,9 +27,9 @@ import org.calrissian.flowmix.model.*;
 import org.calrissian.flowmix.model.op.AggregateOp;
 import org.calrissian.flowmix.model.op.FlowOp;
 import org.calrissian.flowmix.model.op.PartitionOp;
-import org.calrissian.flowmix.support.AggregatedEvent;
+import org.calrissian.flowmix.model.event.AggregatedEvent;
 import org.calrissian.flowmix.support.Aggregator;
-import org.calrissian.flowmix.support.AggregatorWindow;
+import org.calrissian.flowmix.support.window.AggregatorWindow;
 import org.calrissian.mango.domain.event.Event;
 
 import java.util.Collection;

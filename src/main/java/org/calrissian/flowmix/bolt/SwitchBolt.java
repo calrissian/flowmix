@@ -29,7 +29,7 @@ import org.calrissian.flowmix.model.Policy;
 import org.calrissian.flowmix.model.StreamDef;
 import org.calrissian.flowmix.model.op.FlowOp;
 import org.calrissian.flowmix.model.op.SwitchOp;
-import org.calrissian.flowmix.support.SwitchWindow;
+import org.calrissian.flowmix.support.window.SwitchWindow;
 import org.calrissian.mango.domain.event.Event;
 
 import java.util.*;

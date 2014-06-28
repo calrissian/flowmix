@@ -58,6 +58,7 @@ public class MockFlowLoaderSpout extends BaseRichSpout{
 
       if(!loaded || pauseBetweenLoads > -1) {
         collector.emit(FLOW_LOADER_STREAM, new Values(flows));
+        loaded = true;
 
         if(pauseBetweenLoads > -1) {
           try {

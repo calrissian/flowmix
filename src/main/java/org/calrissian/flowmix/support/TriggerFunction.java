@@ -15,6 +15,8 @@
  */
 package org.calrissian.flowmix.support;
 
+import org.calrissian.flowmix.support.window.WindowItem;
+
 import java.io.Serializable;
 
 public interface TriggerFunction extends Serializable {

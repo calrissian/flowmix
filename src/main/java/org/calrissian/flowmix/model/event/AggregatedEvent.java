@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.support;
+package org.calrissian.flowmix.model.event;
 
 import org.calrissian.mango.domain.event.Event;
 

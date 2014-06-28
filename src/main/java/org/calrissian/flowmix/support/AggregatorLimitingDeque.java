@@ -15,6 +15,7 @@
  */
 package org.calrissian.flowmix.support;
 
+import org.calrissian.flowmix.support.window.WindowItem;
 
 public class AggregatorLimitingDeque extends LimitingDeque<WindowItem> {
 

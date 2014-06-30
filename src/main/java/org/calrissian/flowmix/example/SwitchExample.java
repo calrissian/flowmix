@@ -17,6 +17,7 @@ package org.calrissian.flowmix.example;
 
 import org.calrissian.flowmix.example.support.ExampleRunner;
 import org.calrissian.flowmix.example.support.FlowProvider;
+import org.calrissian.flowmix.filter.CriteriaFilter;
 import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.Policy;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
@@ -41,7 +42,7 @@ public class SwitchExample implements FlowProvider {
       .id("flow1")
       .flowDefs()
         .stream("stream1")
-          .filter().criteria(criteriaFromNode(new QueryBuilder().eq("key3", "val3").build())).end()
+          .filter().filter(new CriteriaFilter(criteriaFromNode(new QueryBuilder().eq("key3", "val3").build()))).end()
           .select().fields("key3").end()
           .partition().fields("key3").end()
           .stopGate().open(Policy.TIME_DELTA_LT, 1000).evict(Policy.COUNT, 5).close(Policy.TIME, 5).end()

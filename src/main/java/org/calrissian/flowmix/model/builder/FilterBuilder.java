@@ -16,7 +16,7 @@
 package org.calrissian.flowmix.model.builder;
 
 import org.calrissian.flowmix.model.op.FilterOp;
-import org.calrissian.mango.criteria.domain.criteria.Criteria;
+import org.calrissian.flowmix.support.Filter;
 
 public class FilterBuilder extends AbstractOpBuilder {
 
@@ -26,15 +26,15 @@ public class FilterBuilder extends AbstractOpBuilder {
         super(fob);
     }
 
-    public FilterBuilder criteria(Criteria criteria) {
-        filterOp.setCriteria(criteria);
+    public FilterBuilder filter(Filter filter) {
+        filterOp.setFilter(filter);
         return this;
     }
 
     public StreamBuilder end() {
 
-        if(filterOp.getCriteria() == null)
-            throw new RuntimeException("Filter operator needs criteria to filter");
+        if(filterOp.getFilter() == null)
+            throw new RuntimeException("Filter operator needs a filter");
 
         getStreamBuilder().addFlowOp(filterOp);
         return getStreamBuilder();

@@ -17,6 +17,7 @@ package org.calrissian.flowmix.model;
 
 import org.calrissian.flowmix.aggregator.CountAggregator;
 import org.calrissian.flowmix.aggregator.LongSumAggregator;
+import org.calrissian.flowmix.filter.CriteriaFilter;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.model.op.PartitionOp;
 import org.calrissian.flowmix.model.op.SelectOp;
@@ -36,7 +37,7 @@ public class FlowBuilderTest {
           .description("This is a test flow just to prove that we can use the builder effectively")
           .flowDefs()
               .stream("stream1")
-                  .filter().criteria(criteriaFromNode(new QueryBuilder().eq("500", "1000").build())).end()
+                  .filter().filter(new CriteriaFilter(criteriaFromNode(new QueryBuilder().eq("500", "1000").build()))).end()
                   .select().fields("name", "age").end()
                   .partition().fields("name", "age", "country").end()
                   .aggregate().aggregator(LongSumAggregator.class).evict(Policy.COUNT, 500).trigger(Policy.TIME, 25).end()

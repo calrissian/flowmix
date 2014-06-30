@@ -15,19 +15,19 @@
  */
 package org.calrissian.flowmix.model.op;
 
-import org.calrissian.mango.criteria.domain.criteria.Criteria;
+import org.calrissian.flowmix.support.Filter;
 
 public class FilterOp implements FlowOp {
 
     public static final String FILTER = "filter";
-    Criteria criteria;
+    Filter filter;
 
-    public void setCriteria(Criteria criteria) {
-        this.criteria = criteria;
+    public void setFilter(Filter filter) {
+        this.filter = filter;
     }
 
-    public Criteria getCriteria() {
-        return criteria;
+    public Filter getFilter() {
+        return filter;
     }
 
     @Override

@@ -17,6 +17,7 @@ package org.calrissian.flowmix.example;
 
 import org.calrissian.flowmix.example.support.ExampleRunner;
 import org.calrissian.flowmix.example.support.FlowProvider;
+import org.calrissian.flowmix.filter.CriteriaFilter;
 import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.support.Function;
@@ -43,17 +44,17 @@ public class StreamBridgeExample implements FlowProvider {
       .id("flow")
       .flowDefs()
         .stream("stream1")
-          .filter().criteria(criteriaFromNode(new QueryBuilder().eq("key1", "val1").build())).end()
+          .filter().filter(new CriteriaFilter(criteriaFromNode(new QueryBuilder().eq("key1", "val1").build()))).end()
         .endStream(false, "stream2")   // send ALL results to stream2 and not to standard output
         .stream("stream2", false)      // don't read any events from standard input
-          .filter().criteria(criteriaFromNode(new QueryBuilder().eq("key4", "val4").build())).end()
+          .filter().filter(new CriteriaFilter(criteriaFromNode(new QueryBuilder().eq("key4", "val4").build()))).end()
           .select().fields("key4").end()
           .each().function(new Function() {
-              @Override
-              public List<Event> execute(Event event) {
-                return singletonList(event);
-              }
-            }).end()
+          @Override
+          public List<Event> execute(Event event) {
+            return singletonList(event);
+          }
+        }).end()
         .endStream()
       .endDefs()
     .createFlow();

@@ -74,9 +74,6 @@ public class SplitBolt extends BaseRichBolt {
         // first check the default path
         Filter filter = splitOp.getDefaultPath();
         if(filter != null && filter.accept(event)) {
-          /**
-           * If no selected tuples existed, event will not be emitted
-           */
           if ((nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output"))
               collector.emit(nextStream, tuple, new Values(flowId, event, idx, streamName, previousStream));
 

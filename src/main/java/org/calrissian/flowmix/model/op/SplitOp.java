@@ -7,6 +7,8 @@ import java.util.List;
 
 public class SplitOp implements FlowOp{
 
+  public static final String SPLIT = "split";
+
   // default path should just pass through to the next component in the chain
   private Filter defaultPath;
 
@@ -27,6 +29,6 @@ public class SplitOp implements FlowOp{
   }
 
   @Override public String getComponentName() {
-    return "split";
+    return SPLIT;
   }
 }

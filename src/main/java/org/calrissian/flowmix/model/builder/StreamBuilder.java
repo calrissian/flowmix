@@ -66,6 +66,10 @@ public class StreamBuilder {
         return new JoinBuilder(this, stream1, stream2);
     }
 
+    public SplitBuilder split() {
+      return new SplitBuilder(this);
+    }
+
     public SortBuilder sort() {
         return new SortBuilder(this);
     }

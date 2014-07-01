@@ -1,5 +1,6 @@
 package org.calrissian.flowmix.model.builder;
 
+import org.calrissian.flowmix.filter.AllFilter;
 import org.calrissian.flowmix.model.op.SplitOp;
 import org.calrissian.flowmix.support.Filter;
 import org.calrissian.mango.domain.Pair;
@@ -23,6 +24,11 @@ public class SplitBuilder extends AbstractOpBuilder {
 
   public SplitBuilder path(Filter filter, String destinationStream) {
     this.paths.add(new Pair<Filter,String>(filter, destinationStream));
+    return this;
+  }
+
+  public SplitBuilder all(String destinationStream) {
+    this.paths.add(new Pair<Filter,String>(new AllFilter(), destinationStream));
     return this;
   }
 

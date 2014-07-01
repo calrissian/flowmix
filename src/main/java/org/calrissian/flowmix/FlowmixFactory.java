@@ -28,6 +28,7 @@ import static org.calrissian.flowmix.model.op.JoinOp.JOIN;
 import static org.calrissian.flowmix.model.op.PartitionOp.PARTITION;
 import static org.calrissian.flowmix.model.op.SelectOp.SELECT;
 import static org.calrissian.flowmix.model.op.SortOp.SORT;
+import static org.calrissian.flowmix.model.op.SplitOp.SPLIT;
 import static org.calrissian.flowmix.model.op.SwitchOp.SWITCH;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 
@@ -81,6 +82,7 @@ public class FlowmixFactory {
       declarebolt(builder, JOIN, new JoinBolt(), parallelismHint, true);
       declarebolt(builder, EACH, new EachBolt(), parallelismHint, true);
       declarebolt(builder, SORT, new SortBolt(), parallelismHint, true);
+      declarebolt(builder, SPLIT, new SplitBolt(), parallelismHint, true);
       declarebolt(builder, OUTPUT, outputBolt, parallelismHint, false);
 
       return builder;
@@ -98,7 +100,9 @@ public class FlowmixFactory {
           .localOrShuffleGrouping(EACH, boltName)
           .localOrShuffleGrouping(SORT, boltName)
           .localOrShuffleGrouping(SWITCH, boltName)
+          .localOrShuffleGrouping(SPLIT, boltName)
           .localOrShuffleGrouping(JOIN, boltName);
+
 
           if(control) {
             // control stream is all-grouped
@@ -110,6 +114,7 @@ public class FlowmixFactory {
                     .allGrouping(EACH, CONTROL_STREAM + boltName)
                     .allGrouping(SORT, CONTROL_STREAM + boltName)
                     .allGrouping(SWITCH, CONTROL_STREAM + boltName)
+                    .allGrouping(SPLIT, CONTROL_STREAM + boltName)
                     .allGrouping(JOIN, CONTROL_STREAM + boltName);
 
           }
@@ -126,6 +131,7 @@ public class FlowmixFactory {
       declarer.declareStream(SWITCH, fields);
       declarer.declareStream(SORT, fields);
       declarer.declareStream(JOIN, fields);
+      declarer.declareStream(SPLIT, fields);
       declarer.declareStream(EACH, fields);
       declarer.declareStream(OUTPUT, fields);
       declarer.declareStream(CONTROL_STREAM + PARTITION, fields);
@@ -136,5 +142,6 @@ public class FlowmixFactory {
       declarer.declareStream(CONTROL_STREAM + SORT, fields);
       declarer.declareStream(CONTROL_STREAM + JOIN, fields);
       declarer.declareStream(CONTROL_STREAM + EACH, fields);
+      declarer.declareStream(CONTROL_STREAM + SPLIT, fields);
   }
 }

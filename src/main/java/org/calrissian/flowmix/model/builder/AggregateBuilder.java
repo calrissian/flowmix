@@ -35,6 +35,7 @@ public class AggregateBuilder extends AbstractOpBuilder {
     private Policy evictionPolicy;
     private long evictionThreshold = -1;
     private boolean clearOnTrigger = false;
+    private long windowEvictMillis = 3600000;   // 60 minutes by default
 
     private Map<String,String> config = new HashMap<String,String>();
 
@@ -69,6 +70,11 @@ public class AggregateBuilder extends AbstractOpBuilder {
         return this;
     }
 
+    public AggregateBuilder windowEvictMillis(long millis) {
+      this.windowEvictMillis = millis;
+      return this;
+    }
+
     public StreamBuilder end() {
 
       if(aggregatorClass == null)
@@ -86,7 +92,7 @@ public class AggregateBuilder extends AbstractOpBuilder {
         flowOpList.add(new PartitionOp(EMPTY_LIST));
 
       getStreamBuilder().addFlowOp(new AggregateOp(aggregatorClass, triggerPolicy, triggerThreshold, evictionPolicy,
-              evictionThreshold, config, clearOnTrigger));
+              evictionThreshold, config, clearOnTrigger, windowEvictMillis));
       return getStreamBuilder();
     }
 }

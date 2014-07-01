@@ -25,17 +25,20 @@ public class AggregateOp implements FlowOp, RequiresPartitioning {
 
     public static final String AGGREGATE = "aggregate";
 
-    private Class<? extends Aggregator> aggregatorClass;
-    private Policy triggerPolicy;
-    private Policy evictionPolicy;
-    private long triggerThreshold;
-    private long evictionThreshold;
-    private boolean clearOnTrigger = false;
+    private final Class<? extends Aggregator> aggregatorClass;
+    private final Policy triggerPolicy;
+    private final Policy evictionPolicy;
+    private final long triggerThreshold;
+    private final long evictionThreshold;
+    private final boolean clearOnTrigger;
+
+    private long windowEvictMillis;
 
     private Map<String,String> config;
 
     public AggregateOp(Class<? extends Aggregator> aggregatorClass, Policy triggerPolicy, long triggerThreshold,
-                       Policy evictionPolicy, long evictionThreshold, Map<String,String> config, boolean clearOnTrigger) {
+                       Policy evictionPolicy, long evictionThreshold, Map<String,String> config, boolean clearOnTrigger,
+                       long windowEvictMillis) {
         this.aggregatorClass = aggregatorClass;
         this.triggerPolicy = triggerPolicy;
         this.evictionPolicy = evictionPolicy;
@@ -43,7 +46,7 @@ public class AggregateOp implements FlowOp, RequiresPartitioning {
         this.evictionThreshold = evictionThreshold;
         this.config = config;
         this.clearOnTrigger = clearOnTrigger;
-
+        this.windowEvictMillis = windowEvictMillis;
     }
 
     public boolean isClearOnTrigger() {
@@ -72,6 +75,10 @@ public class AggregateOp implements FlowOp, RequiresPartitioning {
 
     public Map<String, String> getConfig() {
       return config;
+    }
+
+    public long getWindowEvictMillis() {
+      return windowEvictMillis;
     }
 
     @Override

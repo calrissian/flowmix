@@ -17,7 +17,7 @@ public class SplitBuilder extends AbstractOpBuilder {
   }
 
   public SplitBuilder defaultPath(Filter filter) {
-    this.defaultPath = defaultPath;
+    this.defaultPath = filter;
     return this;
   }
 

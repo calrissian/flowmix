@@ -38,7 +38,7 @@ public class StreamBuilder {
       return stdInput;
     }
 
-  protected void addFlowOp(FlowOp flowOp) {
+    protected void addFlowOp(FlowOp flowOp) {
         flowOpList.add(flowOp);
     }
 

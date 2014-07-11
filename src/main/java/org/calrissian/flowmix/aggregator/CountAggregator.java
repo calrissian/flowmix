@@ -34,11 +34,11 @@ public class CountAggregator implements Aggregator {
 
   public static final String DEFAULT_OUTPUT_FIELD = "count";
 
-  private String outputField = DEFAULT_OUTPUT_FIELD;
-  private Map<String,Collection<Tuple>> groupedValues;
+  protected String outputField = DEFAULT_OUTPUT_FIELD;
+  protected Map<String,Collection<Tuple>> groupedValues;
 
-  private String[] groupByFields;
-  private long count = 0;
+  protected String[] groupByFields;
+  protected long count = 0;
 
   @Override
   public void configure(Map<String, String> configuration) {

@@ -143,6 +143,7 @@ public class AggregatorBolt extends BaseRichBolt {
                 }
 
                 window.add(event, previousStream);
+                windowCache.put(partition, window); // window eviction is on writes, so we need to write to the window to reset our expiration.
 
                 /**
                  * Perform count-based trigger if necessary

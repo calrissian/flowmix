@@ -35,13 +35,13 @@ public class LongSumAggregator implements Aggregator {
 
   public static final String DEFAULT_OUTPUT_FIELD = "sum";
 
-  private String sumField;
+  protected String sumField;
 
-  private String outputField = DEFAULT_OUTPUT_FIELD;
-  private Map<String,Collection<Tuple>> groupedValues;
+  protected String outputField = DEFAULT_OUTPUT_FIELD;
+  protected Map<String,Collection<Tuple>> groupedValues;
 
-  private String[] groupByFields;
-  private long sum = 0;
+  protected String[] groupByFields;
+  protected long sum = 0;
 
   @Override
   public void configure(Map<String, String> configuration) {

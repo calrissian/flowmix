@@ -42,6 +42,11 @@ limitations under the License.
       <version>4.11</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.storm</groupId>
+      <artifactId>storm-core</artifactId>
+      <version>0.9.2-incubating</version>
+    </dependency>
+    <dependency>
       <groupId>org.calrissian.mango</groupId>
       <artifactId>mango-core</artifactId>
       <version>1.2.0</version>
@@ -50,11 +55,6 @@ limitations under the License.
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy</artifactId>
       <version>2.0.0</version>
-    </dependency>
-    <dependency>
-      <groupId>storm</groupId>
-      <artifactId>storm</artifactId>
-      <version>0.8.2</version>
     </dependency>
   </dependencies>
   <build>

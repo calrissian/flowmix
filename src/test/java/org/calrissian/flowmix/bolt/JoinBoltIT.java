@@ -15,6 +15,8 @@
  */
 package org.calrissian.flowmix.bolt;
 
+import java.util.List;
+
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
@@ -24,16 +26,13 @@ import org.calrissian.flowmix.model.Policy;
 import org.calrissian.flowmix.model.builder.FlowBuilder;
 import org.calrissian.flowmix.model.kryo.EventSerializer;
 import org.calrissian.flowmix.support.Function;
+import org.calrissian.mango.domain.Tuple;
 import org.calrissian.mango.domain.event.BaseEvent;
 import org.calrissian.mango.domain.event.Event;
-import org.calrissian.mango.domain.Tuple;
 import org.junit.Test;
-
-import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class JoinBoltIT extends FlowTestCase {
@@ -148,7 +147,7 @@ public class JoinBoltIT extends FlowTestCase {
     cluster.submitTopology("test", conf, topology);
 
     try {
-      Thread.sleep(5500);
+      Thread.sleep(6000);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }

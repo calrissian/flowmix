@@ -54,13 +54,8 @@ Flow flow = new FlowBuilder()
     .flowDefs()
         .stream("stream1")
             .filter()
-              .filter(
-                new CriteriaFilter(
-                  new CriteriaBuilder()
-                    .eq("country", "USA")
-                  .build()
-                )
-              )
+              .filter(new CriteriaFilter(
+                new CriteriaBuilder().eq("country", "USA").build()))
             .end()
             .select().fields("age", "country").end()
             .partition().fields("age", "country").end()

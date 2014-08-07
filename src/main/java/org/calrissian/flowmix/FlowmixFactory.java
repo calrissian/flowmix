@@ -41,8 +41,8 @@ import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREA
 
 public class FlowmixFactory {
 
-  private IRichSpout ruleSpout;
-  private IRichSpout eventsSpout;
+  private IComponent ruleSpout;
+  private IComponent eventsComponent;
   private IRichBolt outputBolt;
   private int parallelismHint;
 
@@ -53,9 +53,9 @@ public class FlowmixFactory {
    * @param outputBolt  A bolt to accept the output events (with the field name "event")
    * @param parallelismHint The number of executors to run the parallel streams.
    */
-  public FlowmixFactory(IRichSpout ruleSpout, IRichSpout eventsSpout, IRichBolt outputBolt, int parallelismHint) {
+  public FlowmixFactory(IComponent ruleSpout, IComponent eventsSpout, IRichBolt outputBolt, int parallelismHint) {
     this.ruleSpout = ruleSpout;
-    this.eventsSpout = eventsSpout;
+    this.eventsComponent = eventsSpout;
     this.outputBolt = outputBolt;
     this.parallelismHint = parallelismHint;
   }
@@ -67,8 +67,21 @@ public class FlowmixFactory {
 
       TopologyBuilder builder = new TopologyBuilder();
 
-      builder.setSpout(EVENT, eventsSpout, 1);
-      builder.setSpout(FLOW_LOADER_STREAM, ruleSpout, 1);
+      if(eventsComponent instanceof IRichSpout)
+        builder.setSpout(EVENT, (IRichSpout) eventsComponent, 1);
+      else if(eventsComponent instanceof IRichBolt)
+        builder.setBolt(EVENT, (IRichBolt) eventsComponent, 1);
+      else
+        throw new RuntimeException("The component for events is not valid. Must be IRichSpout or IRichBolt");
+
+
+      if(ruleSpout instanceof IRichSpout)
+        builder.setSpout(FLOW_LOADER_STREAM, (IRichSpout)ruleSpout, 1);
+      else if(ruleSpout instanceof IRichBolt)
+        builder.setBolt(FLOW_LOADER_STREAM, (IRichBolt) ruleSpout, 1);
+      else
+        throw new RuntimeException("The component for rules is not valid. Must be IRichSpout or IRichBolt");
+
       builder.setSpout("tick", new TickSpout(1000), 1);
       builder.setBolt(INITIALIZER, new FlowInitializerBolt(), parallelismHint)  // kicks off a flow determining where to start
               .shuffleGrouping(EVENT)
@@ -106,16 +119,16 @@ public class FlowmixFactory {
 
           if(control) {
             // control stream is all-grouped
-            declarer.allGrouping(INITIALIZER, CONTROL_STREAM + boltName)
-                    .allGrouping(FILTER, CONTROL_STREAM + boltName)
-                    .allGrouping(PARTITION, CONTROL_STREAM + boltName)
-                    .allGrouping(AGGREGATE, CONTROL_STREAM + boltName)
-                    .allGrouping(SELECT, CONTROL_STREAM + boltName)
-                    .allGrouping(EACH, CONTROL_STREAM + boltName)
-                    .allGrouping(SORT, CONTROL_STREAM + boltName)
-                    .allGrouping(SWITCH, CONTROL_STREAM + boltName)
-                    .allGrouping(SPLIT, CONTROL_STREAM + boltName)
-                    .allGrouping(JOIN, CONTROL_STREAM + boltName);
+            declarer.allGrouping(INITIALIZER, BROADCAST_STREAM + boltName)
+                    .allGrouping(FILTER, BROADCAST_STREAM + boltName)
+                    .allGrouping(PARTITION, BROADCAST_STREAM + boltName)
+                    .allGrouping(AGGREGATE, BROADCAST_STREAM + boltName)
+                    .allGrouping(SELECT, BROADCAST_STREAM + boltName)
+                    .allGrouping(EACH, BROADCAST_STREAM + boltName)
+                    .allGrouping(SORT, BROADCAST_STREAM + boltName)
+                    .allGrouping(SWITCH, BROADCAST_STREAM + boltName)
+                    .allGrouping(SPLIT, BROADCAST_STREAM + boltName)
+                    .allGrouping(JOIN, BROADCAST_STREAM + boltName);
 
           }
   }
@@ -134,14 +147,15 @@ public class FlowmixFactory {
       declarer.declareStream(SPLIT, fields);
       declarer.declareStream(EACH, fields);
       declarer.declareStream(OUTPUT, fields);
-      declarer.declareStream(CONTROL_STREAM + PARTITION, fields);
-      declarer.declareStream(CONTROL_STREAM + FILTER, fields);
-      declarer.declareStream(CONTROL_STREAM + SELECT, fields);
-      declarer.declareStream(CONTROL_STREAM + AGGREGATE, fields);
-      declarer.declareStream(CONTROL_STREAM + SWITCH, fields);
-      declarer.declareStream(CONTROL_STREAM + SORT, fields);
-      declarer.declareStream(CONTROL_STREAM + JOIN, fields);
-      declarer.declareStream(CONTROL_STREAM + EACH, fields);
-      declarer.declareStream(CONTROL_STREAM + SPLIT, fields);
+
+      declarer.declareStream(BROADCAST_STREAM + PARTITION, fields);
+      declarer.declareStream(BROADCAST_STREAM + FILTER, fields);
+      declarer.declareStream(BROADCAST_STREAM + SELECT, fields);
+      declarer.declareStream(BROADCAST_STREAM + AGGREGATE, fields);
+      declarer.declareStream(BROADCAST_STREAM + SWITCH, fields);
+      declarer.declareStream(BROADCAST_STREAM + SORT, fields);
+      declarer.declareStream(BROADCAST_STREAM + JOIN, fields);
+      declarer.declareStream(BROADCAST_STREAM + EACH, fields);
+      declarer.declareStream(BROADCAST_STREAM + SPLIT, fields);
   }
 }

@@ -32,5 +32,5 @@ public class Constants {
 
     public static final String INITIALIZER = "initializer";
 
-    public static final String CONTROL_STREAM = "control";
+    public static final String BROADCAST_STREAM = "control";
 }

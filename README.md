@@ -35,8 +35,8 @@ A flow is a processing pipeline that defines how to manipulate a set of data str
 
 Flowmix provides a factory for wiring up the standard operators (with a configurable amount of parallel executors/tasks) so that flows can be parsed and route the events to the correct bolts. The factory needs 2 input spouts and an output bolt to wire into the topology:
 
-- A spout to feed the flows into the topology
-- A spout to feed events into the topology.
+- A component (spout or bolt) to feed the flows into the topology
+- A component (spout or bolt) to feed events into the topology.
 - A bolt to accept output events 
 
 The input stream of events for which at least one flow stream must subscribe is referred to as _standard input_. The output stream of events which at least one flow stream must publish to is called the _standard output_. By default, unless turned off in the ```FlowBuilder``` class, streams will subscribe to standard input and publish to standard output. In place of this, however, each stream can specify some number of different streams which they can subscribe to for their events and publish to for their output. This allows the streams within a flow to be "mixed" together and correlated in various ways.

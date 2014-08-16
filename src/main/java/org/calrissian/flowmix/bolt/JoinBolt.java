@@ -16,6 +16,13 @@
 package org.calrissian.flowmix.bolt;
 
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -24,19 +31,19 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.calrissian.flowmix.model.*;
+import org.calrissian.flowmix.model.Flow;
+import org.calrissian.flowmix.model.FlowInfo;
+import org.calrissian.flowmix.model.Policy;
+import org.calrissian.flowmix.model.StreamDef;
 import org.calrissian.flowmix.model.op.FlowOp;
 import org.calrissian.flowmix.model.op.JoinOp;
+import org.calrissian.flowmix.support.Utils;
 import org.calrissian.flowmix.support.window.Window;
 import org.calrissian.flowmix.support.window.WindowItem;
 import org.calrissian.mango.domain.event.BaseEvent;
 import org.calrissian.mango.domain.event.Event;
 
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
 import static com.google.common.collect.Iterables.concat;
-import static org.calrissian.flowmix.Constants.*;
 import static org.calrissian.flowmix.FlowmixFactory.declareOutputStreams;
 import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
@@ -149,25 +156,19 @@ public class JoinBolt extends BaseRichBolt {
              */
             if (rulesMap.size() > 0) {
 
-                String ruleId = tuple.getStringByField(FLOW_ID);
-                String hash = tuple.contains(PARTITION) ? tuple.getStringByField(PARTITION) : "";
-                Event event = (Event) tuple.getValueByField(EVENT);
-                int idx = tuple.getIntegerByField(FLOW_OP_IDX);
-                idx++;
+                FlowInfo flowInfo = new FlowInfo(tuple);
 
-                String streamName = tuple.getStringByField(STREAM_NAME);
-                String previousStream = tuple.getStringByField(LAST_STREAM);
-                Flow flow = rulesMap.get(ruleId);
+                Flow flow = rulesMap.get(flowInfo.getFlowId());
 
-                JoinOp op = (JoinOp) flow.getStream(streamName).getFlowOps().get(idx);
+                JoinOp op = (JoinOp) flow.getStream(flowInfo.getStreamName()).getFlowOps().get(flowInfo.getIdx());
 
                 // do processing on lhs
-                if(previousStream.equals(op.getLeftStream())) {
+                if(flowInfo.getPreviousStream().equals(op.getLeftStream())) {
 
-                    Cache<String, Window> buffersForRule = windows.get(flow.getId() + "\0" + streamName + "\0" + idx);
+                    Cache<String, Window> buffersForRule = windows.get(flow.getId() + "\0" + flowInfo.getStreamName() + "\0" + flowInfo.getIdx());
                     Window buffer;
                     if (buffersForRule != null) {
-                        buffer = buffersForRule.getIfPresent(hash);
+                        buffer = buffersForRule.getIfPresent(flowInfo.getPartition());
 
                         if (buffer != null) {    // if we have a buffer already, process it
                             /**
@@ -178,37 +179,38 @@ public class JoinBolt extends BaseRichBolt {
                         }
                     } else {
                         buffersForRule = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).build(); // just in case we get some rogue data, we don't wan ti to sit for too long.
-                        buffer = op.getEvictionPolicy() == Policy.TIME ? new Window(hash) :
-                                new Window(hash, op.getEvictionThreshold());
-                        buffersForRule.put(hash, buffer);
-                        windows.put(flow.getId() + "\0" + streamName + "\0" + idx, buffersForRule);
+                        buffer = op.getEvictionPolicy() == Policy.TIME ? new Window(flowInfo.getPartition()) :
+                                new Window(flowInfo.getPartition(), op.getEvictionThreshold());
+                        buffersForRule.put(flowInfo.getPartition(), buffer);
+                        windows.put(flow.getId() + "\0" + flowInfo.getStreamName() + "\0" + flowInfo.getIdx(), buffersForRule);
                     }
 
-                    buffer.add(event, previousStream);
+                    buffer.add(flowInfo.getEvent(), flowInfo.getPreviousStream());
 
-                } else if(previousStream.equals(op.getRightStream())) {
+                } else if(flowInfo.getPreviousStream().equals(op.getRightStream())) {
 
-                    Cache<String, Window> buffersForRule = windows.get(flow.getId() + "\0" + streamName + "\0" + idx);
+                    Cache<String, Window> buffersForRule = windows.get(flow.getId() + "\0" + flowInfo.getStreamName() + "\0" + flowInfo.getIdx());
                     Window buffer;
                     if (buffersForRule != null) {
-                        buffer = buffersForRule.getIfPresent(hash);
+                        buffer = buffersForRule.getIfPresent(flowInfo.getPartition());
 
                         for(WindowItem bufferedEvent : buffer.getEvents()) {
                           Event joined = new BaseEvent(bufferedEvent.getEvent().getId(), bufferedEvent.getEvent().getTimestamp());
+
                           // the hashcode will filter duplicates
                           joined.putAll(concat(bufferedEvent.getEvent().getTuples()));
-                          joined.putAll(concat(event.getTuples()));
-                          String nextStream = idx+1 < flow.getStream(streamName).getFlowOps().size() ? flow.getStream(streamName).getFlowOps().get(idx+1).getComponentName() : "output";
+                          joined.putAll(concat(flowInfo.getEvent().getTuples()));
+                          String nextStream = Utils.getNextStreamFromFlowInfo(flowInfo, flow);
 
-                          if((nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output"))
-                              collector.emit(nextStream, new Values(flow.getId(), joined, idx, streamName, bufferedEvent.getPreviousStream()));
+                          if((nextStream.equals("output") && flow.getStream(flowInfo.getStreamName()).isStdOutput()) || !nextStream.equals("output"))
+                              collector.emit(nextStream, new Values(flow.getId(), joined, flowInfo.getIdx(), flowInfo.getStreamName(), bufferedEvent.getPreviousStream()));
 
                           // send to any other streams that are configured (aside from output)
                           if(nextStream.equals("output")) {
-                            if(flow.getStream(streamName).getOutputs() != null) {
-                              for(String output : flow.getStream(streamName).getOutputs()) {
+                            if(flow.getStream(flowInfo.getStreamName()).getOutputs() != null) {
+                              for(String output : flow.getStream(flowInfo.getStreamName()).getOutputs()) {
                                 String outputComponent = flow.getStream(output).getFlowOps().get(0).getComponentName();
-                                collector.emit(outputComponent, new Values(flow.getId(), joined, -1, output, streamName));
+                                collector.emit(outputComponent, new Values(flow.getId(), joined, -1, output, flowInfo.getStreamName()));
                               }
                             }
                           }

@@ -23,6 +23,10 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import backtype.storm.task.OutputCollector;
+import backtype.storm.tuple.Values;
+import org.calrissian.flowmix.model.Flow;
+import org.calrissian.flowmix.model.FlowInfo;
 import org.calrissian.mango.domain.Tuple;
 import org.calrissian.mango.domain.event.Event;
 import org.calrissian.mango.types.TypeRegistry;
@@ -63,15 +67,36 @@ public class Utils {
 
 
   public static String buildKeyIndexForEvent(String flowId, Event event, List<String> groupBy) {
-        return flowId + buildKeyIndexForEvent(event, groupBy);
-    }
+      return flowId + buildKeyIndexForEvent(event, groupBy);
+  }
 
-    public static String hashString(String string) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        MessageDigest md = MessageDigest.getInstance("MD5"); byte[] hash = md.digest(string.getBytes("UTF-8"));
-        //converting byte array to Hexadecimal String
-        StringBuilder sb = new StringBuilder(2*hash.length);
-        for(byte b : hash)
-            sb.append(String.format("%02x", b&0xff));
-        return sb.toString();
+  public static String hashString(String string) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+      MessageDigest md = MessageDigest.getInstance("MD5"); byte[] hash = md.digest(string.getBytes("UTF-8"));
+      //converting byte array to Hexadecimal String
+      StringBuilder sb = new StringBuilder(2*hash.length);
+      for(byte b : hash)
+          sb.append(String.format("%02x", b&0xff));
+      return sb.toString();
+  }
+
+  public static String getNextStreamFromFlowInfo(FlowInfo flowInfo, Flow flow) {
+    return flowInfo.getIdx()+1 < flow.getStream(flowInfo.getStreamName()).getFlowOps().size() ?
+        flow.getStream(flowInfo.getStreamName()).getFlowOps().get(flowInfo.getIdx() + 1).getComponentName() : "output";
+  }
+
+  public static void emitNext(backtype.storm.tuple.Tuple tuple, FlowInfo flowInfo, Flow flow, OutputCollector collector) {
+    String nextStream = getNextStreamFromFlowInfo(flowInfo, flow);
+
+    if((nextStream.equals("output") && flow.getStream(flowInfo.getStreamName()).isStdOutput()) || !nextStream.equals("output"))
+      collector.emit(nextStream, tuple, new Values(flow.getId(), flowInfo.getEvent(), flowInfo.getIdx(), flowInfo.getStreamName(), flowInfo.getPreviousStream()));
+
+    // send directly to any non std output streams
+    if(nextStream.equals("output") && flow.getStream(flowInfo.getStreamName()).getOutputs() != null) {
+      for (String output : flow.getStream(flowInfo.getStreamName()).getOutputs()) {
+        String outputStream = flow.getStream(output).getFlowOps().get(0).getComponentName();
+        collector.emit(outputStream, tuple, new Values(flowInfo.getFlowId(), flowInfo.getEvent(), -1, output, flowInfo.getStreamName()));
+      }
     }
+  }
+
 }

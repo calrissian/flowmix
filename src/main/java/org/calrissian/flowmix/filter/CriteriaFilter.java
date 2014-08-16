@@ -6,6 +6,9 @@ import org.calrissian.mango.domain.event.Event;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+/**
+ * A filter that only allows events matching the criteria to pass through
+ */
 public class CriteriaFilter implements Filter {
 
   Criteria criteria;

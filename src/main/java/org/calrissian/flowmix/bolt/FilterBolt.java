@@ -15,24 +15,23 @@
  */
 package org.calrissian.flowmix.bolt;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
-import org.calrissian.flowmix.model.op.FilterOp;
 import org.calrissian.flowmix.model.Flow;
-import org.calrissian.mango.domain.event.Event;
+import org.calrissian.flowmix.model.FlowInfo;
+import org.calrissian.flowmix.model.op.FilterOp;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.calrissian.flowmix.Constants.*;
 import static org.calrissian.flowmix.FlowmixFactory.declareOutputStreams;
 import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
+import static org.calrissian.flowmix.support.Utils.emitNext;
 
 public class FilterBolt extends BaseRichBolt {
 
@@ -52,32 +51,17 @@ public class FilterBolt extends BaseRichBolt {
             for(Flow flow : (Collection<Flow>)tuple.getValue(0))
                 flows.put(flow.getId(), flow);
         } else if(!"tick".equals(tuple.getSourceStreamId())){
-            String flowId = tuple.getStringByField(FLOW_ID);
-            Event event = (Event) tuple.getValueByField(EVENT);
-            int idx = tuple.getIntegerByField(FLOW_OP_IDX);
-            idx++;
-            String streamName = tuple.getStringByField(STREAM_NAME);
-            String previousStream = tuple.getStringByField(LAST_STREAM);
 
-            Flow flow = flows.get(flowId);
+            FlowInfo flowInfo = new FlowInfo(tuple);
+
+            Flow flow = flows.get(flowInfo.getFlowId());
 
             if(flow != null) {
-                FilterOp filterOp = (FilterOp) flow.getStream(streamName).getFlowOps().get(idx);
 
-                String nextStream = idx+1 < flow.getStream(streamName).getFlowOps().size() ? flow.getStream(streamName).getFlowOps().get(idx + 1).getComponentName() : "output";
+                FilterOp filterOp = (FilterOp) flow.getStream(flowInfo.getStreamName()).getFlowOps().get(flowInfo.getIdx());
 
-                if(filterOp.getFilter().accept(event)) {
-
-                  if((nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output"))
-                    collector.emit(nextStream, tuple, new Values(flowId, event, idx, streamName, previousStream));
-
-                  // send directly to any non standard output streams that may be configured
-                  if(nextStream.equals("output") && flow.getStream(streamName).getOutputs() != null) {
-                    for (String output : flow.getStream(streamName).getOutputs()) {
-                      String outputStream = flow.getStream(output).getFlowOps().get(0).getComponentName();
-                      collector.emit(outputStream, tuple, new Values(flowId, event, -1, output, streamName));
-                    }
-                  }
+                if(filterOp.getFilter().accept(flowInfo.getEvent())) {
+                  emitNext(tuple, flowInfo, flow, collector);
                 }
             }
         }

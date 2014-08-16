@@ -16,26 +16,29 @@
 package org.calrissian.flowmix.bolt;
 
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.calrissian.flowmix.model.Flow;
+import org.calrissian.flowmix.model.FlowInfo;
 import org.calrissian.flowmix.model.Policy;
 import org.calrissian.flowmix.model.StreamDef;
 import org.calrissian.flowmix.model.op.FlowOp;
 import org.calrissian.flowmix.model.op.SwitchOp;
+import org.calrissian.flowmix.support.Utils;
 import org.calrissian.flowmix.support.window.SwitchWindow;
-import org.calrissian.mango.domain.event.Event;
 
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import static org.calrissian.flowmix.Constants.*;
 import static org.calrissian.flowmix.FlowmixFactory.declareOutputStreams;
 import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
@@ -130,7 +133,6 @@ public class SwitchBolt extends BaseRichBolt {
                                             boolean justOpened = false;
                                             if(op.getClosePolicy() == Policy.TIME && buffer.isStopped()) {
                                                 if(buffer.getStopTicks() == op.getCloseThreshold()) {
-                                                    System.out.println("OPENING" + " " + System.currentTimeMillis());
                                                     buffer.setStopped(false);
                                                     buffer.resetStopTicks();
                                                 } else {
@@ -141,11 +143,9 @@ public class SwitchBolt extends BaseRichBolt {
                                             if(!justOpened)
                                             if(op.getEvictionPolicy() == Policy.TIME && !buffer.isStopped()) {
                                                 if(buffer.getEvictionTicks() == op.getEvictionThreshold()) {
-                                                    System.out.println("IN HERE!");
                                                     activateOpenPolicy(buffer, op);
                                                 } else {
                                                     buffer.incrementEvictionTicks();
-                                                    System.out.println("EVICT TICKS: " + buffer.getEvictionTicks() + " - " + System.currentTimeMillis());
                                                 }
                                             }
                                         }
@@ -174,22 +174,16 @@ public class SwitchBolt extends BaseRichBolt {
                  * The hashKey was added to the "fieldsGrouping" in an attempt to share pointers where possible. Different
                  * rules with like fields groupings can store the items in their windows on the same node.
                  */
-                String flowId = tuple.getStringByField(FLOW_ID);
-                String hash = tuple.getStringByField(PARTITION);
-                Event event = (Event) tuple.getValueByField(EVENT);
-                int idx = tuple.getIntegerByField(FLOW_OP_IDX);
-                String streamName = tuple.getStringByField(STREAM_NAME);
-                String previousStream = tuple.getStringByField(LAST_STREAM);
-                idx++;
+                FlowInfo flowInfo = new FlowInfo(tuple);
 
-                Flow flow = flowMap.get(flowId);
+                Flow flow = flowMap.get(flowInfo.getFlowId());
 
-                SwitchOp op = (SwitchOp) flow.getStream(streamName).getFlowOps().get(idx);
+                SwitchOp op = (SwitchOp) flow.getStream(flowInfo.getStreamName()).getFlowOps().get(flowInfo.getIdx());
 
-                Cache<String, SwitchWindow> buffersForRule = windows.get(flow.getId() + "\0" + streamName + "\0" + idx);
+                Cache<String, SwitchWindow> buffersForRule = windows.get(flow.getId() + "\0" + flowInfo.getStreamName() + "\0" + flowInfo.getIdx());
                 SwitchWindow buffer;
                 if (buffersForRule != null) {
-                    buffer = buffersForRule.getIfPresent(hash);
+                    buffer = buffersForRule.getIfPresent(flowInfo.getPartition());
 
                     if (buffer != null) {    // if we have a buffer already, process it
 
@@ -201,16 +195,16 @@ public class SwitchBolt extends BaseRichBolt {
                                 buffer.timeEvict(op.getEvictionThreshold());
                         }
                     } else {
-                        buffer = op.getEvictionPolicy() == Policy.TIME ? new SwitchWindow(hash) :
-                            new SwitchWindow(hash, op.getEvictionThreshold());
-                        buffersForRule.put(hash, buffer);
+                        buffer = op.getEvictionPolicy() == Policy.TIME ? new SwitchWindow(flowInfo.getPartition()) :
+                            new SwitchWindow(flowInfo.getPartition(), op.getEvictionThreshold());
+                        buffersForRule.put(flowInfo.getPartition(), buffer);
                     }
                 } else {
                     buffersForRule = CacheBuilder.newBuilder().expireAfterAccess(60, TimeUnit.MINUTES).build(); // just in case we get some rogue data, we don't wan ti to sit for too long.
-                    buffer = op.getEvictionPolicy() == Policy.TIME ? new SwitchWindow(hash) :
-                            new SwitchWindow(hash, op.getEvictionThreshold());
-                    buffersForRule.put(hash, buffer);
-                    windows.put(flow.getId() + "\0" + streamName + "\0" + idx, buffersForRule);
+                    buffer = op.getEvictionPolicy() == Policy.TIME ? new SwitchWindow(flowInfo.getPartition()) :
+                            new SwitchWindow(flowInfo.getPartition(), op.getEvictionThreshold());
+                    buffersForRule.put(flowInfo.getPartition(), buffer);
+                    windows.put(flow.getId() + "\0" + flowInfo.getStreamName() + "\0" + flowInfo.getIdx(), buffersForRule);
                 }
 
                 if(buffer.isStopped()) {
@@ -236,19 +230,8 @@ public class SwitchBolt extends BaseRichBolt {
                 }
 
                 if(!buffer.isStopped()) {
-                    buffer.add(event, previousStream);
-                    String nextStream = idx+1 < flow.getStream(streamName).getFlowOps().size() ? flow.getStream(streamName).getFlowOps().get(idx + 1).getComponentName() : "output";
-
-                    if((nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output"))
-                      collector.emit(nextStream, new Values(flow.getId(), event, idx, streamName, previousStream));
-
-                    // send directly to any non std output streams
-                    if(nextStream.equals("output") && flow.getStream(streamName).getOutputs() != null) {
-                      for (String output : flow.getStream(streamName).getOutputs()) {
-                        String outputStream = flow.getStream(output).getFlowOps().get(0).getComponentName();
-                        collector.emit(outputStream, tuple, new Values(flowId, event, -1, output, streamName));
-                      }
-                    }
+                    buffer.add(flowInfo.getEvent(), flowInfo.getPreviousStream());
+                    Utils.emitNext(tuple, flowInfo, flow, collector);
                 }
             }
 
@@ -274,7 +257,6 @@ public class SwitchBolt extends BaseRichBolt {
 
         if(op.getOpenPolicy() == Policy.TIME_DELTA_LT && buffer.timeRange() > -1 && buffer.timeRange() <= op.getOpenThreshold() * 1000) {
             if(isWindowFull(op, buffer)) {
-                System.out.println("CLOSING " + System.currentTimeMillis());
                 buffer.setStopped(true);
                 buffer.clear();
                 buffer.resetEvictionTicks();

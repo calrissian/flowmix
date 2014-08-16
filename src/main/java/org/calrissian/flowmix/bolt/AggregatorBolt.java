@@ -15,6 +15,11 @@
  */
 package org.calrissian.flowmix.bolt;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -23,22 +28,18 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.calrissian.flowmix.model.*;
+import org.calrissian.flowmix.model.Flow;
+import org.calrissian.flowmix.model.FlowInfo;
+import org.calrissian.flowmix.model.Policy;
+import org.calrissian.flowmix.model.StreamDef;
+import org.calrissian.flowmix.model.event.AggregatedEvent;
 import org.calrissian.flowmix.model.op.AggregateOp;
 import org.calrissian.flowmix.model.op.FlowOp;
 import org.calrissian.flowmix.model.op.PartitionOp;
-import org.calrissian.flowmix.model.event.AggregatedEvent;
 import org.calrissian.flowmix.support.Aggregator;
 import org.calrissian.flowmix.support.window.AggregatorWindow;
-import org.calrissian.mango.domain.event.Event;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import static org.apache.commons.lang.StringUtils.join;
-import static org.calrissian.flowmix.Constants.*;
 import static org.calrissian.flowmix.FlowmixFactory.declareOutputStreams;
 import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
@@ -109,24 +110,18 @@ public class AggregatorBolt extends BaseRichBolt {
 
         } else if(!"tick".equals(tuple.getSourceStreamId())){
 
-            String flowId = tuple.getStringByField(FLOW_ID);
-            Event event = (Event) tuple.getValueByField(EVENT);
-            int idx = tuple.getIntegerByField(FLOW_OP_IDX);
-            idx++;
-            String streamName = tuple.getStringByField(STREAM_NAME);
-            String previousStream = tuple.getStringByField(LAST_STREAM);
-            String partition = tuple.getStringByField(PARTITION);
+            FlowInfo flowInfo = new FlowInfo(tuple);
 
-            Flow flow = flows.get(flowId);
+            Flow flow = flows.get(flowInfo.getFlowId());
 
             if(flow != null) {
 
-                AggregateOp op = (AggregateOp) flow.getStream(streamName).getFlowOps().get(idx);
-                Cache<String, AggregatorWindow> windowCache = windows.get(flowId + "\0" + streamName + "\0" + idx);
+                AggregateOp op = (AggregateOp) flow.getStream(flowInfo.getStreamName()).getFlowOps().get(flowInfo.getIdx());
+                Cache<String, AggregatorWindow> windowCache = windows.get(flowInfo.getFlowId() + "\0" + flowInfo.getStreamName() + "\0" + flowInfo.getIdx());
 
                 AggregatorWindow window = null;
                 if(windowCache != null) {
-                    window = windowCache.getIfPresent(partition);
+                    window = windowCache.getIfPresent(flowInfo.getPartition());
                     if(window != null) { // if we have a window already constructed, proces it
 
                         /**
@@ -135,15 +130,15 @@ public class AggregatorBolt extends BaseRichBolt {
                         if(op.getEvictionPolicy() == Policy.TIME)
                             window.timeEvict(op.getEvictionThreshold());
                     } else {
-                        window = buildWindow(op, streamName, idx, partition, flowId, windowCache);
+                        window = buildWindow(op, flowInfo.getStreamName(), flowInfo.getIdx(), flowInfo.getPartition(), flowInfo.getFlowId(), windowCache);
                     }
                 } else {
                     windowCache = CacheBuilder.newBuilder().expireAfterWrite(op.getWindowEvictMillis(), TimeUnit.MILLISECONDS).build();
-                    window = buildWindow(op, streamName, idx, partition, flowId, windowCache);
+                    window = buildWindow(op, flowInfo.getStreamName(), flowInfo.getIdx(), flowInfo.getPartition(), flowInfo.getFlowId(), windowCache);
                 }
 
-                window.add(event, previousStream);
-                windowCache.put(partition, window); // window eviction is on writes, so we need to write to the window to reset our expiration.
+                window.add(flowInfo.getEvent(), flowInfo.getPreviousStream());
+                windowCache.put(flowInfo.getPartition(), window); // window eviction is on writes, so we need to write to the window to reset our expiration.
 
                 /**
                  * Perform count-based trigger if necessary
@@ -152,7 +147,7 @@ public class AggregatorBolt extends BaseRichBolt {
                     window.incrTriggerTicks();
 
                     if(window.getTriggerTicks() == op.getTriggerThreshold())
-                        emitAggregate(flow, op, streamName, idx, window);
+                        emitAggregate(flow, op, flowInfo.getStreamName(), flowInfo.getIdx(), window);
                 }
             }
         }

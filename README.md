@@ -3,6 +3,8 @@ Flowmix - A Flexible Event Processing Engine for Apache Storm
 
 This project is an attempt to create a high-speed distributed complex event processing engine written on top of Apache Storm. Many of the semantics are borrowed from CEP frameworks like Esper & IBM's Infosphere Streams. This framework's goal is to make use of Storm's guaranteed delivery, groupings and tuple-at-a-time abilities (along with its guarantees of thread-safe parallelism in its bolts) to make different processed flows of streams possible in a single Storm topology. Storm also gives Flowmix high fault tolerance and the ability to scale.
 
+An initial proof of concept has been completed, demonstrating that continuous query over a sliding window can work on top of Apache Storm but there's plenty of work to be done to get us to a 1.0 release. If you are interested in helping out, feel free to send a message to cjnolet@gmail.com.
+
 ## Why another streams processing abstraction?
 
 Trident is wonderful for building out streams of data and defining how to process those streams along the way, however each each trident topology needs to be deployed separately in Storm. You could, perhaps, write several streams in a trident topology, but this problem is exaserbated by increasing complexity in the client-side builder pattern required to make it possible. Similar to Hadoop's MapReduce framework, an Apache Storm cluster is run with a finite amount of resources available. Each topology that gets deployed needs to make use of more resources. If I have 15 different analytics that I'm interested in writing to correlate the same couple streams of data, I'm left running 15 different topologies.

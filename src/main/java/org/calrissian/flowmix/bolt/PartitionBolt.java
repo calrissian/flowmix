@@ -34,6 +34,8 @@ import static org.calrissian.flowmix.FlowmixFactory.declareOutputStreams;
 import static org.calrissian.flowmix.FlowmixFactory.partitionFields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 import static org.calrissian.flowmix.support.Utils.buildKeyIndexForEvent;
+import static org.calrissian.flowmix.support.Utils.exportsToOtherStreams;
+import static org.calrissian.flowmix.support.Utils.hasNextOutput;
 
 public class PartitionBolt extends BaseRichBolt {
 
@@ -65,11 +67,11 @@ public class PartitionBolt extends BaseRichBolt {
                 String nextStream = Utils.getNextStreamFromFlowInfo(flowInfo, flow);
                 String hash = buildKeyIndexForEvent(flowInfo.getFlowId(), flowInfo.getEvent(), partitionOp.getFields());
 
-                if((nextStream.equals("output") && flow.getStream(flowInfo.getStreamName()).isStdOutput()) || !nextStream.equals("output"))
+                if(hasNextOutput(flow, flowInfo.getStreamName(), nextStream))
                   collector.emit(nextStream, tuple, new Values(flowInfo.getFlowId(), flowInfo.getEvent(), flowInfo.getIdx(), flowInfo.getStreamName(), hash, flowInfo.getPreviousStream()));
 
                 // send directly to any other non std output streams that may be configured
-                if(nextStream.equals("output") && flow.getStream(flowInfo.getStreamName()).getOutputs() != null) {
+                if(exportsToOtherStreams(flow, flowInfo.getStreamName(), nextStream)) {
                   for (String output : flow.getStream(flowInfo.getStreamName()).getOutputs()) {
                     String outputStream = flow.getStream(output).getFlowOps().get(0).getComponentName();
                     collector.emit(outputStream, tuple, new Values(flowInfo.getFlowId(), flowInfo.getEvent(), -1, output, hash, flowInfo.getStreamName()));

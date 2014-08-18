@@ -35,6 +35,8 @@ import org.calrissian.mango.domain.event.Event;
 
 import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
+import static org.calrissian.flowmix.support.Utils.exportsToOtherStreams;
+import static org.calrissian.flowmix.support.Utils.hasNextOutput;
 
 /**
  * A each allows an event to be processed, mutated, split, or transformed.
@@ -69,7 +71,7 @@ public class EachBolt extends BaseRichBolt {
 
                 List<Event> events = functionOp.getFunction().execute(flowInfo.getEvent());
 
-                if((nextStream.equals("output") && flow.getStream(flowInfo.getStreamName()).isStdOutput()) || !nextStream.equals("output")) {
+                if(hasNextOutput(flow, flowInfo.getStreamName(), nextStream)) {
                   if (events != null) {
                     for (Event newEvent : events)
                       collector.emit(nextStream, tuple, new Values(flowInfo.getFlowId(), newEvent, flowInfo.getIdx(), flowInfo.getStreamName(), flowInfo.getPreviousStream()));
@@ -77,7 +79,7 @@ public class EachBolt extends BaseRichBolt {
                 }
 
                 // send directly to any non std output streams that may be configured
-                if (nextStream.equals("output") && flow.getStream(flowInfo.getStreamName()).getOutputs() != null) {
+                if (exportsToOtherStreams(flow, flowInfo.getStreamName(), nextStream)) {
                   for (String output : flow.getStream(flowInfo.getStreamName()).getOutputs()) {
                     if (events != null) {
                       for (Event newEvent : events) {

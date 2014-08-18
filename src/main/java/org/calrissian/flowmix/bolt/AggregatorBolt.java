@@ -45,6 +45,8 @@ import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 import static org.calrissian.flowmix.support.Aggregator.GROUP_BY;
 import static org.calrissian.flowmix.support.Aggregator.GROUP_BY_DELIM;
+import static org.calrissian.flowmix.support.Utils.exportsToOtherStreams;
+import static org.calrissian.flowmix.support.Utils.hasNextOutput;
 
 public class AggregatorBolt extends BaseRichBolt {
 
@@ -181,7 +183,7 @@ public class AggregatorBolt extends BaseRichBolt {
         Collection<AggregatedEvent> eventsToEmit = window.getAggregate();
         String nextStream = idx+1 < flow.getStream(stream).getFlowOps().size() ? flow.getStream(stream).getFlowOps().get(idx+1).getComponentName() : "output";
 
-        if((nextStream.equals("output") && flow.getStream(stream).isStdOutput()) || !nextStream.equals("output")) {
+        if(hasNextOutput(flow, stream, nextStream)) {
           for(AggregatedEvent event : eventsToEmit) {
             String previousStream = event.getPreviousStream() != null ? event.getPreviousStream() : stream;
             collector.emit(nextStream, new Values(flow.getId(), event.getEvent(), idx, stream, previousStream));  // Note: If aggregated event isn't keeping the previous stream, it's possible it could be lost
@@ -189,13 +191,11 @@ public class AggregatorBolt extends BaseRichBolt {
         }
 
         // send to any other streams that are configured (aside from output)
-        if(nextStream.equals("output")) {
-          if(flow.getStream(stream).getOutputs() != null) {
-            for(String output : flow.getStream(stream).getOutputs()) {
-              for(AggregatedEvent event : eventsToEmit) {
-                String outputComponent = flow.getStream(output).getFlowOps().get(0).getComponentName();
-                collector.emit(outputComponent, new Values(flow.getId(), event.getEvent(), -1, output, stream));
-              }
+        if(exportsToOtherStreams(flow, stream, nextStream)) {
+          for(String output : flow.getStream(stream).getOutputs()) {
+            for(AggregatedEvent event : eventsToEmit) {
+              String outputComponent = flow.getStream(output).getFlowOps().get(0).getComponentName();
+              collector.emit(outputComponent, new Values(flow.getId(), event.getEvent(), -1, output, stream));
             }
           }
         }

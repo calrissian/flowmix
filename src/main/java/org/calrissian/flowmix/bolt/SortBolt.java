@@ -38,7 +38,6 @@ import org.calrissian.flowmix.model.StreamDef;
 import org.calrissian.flowmix.model.op.FlowOp;
 import org.calrissian.flowmix.model.op.SortOp;
 import org.calrissian.flowmix.support.EventSortByComparator;
-import org.calrissian.flowmix.support.Utils;
 import org.calrissian.flowmix.support.window.SortedWindow;
 import org.calrissian.flowmix.support.window.Window;
 import org.calrissian.flowmix.support.window.WindowItem;
@@ -47,6 +46,9 @@ import static java.util.Collections.singleton;
 import static org.calrissian.flowmix.FlowmixFactory.declareOutputStreams;
 import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
+import static org.calrissian.flowmix.support.Utils.exportsToOtherStreams;
+import static org.calrissian.flowmix.support.Utils.getNextStreamFromFlowInfo;
+import static org.calrissian.flowmix.support.Utils.hasNextOutput;
 
 /**
  * Sorts a window. This is similar to the Sort operator in InfoSphere Streams.
@@ -245,12 +247,12 @@ public class SortBolt extends BaseRichBolt {
     if(items != null) {
       for(WindowItem item : items) {
 
-        String nextStream = Utils.getNextStreamFromFlowInfo(flowInfo, flow);
-        if((nextStream.equals("output") && flow.getStream(flowInfo.getStreamName()).isStdOutput()) || !nextStream.equals("output"))
+        String nextStream = getNextStreamFromFlowInfo(flowInfo, flow);
+        if(hasNextOutput(flow, flowInfo.getStreamName(), nextStream))
           collector.emit(nextStream, new Values(flow.getId(), item.getEvent(), flowInfo.getIdx(), flowInfo.getStreamName(), item.getPreviousStream()));
 
         // send directly to any non std output streams
-        if(nextStream.equals("output") && flow.getStream(flowInfo.getStreamName()).getOutputs() != null) {
+        if(exportsToOtherStreams(flow, flowInfo.getStreamName(), nextStream)) {
           for (String output : flow.getStream(flowInfo.getStreamName()).getOutputs()) {
             String outputStream = flow.getStream(output).getFlowOps().get(0).getComponentName();
             collector.emit(outputStream, new Values(flow.getId(), item.getEvent(), -1, output, flowInfo.getStreamName()));

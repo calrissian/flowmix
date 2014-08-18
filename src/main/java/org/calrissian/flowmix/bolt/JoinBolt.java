@@ -37,7 +37,6 @@ import org.calrissian.flowmix.model.Policy;
 import org.calrissian.flowmix.model.StreamDef;
 import org.calrissian.flowmix.model.op.FlowOp;
 import org.calrissian.flowmix.model.op.JoinOp;
-import org.calrissian.flowmix.support.Utils;
 import org.calrissian.flowmix.support.window.Window;
 import org.calrissian.flowmix.support.window.WindowItem;
 import org.calrissian.mango.domain.event.BaseEvent;
@@ -47,6 +46,9 @@ import static com.google.common.collect.Iterables.concat;
 import static org.calrissian.flowmix.FlowmixFactory.declareOutputStreams;
 import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
+import static org.calrissian.flowmix.support.Utils.exportsToOtherStreams;
+import static org.calrissian.flowmix.support.Utils.getNextStreamFromFlowInfo;
+import static org.calrissian.flowmix.support.Utils.hasNextOutput;
 
 /**
  * Sliding window join semantics are defined very similar to that of InfoSphere Streams. The join operator,
@@ -200,24 +202,22 @@ public class JoinBolt extends BaseRichBolt {
                           // the hashcode will filter duplicates
                           joined.putAll(concat(bufferedEvent.getEvent().getTuples()));
                           joined.putAll(concat(flowInfo.getEvent().getTuples()));
-                          String nextStream = Utils.getNextStreamFromFlowInfo(flowInfo, flow);
+                          String nextStream = getNextStreamFromFlowInfo(flowInfo, flow);
 
-                          if((nextStream.equals("output") && flow.getStream(flowInfo.getStreamName()).isStdOutput()) || !nextStream.equals("output"))
+                          if(hasNextOutput(flow, flowInfo.getStreamName(), nextStream))
                               collector.emit(nextStream, new Values(flow.getId(), joined, flowInfo.getIdx(), flowInfo.getStreamName(), bufferedEvent.getPreviousStream()));
 
                           // send to any other streams that are configured (aside from output)
-                          if(nextStream.equals("output")) {
-                            if(flow.getStream(flowInfo.getStreamName()).getOutputs() != null) {
-                              for(String output : flow.getStream(flowInfo.getStreamName()).getOutputs()) {
-                                String outputComponent = flow.getStream(output).getFlowOps().get(0).getComponentName();
-                                collector.emit(outputComponent, new Values(flow.getId(), joined, -1, output, flowInfo.getStreamName()));
-                              }
+                          if(exportsToOtherStreams(flow, flowInfo.getStreamName(), nextStream)) {
+                            for(String output : flow.getStream(flowInfo.getStreamName()).getOutputs()) {
+                              String outputComponent = flow.getStream(output).getFlowOps().get(0).getComponentName();
+                              collector.emit(outputComponent, new Values(flow.getId(), joined, -1, output, flowInfo.getStreamName()));
                             }
                           }
                         }
                     }
                 } else {
-                    throw new RuntimeException("Received event for stream that does not match the join. Flowbox has been miswired.");
+                    throw new RuntimeException("Received event for stream that does not match the join. Flowmix has been miswired.");
                 }
             }
 

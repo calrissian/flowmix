@@ -84,6 +84,14 @@ public class Utils {
         flow.getStream(flowInfo.getStreamName()).getFlowOps().get(flowInfo.getIdx() + 1).getComponentName() : "output";
   }
 
+  public static boolean hasNextOutput(Flow flow, String streamName, String nextStream) {
+    return (nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output");
+  }
+
+  public static boolean exportsToOtherStreams(Flow flow, String streamName, String nextStream) {
+    return nextStream.equals("output") && flow.getStream(streamName).getOutputs() != null;
+  }
+
   public static void emitNext(backtype.storm.tuple.Tuple tuple, FlowInfo flowInfo, Flow flow, OutputCollector collector) {
     String nextStream = getNextStreamFromFlowInfo(flowInfo, flow);
 
@@ -98,5 +106,9 @@ public class Utils {
       }
     }
   }
+
+
+
+
 
 }

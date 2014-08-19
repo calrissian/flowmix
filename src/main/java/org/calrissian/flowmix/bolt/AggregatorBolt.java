@@ -46,6 +46,7 @@ import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREA
 import static org.calrissian.flowmix.support.Aggregator.GROUP_BY;
 import static org.calrissian.flowmix.support.Aggregator.GROUP_BY_DELIM;
 import static org.calrissian.flowmix.support.Utils.exportsToOtherStreams;
+import static org.calrissian.flowmix.support.Utils.getFlowOpFromStream;
 import static org.calrissian.flowmix.support.Utils.hasNextOutput;
 
 public class AggregatorBolt extends BaseRichBolt {
@@ -100,7 +101,6 @@ public class AggregatorBolt extends BaseRichBolt {
                                                 emitAggregate(flow, op, curStream.getName(), idx, window);
                                         }
                                     }
-
                                 }
                             }
                             idx++;
@@ -118,7 +118,7 @@ public class AggregatorBolt extends BaseRichBolt {
 
             if(flow != null) {
 
-                AggregateOp op = (AggregateOp) flow.getStream(flowInfo.getStreamName()).getFlowOps().get(flowInfo.getIdx());
+                AggregateOp op =  getFlowOpFromStream(flow, flowInfo.getStreamName(), flowInfo.getIdx());
                 Cache<String, AggregatorWindow> windowCache = windows.get(flowInfo.getFlowId() + "\0" + flowInfo.getStreamName() + "\0" + flowInfo.getIdx());
 
                 AggregatorWindow window = null;

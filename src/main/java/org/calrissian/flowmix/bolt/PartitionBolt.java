@@ -35,6 +35,7 @@ import static org.calrissian.flowmix.FlowmixFactory.partitionFields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 import static org.calrissian.flowmix.support.Utils.buildKeyIndexForEvent;
 import static org.calrissian.flowmix.support.Utils.exportsToOtherStreams;
+import static org.calrissian.flowmix.support.Utils.getFlowOpFromStream;
 import static org.calrissian.flowmix.support.Utils.hasNextOutput;
 
 public class PartitionBolt extends BaseRichBolt {
@@ -62,9 +63,9 @@ public class PartitionBolt extends BaseRichBolt {
 
             if(flow != null) {
 
-                PartitionOp partitionOp = (PartitionOp) flow.getStream(flowInfo.getStreamName()).getFlowOps().get(flowInfo.getIdx());
+                PartitionOp partitionOp = getFlowOpFromStream(flow, flowInfo.getStreamName(), flowInfo.getIdx());
 
-                String nextStream = Utils.getNextStreamFromFlowInfo(flowInfo, flow);
+                String nextStream = Utils.getNextStreamFromFlowInfo(flow, flowInfo.getStreamName(), flowInfo.getIdx());
                 String hash = buildKeyIndexForEvent(flowInfo.getFlowId(), flowInfo.getEvent(), partitionOp.getFields());
 
                 if(hasNextOutput(flow, flowInfo.getStreamName(), nextStream))

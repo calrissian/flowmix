@@ -142,7 +142,7 @@ public class SortBolt extends BaseRichBolt {
 
                       if(window.getTriggerTicks() == op.getTriggerThreshold()) {
                         FlowInfo flowInfo = new FlowInfo(flow.getId(), curStream.getName(), idx);
-                        emitWindow(tuple, flowInfo, flow, op, window);
+                        emitWindow(flowInfo, flow, op, window);
                       }
                     }
                   }
@@ -210,9 +210,9 @@ public class SortBolt extends BaseRichBolt {
           buffer.incrTriggerTicks();
 
           if(buffer.getTriggerTicks() == op.getTriggerThreshold())
-            emitWindow(tuple, flowInfo, flow, op, buffer);
+            emitWindow(flowInfo, flow, op, buffer);
         } else if(op.getTriggerPolicy() == Policy.TIME_DELTA_LT && buffer.timeRange() > -1 && buffer.timeRange() <= op.getTriggerThreshold() * 1000)
-          emitWindow(tuple, flowInfo, flow, op, buffer);
+          emitWindow(flowInfo, flow, op, buffer);
 
 //        /**
 //         * If we aren't supposed to clear the window right now, then we need to emit
@@ -229,7 +229,7 @@ public class SortBolt extends BaseRichBolt {
     collector.ack(tuple);
   }
 
-  private void emitWindow(Tuple tuple, FlowInfo flowInfo, Flow flow, SortOp op, Window window) {
+  private void emitWindow(FlowInfo flowInfo, Flow flow, SortOp op, Window window) {
 
     /**
      * If the window is set to be cleared, we need to emit everything. Otherwise, just emit the last item in the list.
@@ -247,7 +247,7 @@ public class SortBolt extends BaseRichBolt {
     if(items != null) {
       for(WindowItem item : items) {
 
-        String nextStream = getNextStreamFromFlowInfo(flowInfo, flow);
+        String nextStream = getNextStreamFromFlowInfo(flow, flowInfo.getStreamName(), flowInfo.getIdx());
         if(hasNextOutput(flow, flowInfo.getStreamName(), nextStream))
           collector.emit(nextStream, new Values(flow.getId(), item.getEvent(), flowInfo.getIdx(), flowInfo.getStreamName(), item.getPreviousStream()));
 

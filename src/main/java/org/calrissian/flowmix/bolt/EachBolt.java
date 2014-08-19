@@ -30,12 +30,13 @@ import org.calrissian.flowmix.FlowmixFactory;
 import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.FlowInfo;
 import org.calrissian.flowmix.model.op.EachOp;
-import org.calrissian.flowmix.support.Utils;
 import org.calrissian.mango.domain.event.Event;
 
 import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 import static org.calrissian.flowmix.support.Utils.exportsToOtherStreams;
+import static org.calrissian.flowmix.support.Utils.getFlowOpFromStream;
+import static org.calrissian.flowmix.support.Utils.getNextStreamFromFlowInfo;
 import static org.calrissian.flowmix.support.Utils.hasNextOutput;
 
 /**
@@ -65,9 +66,9 @@ public class EachBolt extends BaseRichBolt {
             Flow flow = flows.get(flowInfo.getFlowId());
 
             if(flow != null) {
-                EachOp functionOp = (EachOp) flow.getStream(flowInfo.getStreamName()).getFlowOps().get(flowInfo.getIdx());
+                EachOp functionOp =  getFlowOpFromStream(flow, flowInfo.getStreamName(), flowInfo.getIdx());
 
-                String nextStream = Utils.getNextStreamFromFlowInfo(flowInfo, flow);
+                String nextStream = getNextStreamFromFlowInfo(flow, flowInfo.getStreamName(), flowInfo.getIdx());
 
                 List<Event> events = functionOp.getFunction().execute(flowInfo.getEvent());
 

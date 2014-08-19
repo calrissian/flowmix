@@ -36,6 +36,7 @@ import org.calrissian.mango.domain.event.Event;
 import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 import static org.calrissian.flowmix.support.Utils.exportsToOtherStreams;
+import static org.calrissian.flowmix.support.Utils.getFlowOpFromStream;
 import static org.calrissian.flowmix.support.Utils.hasNextOutput;
 
 public class SelectorBolt extends BaseRichBolt {
@@ -63,9 +64,10 @@ public class SelectorBolt extends BaseRichBolt {
           Flow flow = flows.get(flowInfo.getFlowId());
 
             if (flow != null) {
-                SelectOp selectOp = (SelectOp) flow.getStream(flowInfo.getStreamName()).getFlowOps().get(flowInfo.getIdx());
 
-                String nextStream = Utils.getNextStreamFromFlowInfo(flowInfo, flow);
+                SelectOp selectOp =  getFlowOpFromStream(flow, flowInfo.getStreamName(), flowInfo.getIdx());
+
+                String nextStream = Utils.getNextStreamFromFlowInfo(flow, flowInfo.getStreamName(), flowInfo.getIdx());
 
                 Event newEvent = new BaseEvent(flowInfo.getEvent().getId(), flowInfo.getEvent().getTimestamp());
                 for(org.calrissian.mango.domain.Tuple eventTuple : flowInfo.getEvent().getTuples()) {

@@ -28,6 +28,7 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
+import backtype.storm.tuple.Values;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.calrissian.flowmix.model.Flow;
@@ -36,12 +37,14 @@ import org.calrissian.flowmix.model.Policy;
 import org.calrissian.flowmix.model.StreamDef;
 import org.calrissian.flowmix.model.op.FlowOp;
 import org.calrissian.flowmix.model.op.SwitchOp;
-import org.calrissian.flowmix.support.Utils;
 import org.calrissian.flowmix.support.window.SwitchWindow;
 
 import static org.calrissian.flowmix.FlowmixFactory.declareOutputStreams;
 import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
+import static org.calrissian.flowmix.support.Utils.exportsToOtherStreams;
+import static org.calrissian.flowmix.support.Utils.getNextStreamFromFlowInfo;
+import static org.calrissian.flowmix.support.Utils.hasNextOutput;
 
 /**
  * Uses a tumbling window to stop execution after an activation policy is met.
@@ -231,8 +234,19 @@ public class SwitchBolt extends BaseRichBolt {
 
                 if(!buffer.isStopped()) {
                     buffer.add(flowInfo.getEvent(), flowInfo.getPreviousStream());
-                    Utils.emitNext(tuple, flowInfo, flow, collector);
-                }
+                    String nextStream = getNextStreamFromFlowInfo(flow, flowInfo.getStreamName(), flowInfo.getIdx());
+
+                    if(hasNextOutput(flow, flowInfo.getStreamName(), nextStream))
+                      collector.emit(nextStream, tuple, new Values(flow.getId(), flowInfo.getEvent(), flowInfo.getIdx(), flowInfo.getStreamName(), flowInfo.getPreviousStream()));
+
+                    // send directly to any non std output streams
+                    if(exportsToOtherStreams(flow, flowInfo.getStreamName(), nextStream)) {
+                      for (String output : flow.getStream(flowInfo.getStreamName()).getOutputs()) {
+                        String outputStream = flow.getStream(output).getFlowOps().get(0).getComponentName();
+                        collector.emit(outputStream, tuple, new Values(flowInfo.getFlowId(), flowInfo.getEvent(), -1, output, flowInfo.getStreamName()));
+                      }
+                    }
+                  }
             }
 
         }

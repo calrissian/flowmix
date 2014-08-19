@@ -30,11 +30,14 @@ import org.calrissian.flowmix.model.Flow;
 import org.calrissian.flowmix.model.FlowInfo;
 import org.calrissian.flowmix.model.op.SplitOp;
 import org.calrissian.flowmix.support.Filter;
-import org.calrissian.flowmix.support.Utils;
 import org.calrissian.mango.domain.Pair;
 
 import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
+import static org.calrissian.flowmix.support.Utils.exportsToOtherStreams;
+import static org.calrissian.flowmix.support.Utils.getFlowOpFromStream;
+import static org.calrissian.flowmix.support.Utils.getNextStreamFromFlowInfo;
+import static org.calrissian.flowmix.support.Utils.hasNextOutput;
 
 public class SplitBolt extends BaseRichBolt {
 
@@ -60,19 +63,19 @@ public class SplitBolt extends BaseRichBolt {
       Flow flow = flows.get(flowInfo.getFlowId());
 
       if (flow != null) {
-        SplitOp splitOp = (SplitOp) flow.getStream(flowInfo.getStreamName()).getFlowOps().get(flowInfo.getIdx());
+        SplitOp splitOp = getFlowOpFromStream(flow, flowInfo.getStreamName(), flowInfo.getIdx());
 
-        String nextStream = Utils.getNextStreamFromFlowInfo(flowInfo, flow);
+        String nextStream = getNextStreamFromFlowInfo(flow, flowInfo.getStreamName(), flowInfo.getIdx());
 
         // first check the default path
         Filter filter = splitOp.getDefaultPath();
 
         if(filter != null && filter.accept(flowInfo.getEvent())) {
-          if ((nextStream.equals("output") && flow.getStream(flowInfo.getStreamName()).isStdOutput()) || !nextStream.equals("output"))
+          if (hasNextOutput(flow, flowInfo.getStreamName(), nextStream))
               collector.emit(nextStream, tuple, new Values(flowInfo.getFlowId(), flowInfo.getEvent(), flowInfo.getIdx(), flowInfo.getStreamName(), flowInfo.getPreviousStream()));
 
           // send directly to any non std output streams
-          if (nextStream.equals("output") && flow.getStream(flowInfo.getStreamName()).getOutputs() != null) {
+          if (exportsToOtherStreams(flow, flowInfo.getStreamName(), nextStream)) {
             for (String output : flow.getStream(flowInfo.getStreamName()).getOutputs()) {
               String outputStream = flow.getStream(output).getFlowOps().get(0).getComponentName();
               collector.emit(outputStream, tuple, new Values(flowInfo.getFlowId(), flowInfo.getEvent(), -1, output, flowInfo.getStreamName()));

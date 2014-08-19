@@ -23,15 +23,14 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import backtype.storm.task.OutputCollector;
-import backtype.storm.tuple.Values;
 import org.calrissian.flowmix.model.Flow;
-import org.calrissian.flowmix.model.FlowInfo;
+import org.calrissian.flowmix.model.op.FlowOp;
 import org.calrissian.mango.domain.Tuple;
 import org.calrissian.mango.domain.event.Event;
 import org.calrissian.mango.types.TypeRegistry;
 
 import static org.apache.commons.lang.StringUtils.join;
+import static org.calrissian.flowmix.Constants.OUTPUT;
 import static org.calrissian.mango.types.LexiTypeEncoders.LEXI_TYPES;
 
 public class Utils {
@@ -79,32 +78,21 @@ public class Utils {
       return sb.toString();
   }
 
-  public static String getNextStreamFromFlowInfo(FlowInfo flowInfo, Flow flow) {
-    return flowInfo.getIdx()+1 < flow.getStream(flowInfo.getStreamName()).getFlowOps().size() ?
-        flow.getStream(flowInfo.getStreamName()).getFlowOps().get(flowInfo.getIdx() + 1).getComponentName() : "output";
+  public static String getNextStreamFromFlowInfo(Flow flow, String streamName, int idx) {
+    return idx+1 < flow.getStream(streamName).getFlowOps().size() ?
+        flow.getStream(streamName).getFlowOps().get(idx + 1).getComponentName() : OUTPUT;
   }
 
   public static boolean hasNextOutput(Flow flow, String streamName, String nextStream) {
-    return (nextStream.equals("output") && flow.getStream(streamName).isStdOutput()) || !nextStream.equals("output");
+    return (nextStream.equals(OUTPUT) && flow.getStream(streamName).isStdOutput()) || !nextStream.equals(OUTPUT);
   }
 
   public static boolean exportsToOtherStreams(Flow flow, String streamName, String nextStream) {
-    return nextStream.equals("output") && flow.getStream(streamName).getOutputs() != null;
+    return nextStream.equals(OUTPUT) && flow.getStream(streamName).getOutputs() != null;
   }
 
-  public static void emitNext(backtype.storm.tuple.Tuple tuple, FlowInfo flowInfo, Flow flow, OutputCollector collector) {
-    String nextStream = getNextStreamFromFlowInfo(flowInfo, flow);
-
-    if((nextStream.equals("output") && flow.getStream(flowInfo.getStreamName()).isStdOutput()) || !nextStream.equals("output"))
-      collector.emit(nextStream, tuple, new Values(flow.getId(), flowInfo.getEvent(), flowInfo.getIdx(), flowInfo.getStreamName(), flowInfo.getPreviousStream()));
-
-    // send directly to any non std output streams
-    if(nextStream.equals("output") && flow.getStream(flowInfo.getStreamName()).getOutputs() != null) {
-      for (String output : flow.getStream(flowInfo.getStreamName()).getOutputs()) {
-        String outputStream = flow.getStream(output).getFlowOps().get(0).getComponentName();
-        collector.emit(outputStream, tuple, new Values(flowInfo.getFlowId(), flowInfo.getEvent(), -1, output, flowInfo.getStreamName()));
-      }
-    }
+  public static <T extends FlowOp>T getFlowOpFromStream(Flow flow, String stream, int idx) {
+    return (T) flow.getStream(stream).getFlowOps().get(idx);
   }
 
 

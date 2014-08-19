@@ -47,6 +47,7 @@ import static org.calrissian.flowmix.FlowmixFactory.declareOutputStreams;
 import static org.calrissian.flowmix.FlowmixFactory.fields;
 import static org.calrissian.flowmix.spout.MockFlowLoaderSpout.FLOW_LOADER_STREAM;
 import static org.calrissian.flowmix.support.Utils.exportsToOtherStreams;
+import static org.calrissian.flowmix.support.Utils.getFlowOpFromStream;
 import static org.calrissian.flowmix.support.Utils.getNextStreamFromFlowInfo;
 import static org.calrissian.flowmix.support.Utils.hasNextOutput;
 
@@ -162,7 +163,7 @@ public class JoinBolt extends BaseRichBolt {
 
                 Flow flow = rulesMap.get(flowInfo.getFlowId());
 
-                JoinOp op = (JoinOp) flow.getStream(flowInfo.getStreamName()).getFlowOps().get(flowInfo.getIdx());
+                JoinOp op =  getFlowOpFromStream(flow, flowInfo.getStreamName(), flowInfo.getIdx());
 
                 // do processing on lhs
                 if(flowInfo.getPreviousStream().equals(op.getLeftStream())) {
@@ -202,7 +203,7 @@ public class JoinBolt extends BaseRichBolt {
                           // the hashcode will filter duplicates
                           joined.putAll(concat(bufferedEvent.getEvent().getTuples()));
                           joined.putAll(concat(flowInfo.getEvent().getTuples()));
-                          String nextStream = getNextStreamFromFlowInfo(flowInfo, flow);
+                          String nextStream = getNextStreamFromFlowInfo(flow, flowInfo.getStreamName(), flowInfo.getIdx());
 
                           if(hasNextOutput(flow, flowInfo.getStreamName(), nextStream))
                               collector.emit(nextStream, new Values(flow.getId(), joined, flowInfo.getIdx(), flowInfo.getStreamName(), bufferedEvent.getPreviousStream()));

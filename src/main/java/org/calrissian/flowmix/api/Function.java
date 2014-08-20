@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.example.support;
-
+package org.calrissian.flowmix.api;
 
 import java.io.Serializable;
 import java.util.List;
 
-import org.calrissian.flowmix.api.Flow;
+import org.calrissian.mango.domain.event.Event;
 
-public interface FlowProvider extends Serializable {
+public interface Function extends Serializable{
 
-  List<Flow> getFlows();
+    List<Event> execute(Event event);
 }

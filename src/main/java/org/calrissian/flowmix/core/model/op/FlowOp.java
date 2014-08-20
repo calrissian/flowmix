@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.example.support;
+package org.calrissian.flowmix.core.model.op;
 
 
 import java.io.Serializable;
-import java.util.List;
 
-import org.calrissian.flowmix.api.Flow;
+public interface FlowOp extends Serializable {
 
-public interface FlowProvider extends Serializable {
-
-  List<Flow> getFlows();
+    String getComponentName();
 }

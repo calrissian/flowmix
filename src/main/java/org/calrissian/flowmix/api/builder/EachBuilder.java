@@ -13,15 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.example.support;
+package org.calrissian.flowmix.api.builder;
 
 
-import java.io.Serializable;
-import java.util.List;
+import org.calrissian.flowmix.core.model.op.EachOp;
+import org.calrissian.flowmix.api.Function;
 
-import org.calrissian.flowmix.api.Flow;
+public class EachBuilder extends AbstractOpBuilder{
 
-public interface FlowProvider extends Serializable {
+    private Function function;
 
-  List<Flow> getFlows();
+    public EachBuilder(StreamBuilder flowOpsBuilder) {
+        super(flowOpsBuilder);
+    }
+
+    public EachBuilder function(Function function) {
+        this.function = function;
+        return this;
+    }
+
+
+    @Override
+    public StreamBuilder end() {
+        getStreamBuilder().addFlowOp(new EachOp(function));
+        return getStreamBuilder();
+    }
 }

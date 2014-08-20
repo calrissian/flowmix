@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.example.support;
+package org.calrissian.flowmix.core.model.event;
 
+/**
+ * This control event denotes the end of a stream of data. When forwarded, it will cause windows to flush.
+ */
+public class EndStreamControlEvent extends ControlEvent {
 
-import java.io.Serializable;
-import java.util.List;
-
-import org.calrissian.flowmix.api.Flow;
-
-public interface FlowProvider extends Serializable {
-
-  List<Flow> getFlows();
+  public EndStreamControlEvent() {
+    super();
+  }
 }

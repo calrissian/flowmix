@@ -18,13 +18,12 @@ package org.calrissian.flowmix.example.support;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
-import org.calrissian.flowmix.FlowmixFactory;
-import org.calrissian.flowmix.bolt.PrinterBolt;
-import org.calrissian.flowmix.model.kryo.EventSerializer;
-import org.calrissian.flowmix.spout.MockEventGeneratorSpout;
-import org.calrissian.flowmix.spout.MockFlowLoaderSpout;
+import org.calrissian.flowmix.api.FlowmixFactory;
+import org.calrissian.flowmix.api.storm.bolt.PrinterBolt;
+import org.calrissian.flowmix.api.kryo.EventSerializer;
+import org.calrissian.flowmix.api.storm.spout.MockEventGeneratorSpout;
+import org.calrissian.flowmix.api.storm.spout.SimpleFlowLoaderSpout;
 import org.calrissian.mango.domain.event.BaseEvent;
-import org.calrissian.mango.domain.event.Event;
 
 public class ExampleRunner {
 
@@ -37,7 +36,7 @@ public class ExampleRunner {
   public void run() {
 
     StormTopology topology = new FlowmixFactory(
-        new MockFlowLoaderSpout(provider.getFlows(), 60000),
+        new SimpleFlowLoaderSpout(provider.getFlows(), 60000),
         new MockEventGeneratorSpout(10),
         new PrinterBolt(), 6)
       .create()

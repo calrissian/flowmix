@@ -13,15 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.example.support;
+package org.calrissian.flowmix.api.filter;
 
+import org.calrissian.flowmix.api.Filter;
+import org.calrissian.mango.criteria.domain.criteria.Criteria;
+import org.calrissian.mango.domain.event.Event;
 
-import java.io.Serializable;
-import java.util.List;
+import static com.google.common.base.Preconditions.checkNotNull;
 
-import org.calrissian.flowmix.api.Flow;
+/**
+ * A filter that only allows events matching the criteria to pass through
+ */
+public class CriteriaFilter implements Filter {
 
-public interface FlowProvider extends Serializable {
+  Criteria criteria;
 
-  List<Flow> getFlows();
+  public CriteriaFilter(Criteria criteria) {
+    checkNotNull(criteria);
+    this.criteria = criteria;
+  }
+
+  @Override public boolean accept(Event event) {
+    return criteria.apply(event);
+  }
 }

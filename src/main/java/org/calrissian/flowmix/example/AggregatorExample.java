@@ -17,10 +17,10 @@ package org.calrissian.flowmix.example;
 
 import org.calrissian.flowmix.example.support.ExampleRunner;
 import org.calrissian.flowmix.example.support.FlowProvider;
-import org.calrissian.flowmix.model.Flow;
-import org.calrissian.flowmix.model.Policy;
-import org.calrissian.flowmix.model.builder.FlowBuilder;
-import org.calrissian.flowmix.aggregator.CountAggregator;
+import org.calrissian.flowmix.api.Flow;
+import org.calrissian.flowmix.api.Policy;
+import org.calrissian.flowmix.api.builder.FlowBuilder;
+import org.calrissian.flowmix.api.aggregator.CountAggregator;
 
 import java.util.List;
 

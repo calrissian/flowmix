@@ -13,15 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.example.support;
+package org.calrissian.flowmix.core.model.op;
 
+import org.calrissian.flowmix.api.Filter;
 
-import java.io.Serializable;
-import java.util.List;
+public class FilterOp implements FlowOp {
 
-import org.calrissian.flowmix.api.Flow;
+    public static final String FILTER = "filter";
+    Filter filter;
 
-public interface FlowProvider extends Serializable {
+    public void setFilter(Filter filter) {
+        this.filter = filter;
+    }
 
-  List<Flow> getFlows();
+    public Filter getFilter() {
+        return filter;
+    }
+
+    @Override
+    public String getComponentName() {
+        return FILTER;
+    }
 }

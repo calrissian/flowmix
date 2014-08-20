@@ -13,15 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.example.support;
+package org.calrissian.flowmix.core.support.deque;
 
+import org.calrissian.flowmix.api.Aggregator;
+import org.calrissian.flowmix.core.support.window.WindowItem;
 
-import java.io.Serializable;
-import java.util.List;
+public class AggregatorLimitingDeque extends LimitingDeque<WindowItem> {
 
-import org.calrissian.flowmix.api.Flow;
+  Aggregator aggregator;
 
-public interface FlowProvider extends Serializable {
+  public AggregatorLimitingDeque(long maxSize, Aggregator aggregator) {
+    super(maxSize);
+    this.aggregator = aggregator;
+  }
 
-  List<Flow> getFlows();
+  @Override
+  public boolean offerLast(WindowItem windowItem) {
+    if(size() == getMaxSize())
+      aggregator.evicted(getFirst());
+
+    return super.offerLast(windowItem);
+  }
 }

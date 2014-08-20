@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.example.support;
+package org.calrissian.flowmix.core.model.event;
 
+import org.calrissian.mango.domain.event.BaseEvent;
 
-import java.io.Serializable;
-import java.util.List;
+import static java.lang.System.currentTimeMillis;
+import static java.util.UUID.randomUUID;
 
-import org.calrissian.flowmix.api.Flow;
+public abstract class ControlEvent extends BaseEvent {
 
-public interface FlowProvider extends Serializable {
-
-  List<Flow> getFlows();
+  public ControlEvent() {
+    super(randomUUID().toString(), currentTimeMillis());
+  }
 }

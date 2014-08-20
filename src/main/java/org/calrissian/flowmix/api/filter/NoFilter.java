@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.example.support;
+package org.calrissian.flowmix.api.filter;
 
+import org.calrissian.flowmix.api.Filter;
+import org.calrissian.mango.domain.event.Event;
 
-import java.io.Serializable;
-import java.util.List;
-
-import org.calrissian.flowmix.api.Flow;
-
-public interface FlowProvider extends Serializable {
-
-  List<Flow> getFlows();
+/**
+ * A filter that accepts everything passed through it
+ */
+public class NoFilter implements Filter {
+  @Override public boolean accept(Event event) {
+    return true;
+  }
 }

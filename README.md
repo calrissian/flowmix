@@ -96,9 +96,11 @@ Wiring up a Flowmix topology to deploy to a live storm cluster is actually prett
 ```java
 List<Flow> flows = // create list of flows using the FlowBuilder
 
+List<Event> events = // create a list of mock events to send through Flowmix
+
 StormTopology topology = new FlowmixFactory(
     new SimpleFlowLoaderSpout(flows, 60000),    // spout to provide the flows
-    new MockEventGeneratorSpout(10),            // spout to provide the events
+    new MockEventGeneratorSpout(events, 10),    // spout to provide the events
     new PrinterBolt(), 6)                       // standard output bolt 
   .create()
 .createTopology();

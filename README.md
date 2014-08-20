@@ -98,10 +98,11 @@ List<Flow> flows = // create list of flows using the FlowBuilder
 
 List<Event> events = // create a list of mock events to send through Flowmix
 
-StormTopology topology = new FlowmixFactory(
-    new SimpleFlowLoaderSpout(flows, 60000),    // spout to provide the flows
-    new MockEventGeneratorSpout(events, 10),    // spout to provide the events
-    new PrinterBolt(), 6)                       // standard output bolt 
+StormTopology topology = new FlowmixBuilder()
+    .setFlowLoader(new SimpleFlowLoaderSpout(flows, 60000))    // spout to provide the flows
+    .setEventsLoader(new MockEventGeneratorSpout(events, 10))  // spout to provide the events
+    .setOutputBolt(new PrinterBolt())                          // standard output bolt 
+    .setParallelismHint(6)                                     // set the amount of parallelism 
   .create()
 .createTopology();
 

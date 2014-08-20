@@ -26,6 +26,10 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import org.calrissian.flowmix.api.Flow;
 
+/**
+ * A spout to load a predefined set of {@link Flow} objects. This is the most basic (and very static) way
+ * of getting a set of flows into a topology.
+ */
 public class SimpleFlowLoaderSpout extends BaseRichSpout{
 
     Collection<Flow> flows;

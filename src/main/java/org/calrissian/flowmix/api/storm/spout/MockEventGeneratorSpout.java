@@ -15,9 +15,9 @@
  */
 package org.calrissian.flowmix.api.storm.spout;
 
-
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.UUID;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -25,19 +25,27 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
-import org.calrissian.mango.domain.Tuple;
-import org.calrissian.mango.domain.event.BaseEvent;
+import com.google.common.base.Preconditions;
 import org.calrissian.mango.domain.event.Event;
 
 import static java.util.Collections.singleton;
 
 public class MockEventGeneratorSpout extends BaseRichSpout{
 
-    SpoutOutputCollector collector;
+    private SpoutOutputCollector collector;
 
-    int sleepBetweenEvents = 5000;
+    private int sleepBetweenEvents = 5000;
 
-    public MockEventGeneratorSpout(int sleepBetweenEvents) {
+    private Collection<Event> events;
+
+    private transient Iterator<Event> eventItr;
+
+    public MockEventGeneratorSpout(Collection<Event> events, int sleepBetweenEvents) {
+
+        Preconditions.checkNotNull(events);
+        Preconditions.checkArgument(events.size() > 0);
+
+        this.events = events;
         this.sleepBetweenEvents = sleepBetweenEvents;
     }
 
@@ -49,17 +57,20 @@ public class MockEventGeneratorSpout extends BaseRichSpout{
     @Override
     public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
         this.collector = spoutOutputCollector;
-    }
+        this.eventItr = events.iterator();
+  }
 
     @Override
     public void nextTuple() {
 
-        Event event = new BaseEvent(UUID.randomUUID().toString(), System.currentTimeMillis());
-        event.put(new Tuple("key1", "val1"));
-        event.put(new Tuple("key2", "val2"));
-        event.put(new Tuple("key3", "val3"));
-        event.put(new Tuple("key4", "val4"));
-        event.put(new Tuple("key5", "val5"));
+        Event event;
+
+        if(eventItr.hasNext())
+          event = eventItr.next();
+        else {
+          eventItr = events.iterator();
+          event = eventItr.next();
+        }
 
         collector.emit(new Values(singleton(event)));
 

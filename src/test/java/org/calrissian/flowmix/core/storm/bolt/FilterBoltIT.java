@@ -18,6 +18,7 @@ package org.calrissian.flowmix.core.storm.bolt;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
+import org.calrissian.flowmix.api.FlowTestCase;
 import org.calrissian.flowmix.api.filter.CriteriaFilter;
 import org.calrissian.flowmix.api.Flow;
 import org.calrissian.flowmix.api.builder.FlowBuilder;

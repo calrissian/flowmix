@@ -20,6 +20,7 @@ import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
 import com.google.common.collect.Iterables;
 import org.calrissian.flowmix.api.Flow;
+import org.calrissian.flowmix.api.FlowTestCase;
 import org.calrissian.flowmix.api.Policy;
 import org.calrissian.flowmix.api.builder.FlowBuilder;
 import org.calrissian.flowmix.api.kryo.EventSerializer;

@@ -15,6 +15,10 @@
  */
 package org.calrissian.flowmix.example.support;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.UUID;
+
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
@@ -23,7 +27,9 @@ import org.calrissian.flowmix.api.storm.bolt.PrinterBolt;
 import org.calrissian.flowmix.api.kryo.EventSerializer;
 import org.calrissian.flowmix.api.storm.spout.MockEventGeneratorSpout;
 import org.calrissian.flowmix.api.storm.spout.SimpleFlowLoaderSpout;
+import org.calrissian.mango.domain.Tuple;
 import org.calrissian.mango.domain.event.BaseEvent;
+import org.calrissian.mango.domain.event.Event;
 
 public class ExampleRunner {
 
@@ -37,7 +43,7 @@ public class ExampleRunner {
 
     StormTopology topology = new FlowmixFactory(
         new SimpleFlowLoaderSpout(provider.getFlows(), 60000),
-        new MockEventGeneratorSpout(10),
+        new MockEventGeneratorSpout(getMockEvents(), 10),
         new PrinterBolt(), 6)
       .create()
     .createTopology();
@@ -51,5 +57,21 @@ public class ExampleRunner {
 
     LocalCluster cluster = new LocalCluster();
     cluster.submitTopology("example-topology", conf, topology);
+  }
+
+  private Collection<Event> getMockEvents() {
+
+    Collection<Event> eventCollection = new ArrayList<Event>();
+
+    Event event = new BaseEvent(UUID.randomUUID().toString(), System.currentTimeMillis());
+    event.put(new Tuple("key1", "val1"));
+    event.put(new Tuple("key2", "val2"));
+    event.put(new Tuple("key3", "val3"));
+    event.put(new Tuple("key4", "val4"));
+    event.put(new Tuple("key5", "val5"));
+
+    eventCollection.add(event);
+
+    return eventCollection;
   }
 }

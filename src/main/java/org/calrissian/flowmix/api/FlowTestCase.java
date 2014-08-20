@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.core.storm.bolt;
+package org.calrissian.flowmix.api;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.UUID;
 
 import backtype.storm.generated.StormTopology;
-import org.calrissian.flowmix.api.FlowmixFactory;
-import org.calrissian.flowmix.api.Flow;
 import org.calrissian.flowmix.api.storm.bolt.MockSinkBolt;
 import org.calrissian.flowmix.api.storm.spout.MockEventGeneratorSpout;
 import org.calrissian.flowmix.api.storm.spout.SimpleFlowLoaderSpout;
+import org.calrissian.mango.domain.Tuple;
+import org.calrissian.mango.domain.event.BaseEvent;
+import org.calrissian.mango.domain.event.Event;
 import org.junit.Before;
 
 import static java.util.Collections.singletonList;
@@ -36,15 +40,33 @@ public class FlowTestCase implements Serializable {
   }
 
   protected StormTopology buildTopology(Flow flow, int intervalBetweenEvents) {
+
     StormTopology topology = new FlowmixFactory(
-            new SimpleFlowLoaderSpout(singletonList(flow), 60000),
-            new MockEventGeneratorSpout(intervalBetweenEvents),
-            new MockSinkBolt(),
-            6)
-            .create()
-            .createTopology();
+          new SimpleFlowLoaderSpout(singletonList(flow), 60000),
+          new MockEventGeneratorSpout(getMockEvents(), intervalBetweenEvents),
+          new MockSinkBolt(),
+          6)
+        .create()
+      .createTopology();
 
     return topology;
+  }
+
+
+  protected Collection<Event> getMockEvents() {
+
+    Collection<Event> eventCollection = new ArrayList<Event>();
+
+    Event event = new BaseEvent(UUID.randomUUID().toString(), System.currentTimeMillis());
+    event.put(new Tuple("key1", "val1"));
+    event.put(new Tuple("key2", "val2"));
+    event.put(new Tuple("key3", "val3"));
+    event.put(new Tuple("key4", "val4"));
+    event.put(new Tuple("key5", "val5"));
+
+    eventCollection.add(event);
+
+    return eventCollection;
   }
 
 }

@@ -97,7 +97,7 @@ Wiring up a Flowmix topology to deploy to a live storm cluster is actually prett
 List<Flow> flows = // create list of flows using the FlowBuilder
 
 StormTopology topology = new FlowmixFactory(
-    new MockFlowLoaderSpout(flows, 60000),      // spout to provide the flows
+    new SimpleFlowLoaderSpout(flows, 60000),    // spout to provide the flows
     new MockEventGeneratorSpout(10),            // spout to provide the events
     new PrinterBolt(), 6)                       // standard output bolt 
   .create()
@@ -106,7 +106,6 @@ StormTopology topology = new FlowmixFactory(
 Config conf = new Config();
 conf.setNumWorkers(20);
 conf.setMaxSpoutPending(5000);
-conf.setDebug(false);
 conf.registerSerialization(BaseEvent.class, EventSerializer.class);
 conf.setSkipMissingKryoRegistrations(false);
 

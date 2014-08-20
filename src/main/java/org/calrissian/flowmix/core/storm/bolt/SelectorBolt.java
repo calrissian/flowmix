@@ -25,7 +25,7 @@ import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import org.calrissian.flowmix.api.FlowmixFactory;
+import org.calrissian.flowmix.api.builder.FlowmixBuilder;
 import org.calrissian.flowmix.api.Flow;
 import org.calrissian.flowmix.core.model.FlowInfo;
 import org.calrissian.flowmix.core.model.op.SelectOp;
@@ -33,8 +33,8 @@ import org.calrissian.flowmix.core.support.Utils;
 import org.calrissian.mango.domain.event.BaseEvent;
 import org.calrissian.mango.domain.event.Event;
 
-import static org.calrissian.flowmix.api.FlowmixFactory.fields;
-import static org.calrissian.flowmix.api.storm.spout.SimpleFlowLoaderSpout.FLOW_LOADER_STREAM;
+import static org.calrissian.flowmix.api.builder.FlowmixBuilder.fields;
+import static org.calrissian.flowmix.core.Constants.FLOW_LOADER_STREAM;
 import static org.calrissian.flowmix.core.support.Utils.exportsToOtherStreams;
 import static org.calrissian.flowmix.core.support.Utils.getFlowOpFromStream;
 import static org.calrissian.flowmix.core.support.Utils.hasNextOutput;
@@ -98,6 +98,6 @@ public class SelectorBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        FlowmixFactory.declareOutputStreams(outputFieldsDeclarer, fields);
+        FlowmixBuilder.declareOutputStreams(outputFieldsDeclarer, fields);
     }
 }

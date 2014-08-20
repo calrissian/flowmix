@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 import backtype.storm.generated.StormTopology;
+import org.calrissian.flowmix.api.builder.FlowmixBuilder;
 import org.calrissian.flowmix.api.storm.bolt.MockSinkBolt;
 import org.calrissian.flowmix.api.storm.spout.MockEventGeneratorSpout;
 import org.calrissian.flowmix.api.storm.spout.SimpleFlowLoaderSpout;
@@ -41,11 +42,11 @@ public class FlowTestCase implements Serializable {
 
   protected StormTopology buildTopology(Flow flow, int intervalBetweenEvents) {
 
-    StormTopology topology = new FlowmixFactory(
-          new SimpleFlowLoaderSpout(singletonList(flow), 60000),
-          new MockEventGeneratorSpout(getMockEvents(), intervalBetweenEvents),
-          new MockSinkBolt(),
-          6)
+    StormTopology topology = new FlowmixBuilder()
+          .setFlowLoader(new SimpleFlowLoaderSpout(singletonList(flow), 60000))
+          .setEventsLoader(new MockEventGeneratorSpout(getMockEvents(), intervalBetweenEvents))
+          .setOutputBolt(new MockSinkBolt())
+          .setParallelismHint(6)
         .create()
       .createTopology();
 

@@ -30,9 +30,9 @@ import org.calrissian.flowmix.core.model.FlowInfo;
 import org.calrissian.flowmix.core.model.op.PartitionOp;
 import org.calrissian.flowmix.core.support.Utils;
 
-import static org.calrissian.flowmix.api.FlowmixFactory.declareOutputStreams;
-import static org.calrissian.flowmix.api.FlowmixFactory.partitionFields;
-import static org.calrissian.flowmix.api.storm.spout.SimpleFlowLoaderSpout.FLOW_LOADER_STREAM;
+import static org.calrissian.flowmix.api.builder.FlowmixBuilder.declareOutputStreams;
+import static org.calrissian.flowmix.api.builder.FlowmixBuilder.partitionFields;
+import static org.calrissian.flowmix.core.Constants.FLOW_LOADER_STREAM;
 import static org.calrissian.flowmix.core.support.Utils.buildKeyIndexForEvent;
 import static org.calrissian.flowmix.core.support.Utils.exportsToOtherStreams;
 import static org.calrissian.flowmix.core.support.Utils.getFlowOpFromStream;

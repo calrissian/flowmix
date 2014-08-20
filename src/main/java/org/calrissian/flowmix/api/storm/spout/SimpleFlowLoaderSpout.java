@@ -20,35 +20,24 @@ import java.util.Map;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichSpout;
-import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Values;
 import org.calrissian.flowmix.api.Flow;
 
 /**
  * A spout to load a predefined set of {@link Flow} objects. This is the most basic (and very static) way
  * of getting a set of flows into a topology.
  */
-public class SimpleFlowLoaderSpout extends BaseRichSpout{
+public class SimpleFlowLoaderSpout extends FlowLoaderBaseSpout {
 
     Collection<Flow> flows;
     long pauseBetweenLoads = -1;
 
     boolean loaded = false;
 
-    public static final String FLOW_LOADER_STREAM = "flowLoaderStream";
-
     SpoutOutputCollector collector;
 
     public SimpleFlowLoaderSpout(Collection<Flow> flows, long pauseBetweenLoads) {
         this.flows = flows;
         this.pauseBetweenLoads = pauseBetweenLoads;
-    }
-
-    @Override
-    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declareStream(FLOW_LOADER_STREAM, new Fields("flows"));
     }
 
     @Override
@@ -61,7 +50,7 @@ public class SimpleFlowLoaderSpout extends BaseRichSpout{
     public void nextTuple() {
 
       if(!loaded || pauseBetweenLoads > -1) {
-        collector.emit(FLOW_LOADER_STREAM, new Values(flows));
+        emitFlows(collector, flows);
         loaded = true;
 
         if(pauseBetweenLoads > -1) {

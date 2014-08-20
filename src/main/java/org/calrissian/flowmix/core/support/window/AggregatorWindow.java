@@ -22,7 +22,7 @@ import org.calrissian.flowmix.core.model.event.AggregatedEvent;
 import org.calrissian.flowmix.core.support.deque.AggregatorLimitingDeque;
 import org.calrissian.mango.domain.event.Event;
 
-public class AggregatorWindow extends Window{
+public class AggregatorWindow extends Window {
 
     private Aggregator aggregator;
 

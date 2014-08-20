@@ -15,23 +15,23 @@
  */
 package org.calrissian.flowmix.core.storm.bolt;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 import backtype.storm.task.OutputCollector;
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
-import org.calrissian.flowmix.api.FlowmixFactory;
 import org.calrissian.flowmix.api.Flow;
+import org.calrissian.flowmix.api.builder.FlowmixBuilder;
 import org.calrissian.flowmix.core.model.StreamDef;
 import org.calrissian.mango.domain.event.Event;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.calrissian.flowmix.api.FlowmixFactory.fields;
-import static org.calrissian.flowmix.api.storm.spout.SimpleFlowLoaderSpout.FLOW_LOADER_STREAM;
+import static org.calrissian.flowmix.api.builder.FlowmixBuilder.fields;
+import static org.calrissian.flowmix.core.Constants.FLOW_LOADER_STREAM;
 
 public class FlowInitializerBolt extends BaseRichBolt {
 
@@ -74,6 +74,6 @@ public class FlowInitializerBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        FlowmixFactory.declareOutputStreams(outputFieldsDeclarer, fields);
+        FlowmixBuilder.declareOutputStreams(outputFieldsDeclarer, fields);
     }
 }

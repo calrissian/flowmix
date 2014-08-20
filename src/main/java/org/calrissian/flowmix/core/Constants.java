@@ -34,4 +34,6 @@ public class Constants {
 
     public static final String BROADCAST_STREAM = "control";
 
+    public static final String FLOW_LOADER_STREAM = "flowLoaderStream";
+
 }

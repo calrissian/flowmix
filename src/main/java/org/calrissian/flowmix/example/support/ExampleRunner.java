@@ -22,7 +22,7 @@ import java.util.UUID;
 import backtype.storm.Config;
 import backtype.storm.LocalCluster;
 import backtype.storm.generated.StormTopology;
-import org.calrissian.flowmix.api.FlowmixFactory;
+import org.calrissian.flowmix.api.builder.FlowmixBuilder;
 import org.calrissian.flowmix.api.storm.bolt.PrinterBolt;
 import org.calrissian.flowmix.api.kryo.EventSerializer;
 import org.calrissian.flowmix.api.storm.spout.MockEventGeneratorSpout;
@@ -41,10 +41,11 @@ public class ExampleRunner {
 
   public void run() {
 
-    StormTopology topology = new FlowmixFactory(
-        new SimpleFlowLoaderSpout(provider.getFlows(), 60000),
-        new MockEventGeneratorSpout(getMockEvents(), 10),
-        new PrinterBolt(), 6)
+    StormTopology topology = new FlowmixBuilder()
+        .setFlowLoader(new SimpleFlowLoaderSpout(provider.getFlows(), 60000))
+        .setEventsLoader(new MockEventGeneratorSpout(getMockEvents(), 10))
+        .setOutputBolt(new PrinterBolt())
+        .setParallelismHint(6)
       .create()
     .createTopology();
 

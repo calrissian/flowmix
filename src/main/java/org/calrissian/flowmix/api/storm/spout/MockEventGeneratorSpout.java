@@ -21,16 +21,13 @@ import java.util.Map;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseRichSpout;
-import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Values;
 import com.google.common.base.Preconditions;
 import org.calrissian.mango.domain.event.Event;
 
 import static java.util.Collections.singleton;
 
-public class MockEventGeneratorSpout extends BaseRichSpout{
+public class MockEventGeneratorSpout extends BaseEventsLoaderSpout{
 
     private SpoutOutputCollector collector;
 
@@ -47,11 +44,6 @@ public class MockEventGeneratorSpout extends BaseRichSpout{
 
         this.events = events;
         this.sleepBetweenEvents = sleepBetweenEvents;
-    }
-
-    @Override
-    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-        outputFieldsDeclarer.declare(new Fields("event"));
     }
 
     @Override

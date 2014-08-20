@@ -16,6 +16,7 @@
 package org.calrissian.flowmix.core.model;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.List;
 
 import org.calrissian.flowmix.core.model.op.FlowOp;
@@ -62,5 +63,45 @@ public class StreamDef implements Serializable {
                 "name='" + name + '\'' +
                 ", flowOps=" + flowOps +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
+
+      StreamDef streamDef = (StreamDef) o;
+
+      if (stdInput != streamDef.stdInput) {
+        return false;
+      }
+      if (stdOutput != streamDef.stdOutput) {
+        return false;
+      }
+      if (flowOps != null ? !flowOps.equals(streamDef.flowOps) : streamDef.flowOps != null) {
+        return false;
+      }
+      if (name != null ? !name.equals(streamDef.name) : streamDef.name != null) {
+        return false;
+      }
+      if (!Arrays.equals(outputs, streamDef.outputs)) {
+        return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      int result = name != null ? name.hashCode() : 0;
+      result = 31 * result + (flowOps != null ? flowOps.hashCode() : 0);
+      result = 31 * result + (stdInput ? 1 : 0);
+      result = 31 * result + (stdOutput ? 1 : 0);
+      result = 31 * result + (outputs != null ? Arrays.hashCode(outputs) : 0);
+      return result;
     }
 }

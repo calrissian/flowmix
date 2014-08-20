@@ -13,10 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.calrissian.flowmix.api;
+package org.calrissian.flowmix.api.builder;
 
-import backtype.storm.topology.*;
+import backtype.storm.topology.BoltDeclarer;
+import backtype.storm.topology.IComponent;
+import backtype.storm.topology.IRichBolt;
+import backtype.storm.topology.IRichSpout;
+import backtype.storm.topology.OutputFieldsDeclarer;
+import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
+import org.calrissian.flowmix.api.storm.bolt.BaseEventsLoaderBolt;
+import org.calrissian.flowmix.api.storm.bolt.FlowLoaderBaseBolt;
+import org.calrissian.flowmix.api.storm.spout.BaseEventsLoaderSpout;
+import org.calrissian.flowmix.api.storm.spout.FlowLoaderBaseSpout;
 import org.calrissian.flowmix.core.storm.bolt.AggregatorBolt;
 import org.calrissian.flowmix.core.storm.bolt.EachBolt;
 import org.calrissian.flowmix.core.storm.bolt.FilterBolt;
@@ -29,7 +38,15 @@ import org.calrissian.flowmix.core.storm.bolt.SplitBolt;
 import org.calrissian.flowmix.core.storm.bolt.SwitchBolt;
 import org.calrissian.flowmix.core.storm.spout.TickSpout;
 
-import static org.calrissian.flowmix.core.Constants.*;
+import static org.calrissian.flowmix.core.Constants.BROADCAST_STREAM;
+import static org.calrissian.flowmix.core.Constants.EVENT;
+import static org.calrissian.flowmix.core.Constants.FLOW_ID;
+import static org.calrissian.flowmix.core.Constants.FLOW_LOADER_STREAM;
+import static org.calrissian.flowmix.core.Constants.FLOW_OP_IDX;
+import static org.calrissian.flowmix.core.Constants.INITIALIZER;
+import static org.calrissian.flowmix.core.Constants.LAST_STREAM;
+import static org.calrissian.flowmix.core.Constants.OUTPUT;
+import static org.calrissian.flowmix.core.Constants.STREAM_NAME;
 import static org.calrissian.flowmix.core.model.op.AggregateOp.AGGREGATE;
 import static org.calrissian.flowmix.core.model.op.EachOp.EACH;
 import static org.calrissian.flowmix.core.model.op.FilterOp.FILTER;
@@ -39,7 +56,6 @@ import static org.calrissian.flowmix.core.model.op.SelectOp.SELECT;
 import static org.calrissian.flowmix.core.model.op.SortOp.SORT;
 import static org.calrissian.flowmix.core.model.op.SplitOp.SPLIT;
 import static org.calrissian.flowmix.core.model.op.SwitchOp.SWITCH;
-import static org.calrissian.flowmix.api.storm.spout.SimpleFlowLoaderSpout.FLOW_LOADER_STREAM;
 
 /**
  * Builds the base flowmix topology configuration. The topology builder is returned so that it can be further
@@ -48,25 +64,59 @@ import static org.calrissian.flowmix.api.storm.spout.SimpleFlowLoaderSpout.FLOW_
  * "output".
  */
 
-public class FlowmixFactory {
+public class FlowmixBuilder {
 
-  private IComponent ruleSpout;
+  private IComponent flowLoaderSpout;
   private IComponent eventsComponent;
   private IRichBolt outputBolt;
-  private int parallelismHint;
+  private int parallelismHint = 1;
 
   /**
-   * @param ruleSpout A spout that feeds rules into flowmix. This just needs to emit a Collection<Flow> in each tuple
+   * @param flowLoaderSpout A spout that feeds rules into flowmix. This just needs to emit a Collection<Flow> in each tuple
    *                  at index 0 with a field name of "flows".
    * @param eventsSpout A spout that provides the events to std input.
    * @param outputBolt  A bolt to accept the output events (with the field name "event")
    * @param parallelismHint The number of executors to run the parallel streams.
    */
-  public FlowmixFactory(IComponent ruleSpout, IComponent eventsSpout, IRichBolt outputBolt, int parallelismHint) {
-    this.ruleSpout = ruleSpout;
-    this.eventsComponent = eventsSpout;
+  public FlowmixBuilder setFlowLoader(FlowLoaderBaseSpout flowLoader) {
+    this.flowLoaderSpout = flowLoader;
+    return this;
+  }
+
+  public FlowmixBuilder setFlowLoader(FlowLoaderBaseBolt flowLoader) {
+    this.flowLoaderSpout = flowLoader;
+    return this;
+  }
+
+  public FlowmixBuilder setEventsLoader(BaseEventsLoaderBolt eventsLoader) {
+    this.eventsComponent = eventsLoader;
+    return this;
+  }
+
+  public FlowmixBuilder setEventsLoader(BaseEventsLoaderSpout eventsLoader) {
+    this.eventsComponent = eventsLoader;
+    return this;
+  }
+
+  public FlowmixBuilder setOutputBolt(IRichBolt outputBolt) {
     this.outputBolt = outputBolt;
+    return this;
+  }
+
+  public FlowmixBuilder setParallelismHint(int parallelismHint) {
     this.parallelismHint = parallelismHint;
+    return this;
+  }
+
+  private void validateOptions() {
+
+    String errorPrefix = "Error constructing Flowmix: ";
+    if(flowLoaderSpout == null)
+      throw new RuntimeException(errorPrefix + "A flow loader component needs to be set.");
+    else if(eventsComponent == null)
+      throw new RuntimeException(errorPrefix + "An event loader component needs to be set.");
+    else if(outputBolt == null)
+      throw new RuntimeException(errorPrefix + "An output bolt needs to be set.");
   }
 
   /**
@@ -84,10 +134,10 @@ public class FlowmixFactory {
         throw new RuntimeException("The component for events is not valid. Must be IRichSpout or IRichBolt");
 
 
-      if(ruleSpout instanceof IRichSpout)
-        builder.setSpout(FLOW_LOADER_STREAM, (IRichSpout)ruleSpout, 1);
-      else if(ruleSpout instanceof IRichBolt)
-        builder.setBolt(FLOW_LOADER_STREAM, (IRichBolt) ruleSpout, 1);
+      if(flowLoaderSpout instanceof IRichSpout)
+        builder.setSpout(FLOW_LOADER_STREAM, (IRichSpout) flowLoaderSpout, 1);
+      else if(flowLoaderSpout instanceof IRichBolt)
+        builder.setBolt(FLOW_LOADER_STREAM, (IRichBolt) flowLoaderSpout, 1);
       else
         throw new RuntimeException("The component for rules is not valid. Must be IRichSpout or IRichBolt");
 

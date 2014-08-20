@@ -22,9 +22,9 @@ import backtype.storm.topology.IRichSpout;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
-import org.calrissian.flowmix.api.storm.bolt.BaseEventsLoaderBolt;
+import org.calrissian.flowmix.api.storm.bolt.EventsLoaderBaseBolt;
 import org.calrissian.flowmix.api.storm.bolt.FlowLoaderBaseBolt;
-import org.calrissian.flowmix.api.storm.spout.BaseEventsLoaderSpout;
+import org.calrissian.flowmix.api.storm.spout.EventsLoaderBaseSpout;
 import org.calrissian.flowmix.api.storm.spout.FlowLoaderBaseSpout;
 import org.calrissian.flowmix.core.storm.bolt.AggregatorBolt;
 import org.calrissian.flowmix.core.storm.bolt.EachBolt;
@@ -88,12 +88,12 @@ public class FlowmixBuilder {
     return this;
   }
 
-  public FlowmixBuilder setEventsLoader(BaseEventsLoaderBolt eventsLoader) {
+  public FlowmixBuilder setEventsLoader(EventsLoaderBaseBolt eventsLoader) {
     this.eventsComponent = eventsLoader;
     return this;
   }
 
-  public FlowmixBuilder setEventsLoader(BaseEventsLoaderSpout eventsLoader) {
+  public FlowmixBuilder setEventsLoader(EventsLoaderBaseSpout eventsLoader) {
     this.eventsComponent = eventsLoader;
     return this;
   }

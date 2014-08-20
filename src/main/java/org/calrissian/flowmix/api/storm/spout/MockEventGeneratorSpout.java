@@ -27,7 +27,7 @@ import org.calrissian.mango.domain.event.Event;
 
 import static java.util.Collections.singleton;
 
-public class MockEventGeneratorSpout extends BaseEventsLoaderSpout{
+public class MockEventGeneratorSpout extends EventsLoaderBaseSpout {
 
     private SpoutOutputCollector collector;
 

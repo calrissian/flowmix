@@ -47,6 +47,7 @@ public class FlowTestCase implements Serializable {
           .setEventsLoader(new MockEventGeneratorSpout(getMockEvents(), intervalBetweenEvents))
           .setOutputBolt(new MockSinkBolt())
           .setParallelismHint(6)
+          .setEventLoaderParallelism(1)
         .create()
       .createTopology();
 

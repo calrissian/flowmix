@@ -70,9 +70,10 @@ public class FlowmixBuilder {
   private IComponent eventsComponent;
   private IRichBolt outputBolt;
   private int parallelismHint = 1;
+  private int eventLoaderParallelism = -1;
 
   /**
-   * @param flowLoaderSpout A spout that feeds rules into flowmix. This just needs to emit a Collection<Flow> in each tuple
+   * @param flowLoader A spout that feeds rules into flowmix. This just needs to emit a Collection<Flow> in each tuple
    *                  at index 0 with a field name of "flows".
    * @param eventsSpout A spout that provides the events to std input.
    * @param outputBolt  A bolt to accept the output events (with the field name "event")
@@ -95,6 +96,11 @@ public class FlowmixBuilder {
 
   public FlowmixBuilder setEventsLoader(EventsLoaderBaseSpout eventsLoader) {
     this.eventsComponent = eventsLoader;
+    return this;
+  }
+
+  public FlowmixBuilder setEventLoaderParallelism(int eventLoaderParallelism) {
+    this.eventLoaderParallelism = eventLoaderParallelism;
     return this;
   }
 
@@ -127,9 +133,9 @@ public class FlowmixBuilder {
       TopologyBuilder builder = new TopologyBuilder();
 
       if(eventsComponent instanceof IRichSpout)
-        builder.setSpout(EVENT, (IRichSpout) eventsComponent, 1);
+        builder.setSpout(EVENT, (IRichSpout) eventsComponent, eventLoaderParallelism == -1 ? parallelismHint : eventLoaderParallelism);
       else if(eventsComponent instanceof IRichBolt)
-        builder.setBolt(EVENT, (IRichBolt) eventsComponent, 1);
+        builder.setBolt(EVENT, (IRichBolt) eventsComponent, eventLoaderParallelism == -1 ? parallelismHint : eventLoaderParallelism);
       else
         throw new RuntimeException("The component for events is not valid. Must be IRichSpout or IRichBolt");
 
@@ -143,7 +149,7 @@ public class FlowmixBuilder {
 
       builder.setSpout("tick", new TickSpout(1000), 1);
       builder.setBolt(INITIALIZER, new FlowInitializerBolt(), parallelismHint)  // kicks off a flow determining where to start
-              .shuffleGrouping(EVENT)
+              .localOrShuffleGrouping(EVENT)
               .allGrouping(FLOW_LOADER_STREAM, FLOW_LOADER_STREAM);
 
       declarebolt(builder, FILTER, new FilterBolt(), parallelismHint, true);

@@ -15,8 +15,6 @@
  */
 package org.calrissian.flowmix.api.aggregator;
 
-import org.calrissian.flowmix.core.support.window.WindowItem;
-
 /**
  * TODO: test 
  * Simple count calculator, this counts an aggregated tuple window
@@ -25,14 +23,14 @@ import org.calrissian.flowmix.core.support.window.WindowItem;
  * @author The Calrissian Authors
  * @author Miguel A. Fuentes Buchholtz
  */
-public class CountAggregator extends AbstractAggregator<Long> {
+public class CountAggregator extends AbstractAggregator<Long,Long> {
 
     public static final String DEFAULT_OUTPUT_FIELD = "count";
 
     protected long count = 0;
 
     @Override
-    public void evicted(WindowItem item) {
+    public void evict(Long item) {
         count--;
     }
 
@@ -42,7 +40,7 @@ public class CountAggregator extends AbstractAggregator<Long> {
     }
 
     @Override
-    public void postAddition(WindowItem item) {
+    public void postAddition(Long item) {
         count++;
     }
 

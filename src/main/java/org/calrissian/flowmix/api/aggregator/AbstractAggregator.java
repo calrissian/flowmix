@@ -38,8 +38,9 @@ import org.calrissian.mango.domain.event.Event;
  *
  * @author Miguel A. Fuentes Buchholtz
  * @param <T> Aggregation result type
+ * @param <F> Field type
  */
-public abstract class AbstractAggregator<T> implements Aggregator {
+public abstract class AbstractAggregator<T, F> implements Aggregator {
 
     /**
      * field to operate with
@@ -98,9 +99,10 @@ public abstract class AbstractAggregator<T> implements Aggregator {
 
     /**
      *
-     * @param item item to work with after item is added to grouped values
+     * @param fieldValue field value to work with after item is added to grouped
+     * values
      */
-    public abstract void postAddition(WindowItem item);
+    public abstract void postAddition(F fieldValue);
 
     /**
      *
@@ -114,8 +116,23 @@ public abstract class AbstractAggregator<T> implements Aggregator {
                 groupedValues.put(group, item.getEvent().getAll(group));
             }
         }
-        postAddition(item);
+        if (item.getEvent().get(operatedField) != null) {
+            postAddition(((F) item.getEvent().get(operatedField).getValue()));
+        }
     }
+
+    /**
+     *
+     * @param item item to evict
+     */
+    @Override
+    public void evicted(WindowItem item) {
+        if (item.getEvent().get(operatedField) != null) {
+            evict((F) item.getEvent().get(operatedField).getValue());
+        }
+    }
+
+    public abstract void evict(F fieldValue);
 
     /**
      *

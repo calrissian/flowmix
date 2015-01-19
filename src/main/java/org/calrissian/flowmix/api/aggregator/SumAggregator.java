@@ -16,26 +16,21 @@
 package org.calrissian.flowmix.api.aggregator;
 
 /**
- * TODO: test 
- * Simple sum calculator, this sums an aggregated tuple window
- * adds and subtracts accordingly (event added or evicted)
+ * TODO: test Simple sum calculator, this sums an aggregated tuple window adds
+ * and subtracts accordingly (event added or evicted)
  *
  * @author The Calrissian Authors
  * @author Miguel A. Fuentes Buchholtz
  */
-import org.calrissian.flowmix.core.support.window.WindowItem;
-
-public class SumAggregator extends AbstractAggregator<Long> {
+public class SumAggregator extends AbstractAggregator<Long, Long> {
 
     public static final String DEFAULT_OUTPUT_FIELD = "sum";
 
     protected long sum = 0;
 
     @Override
-    public void evicted(WindowItem item) {
-        if (item.getEvent().get(super.operatedField) != null) {
-            sum -= ((Long) item.getEvent().get(super.operatedField).getValue());
-        }
+    public void evict(Long value) {
+        sum -= value;
     }
 
     @Override
@@ -44,10 +39,8 @@ public class SumAggregator extends AbstractAggregator<Long> {
     }
 
     @Override
-    public void postAddition(WindowItem item) {
-        if (item.getEvent().get(super.operatedField) != null) {
-            sum += ((Long) item.getEvent().get(super.operatedField).getValue());
-        }
+    public void postAddition(Long value) {
+        sum += value;
     }
 
     @Override

@@ -16,7 +16,6 @@
 package org.calrissian.flowmix.api.aggregator;
 
 /**
- * TODO: test 
  * Simple count calculator, this counts an aggregated tuple window
  * adds and subtracts accordingly (event added or evicted)
  *

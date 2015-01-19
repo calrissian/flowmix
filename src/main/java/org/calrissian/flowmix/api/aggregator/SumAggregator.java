@@ -16,7 +16,7 @@
 package org.calrissian.flowmix.api.aggregator;
 
 /**
- * TODO: test Simple sum calculator, this sums an aggregated tuple window adds
+ * Simple sum calculator, this sums an aggregated tuple window adds
  * and subtracts accordingly (event added or evicted)
  *
  * @author The Calrissian Authors

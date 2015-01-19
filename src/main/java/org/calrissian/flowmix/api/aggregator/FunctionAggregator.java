@@ -16,7 +16,6 @@
 package org.calrissian.flowmix.api.aggregator;
 
 import java.util.Map;
-import org.calrissian.flowmix.core.support.window.WindowItem;
 
 /**
  * All purpose function aggregator

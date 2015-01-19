@@ -15,10 +15,8 @@
  */
 package org.calrissian.flowmix.api.aggregator;
 
-import org.calrissian.flowmix.core.support.window.WindowItem;
-
 /**
- * TODO: test Simple average calculator, this calculates the average on when an
+ * Simple average calculator, this calculates the average on when an
  * aggregated Tuple is emitted, and just counts and sums on adding/evicting
  *
  * @author Miguel A. Fuentes Buchholtz
@@ -43,41 +41,21 @@ public class AvgAggregator extends AbstractAggregator<Double, Long> {
         return DEFAULT_OUTPUT_FIELD;
     }
 
-    /**
-     *
-     * @param fieldValue Window field value to operate with
-     */
     @Override
     public void postAddition(Long fieldValue) {
         this.sum += fieldValue;
         this.count++;
     }
 
-    /**
-     *
-     * @return freshly calculated average
-     */
-    @Override
-    protected Double aggregateResult() {
-        return ((double) this.sum) / ((double) this.count);
-    }
-
-    /**
-     *
-     * @param item item to evict
-     */
-    @Override
-    public void evicted(WindowItem item) {
-        if (item.getEvent().get(super.operatedField) != null) {
-            this.sum -= ((Long) item.getEvent().get(super.operatedField).getValue());
-            this.count--;
-        }
-    }
-
     @Override
     public void evict(Long fieldValue) {
         this.sum -= fieldValue;
         this.count--;
+    }
+    
+    @Override
+    protected Double aggregateResult() {
+        return ((double) this.sum) / ((double) this.count);
     }
 
 }

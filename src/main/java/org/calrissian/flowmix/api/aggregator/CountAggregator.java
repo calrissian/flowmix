@@ -22,14 +22,14 @@ package org.calrissian.flowmix.api.aggregator;
  * @author The Calrissian Authors
  * @author Miguel A. Fuentes Buchholtz
  */
-public class CountAggregator extends AbstractAggregator<Long,Long> {
+public class CountAggregator extends AbstractAggregator<Long,Object> {
 
     public static final String DEFAULT_OUTPUT_FIELD = "count";
 
     protected long count = 0;
 
     @Override
-    public void evict(Long item) {
+    public void evict(Object item) {
         count--;
     }
 
@@ -39,7 +39,7 @@ public class CountAggregator extends AbstractAggregator<Long,Long> {
     }
 
     @Override
-    public void postAddition(Long item) {
+    public void postAddition(Object item) {
         count++;
     }
 

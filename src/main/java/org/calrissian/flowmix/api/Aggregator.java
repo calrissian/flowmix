@@ -21,27 +21,32 @@ import java.util.Map;
 
 import org.calrissian.flowmix.core.model.event.AggregatedEvent;
 import org.calrissian.flowmix.core.support.window.WindowItem;
+import org.calrissian.flowmix.exceptions.FlowmixException;
 
 /**
- * An aggregator over a progressive/tumbling window allows aggregate values like sums and averages to be
- * maintained for some window at some point in time without the whole window being available at any point in time.
+ * An aggregator over a progressive/tumbling window allows aggregate values like
+ * sums and averages to be maintained for some window at some point in time
+ * without the whole window being available at any point in time.
  *
- * This is very useful for associative algorithms that can be implemented without the entire dataset being available.
- * Often this is good for reduce functions that can summarize a dataset without the need to see each individual point.
+ * This is very useful for associative algorithms that can be implemented
+ * without the entire dataset being available. Often this is good for reduce
+ * functions that can summarize a dataset without the need to see each
+ * individual point.
  *
- * Multiple events can be returned as the aggregate if necessary, this means multiple aggregates could be maintained
- * inside and emitted separately (i.e. sum and count and sumsqaure, and average).
+ * Multiple events can be returned as the aggregate if necessary, this means
+ * multiple aggregates could be maintained inside and emitted separately (i.e.
+ * sum and count and sumsqaure, and average).
  */
 public interface Aggregator extends Serializable {
 
-  public static final String GROUP_BY = "groupBy";
-  public static final String GROUP_BY_DELIM = "\u0000";
+    public static final String GROUP_BY = "groupBy";
+    public static final String GROUP_BY_DELIM = "\u0000";
 
-  void configure(Map<String,String> configuration);
+    void configure(Map<String, String> configuration);
 
-  void added(WindowItem item);
+    void added(WindowItem item);
 
-  void evicted(WindowItem item);
+    void evicted(WindowItem item);
 
-  List<AggregatedEvent> aggregate();
+    List<AggregatedEvent> aggregate();
 }

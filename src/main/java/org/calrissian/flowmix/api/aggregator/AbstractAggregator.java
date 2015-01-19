@@ -28,6 +28,7 @@ import static org.calrissian.flowmix.api.Aggregator.GROUP_BY;
 import static org.calrissian.flowmix.api.Aggregator.GROUP_BY_DELIM;
 import org.calrissian.flowmix.core.model.event.AggregatedEvent;
 import org.calrissian.flowmix.core.support.window.WindowItem;
+import org.calrissian.flowmix.exceptions.FlowmixException;
 import org.calrissian.mango.domain.Tuple;
 import org.calrissian.mango.domain.event.BaseEvent;
 import org.calrissian.mango.domain.event.Event;
@@ -35,12 +36,11 @@ import org.calrissian.mango.domain.event.Event;
 /**
  *
  * Abstract aggregator for simple implementations
- * 
- * @author Miguel Antonio Fuentes Buchholtz
- * 
+ *
  * @param <T> Aggregation result type
+ * @param <F> Field type
  */
-public abstract class AbstractAggregator<T> implements Aggregator {
+public abstract class AbstractAggregator<T, F> implements Aggregator {
 
     /**
      * field to operate with
@@ -53,7 +53,7 @@ public abstract class AbstractAggregator<T> implements Aggregator {
     public static final String OUTPUT_FIELD = "outputField";
 
     /**
-     * grouped values
+     * grouped fields description
      */
     protected Map<String, Collection<Tuple>> groupedValues;
 
@@ -99,31 +99,57 @@ public abstract class AbstractAggregator<T> implements Aggregator {
 
     /**
      *
-     * @param item item to work with after item is added to grouped values
+     * @param fieldValue field value to work with after item is added to grouped
+     * values
      */
-    public abstract void postAddition(WindowItem item);
+    public abstract void add(F fieldValue);
 
     /**
      *
      * @param item
+     * @throws org.calrissian.flowmix.exceptions.FlowmixException
      */
     @Override
-    public void added(WindowItem item) {
+    public void added(WindowItem item){
         if (groupedValues == null && groupByFields != null) {
             groupedValues = new HashMap<String, Collection<Tuple>>();
             for (String group : groupByFields) {
                 groupedValues.put(group, item.getEvent().getAll(group));
             }
         }
-        postAddition(item);
+        if (item.getEvent().get(operatedField) != null) {
+            try {
+                add(((F) item.getEvent().get(operatedField).getValue()));
+            } catch (ClassCastException e) {
+                throw new FlowmixException("Problem converting value " + item.getEvent().get(operatedField).getValue(), e);
+            }
+        }
     }
-    
+
+    /**
+     *
+     * @param item item to evict
+     * @throws org.calrissian.flowmix.exceptions.FlowmixException
+     */
+    @Override
+    public void evicted(WindowItem item){
+        if (item.getEvent().get(operatedField) != null) {
+            try {
+                evict((F) item.getEvent().get(operatedField).getValue());
+            } catch (ClassCastException e) {
+                throw new FlowmixException("Problem converting value " + item.getEvent().get(operatedField).getValue(), e);
+            }
+        }
+    }
+
+    public abstract void evict(F fieldValue);
+
     /**
      *
      * @return aggregation result provided by implementation
      */
     protected abstract T aggregateResult();
-    
+
     /**
      *
      * @return

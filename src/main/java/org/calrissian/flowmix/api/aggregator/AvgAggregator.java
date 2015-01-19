@@ -15,27 +15,24 @@
  */
 package org.calrissian.flowmix.api.aggregator;
 
-import org.calrissian.flowmix.core.support.window.WindowItem;
-
 /**
- *
  * Simple average calculator, this calculates the average on when an aggregated
  * Tuple is emitted, and just counts and sums on adding/evicting
- * 
- * @author Miguel Antonio Fuentes Buchholtz
+ *
  */
-public class AvgAggregator extends AbstractAggregator<Double> {
+public class AvgAggregator extends AbstractAggregator<Double, Long> {
 
     /**
      * Default output field name
      */
     public static final String DEFAULT_OUTPUT_FIELD = "avg";
 
-    private long sum;
+    private double sum;
     private long count;
 
     /**
      * The output field for this implementation
+     *
      * @return output field name
      */
     @Override
@@ -43,37 +40,24 @@ public class AvgAggregator extends AbstractAggregator<Double> {
         return DEFAULT_OUTPUT_FIELD;
     }
 
-    /**
-     *
-     * @param item Window item to operate with
-     */
     @Override
-    public void postAddition(WindowItem item) {
-        if (item.getEvent().get(super.operatedField) != null) {
-            this.sum += ((Long) item.getEvent().get(super.operatedField).getValue());
-            this.count++;
-        }
+    public void add(Long fieldValue) {
+        this.sum += fieldValue;
+        this.count++;
     }
 
-    /**
-     *
-     * @return freshly calculated average
-     */
+    @Override
+    public void evict(Long fieldValue) {
+        this.sum -= fieldValue;
+        this.count--;
+    }
+
     @Override
     protected Double aggregateResult() {
-        return ((double) this.sum) / ((double) this.count);
-    }
-
-    /**
-     *
-     * @param item item to evict
-     */
-    @Override
-    public void evicted(WindowItem item) {
-        if (item.getEvent().get(super.operatedField) != null) {
-            this.sum -= ((Long) item.getEvent().get(super.operatedField).getValue());
-            this.count--;
+        if (this.count <= 0) {
+            return (double) 0;
         }
+        return ((double) this.sum) / ((double) this.count);
     }
 
 }

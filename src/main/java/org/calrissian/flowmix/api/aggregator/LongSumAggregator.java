@@ -32,6 +32,7 @@ import org.calrissian.mango.domain.event.Event;
 import static java.lang.System.currentTimeMillis;
 import static java.util.UUID.randomUUID;
 
+@Deprecated
 public class LongSumAggregator implements Aggregator {
 
   public static final String SUM_FIELD = "sumField";

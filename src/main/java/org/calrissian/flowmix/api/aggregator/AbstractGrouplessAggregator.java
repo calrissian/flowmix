@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 The Calrissian Authors
+ * Copyright 2015 Calrissian.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,12 @@
 package org.calrissian.flowmix.api.aggregator;
 
 import static java.lang.System.currentTimeMillis;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import static java.util.UUID.randomUUID;
 import org.apache.commons.lang.StringUtils;
 import org.calrissian.flowmix.api.Aggregator;
-import static org.calrissian.flowmix.api.Aggregator.GROUP_BY;
-import static org.calrissian.flowmix.api.Aggregator.GROUP_BY_DELIM;
 import org.calrissian.flowmix.core.model.event.AggregatedEvent;
 import org.calrissian.flowmix.core.support.window.WindowItem;
 import org.calrissian.mango.domain.Tuple;
@@ -34,13 +30,14 @@ import org.calrissian.mango.domain.event.Event;
 
 /**
  *
- * Abstract aggregator for simple implementations
+ * This abstract Aggregator doesn't mantain the whole group, you need to add and
+ * evict the tuples with simple operations and emit them with complex ones.
  *
  * @author Miguel A. Fuentes Buchholtz
  * @param <T> Aggregation result type
  * @param <F> Field type
  */
-public abstract class AbstractAggregator<T, F> implements Aggregator {
+public abstract class AbstractGrouplessAggregator<T, F> implements Aggregator {
 
     /**
      * field to operate with
@@ -51,11 +48,6 @@ public abstract class AbstractAggregator<T, F> implements Aggregator {
      * output field
      */
     public static final String OUTPUT_FIELD = "outputField";
-
-    /**
-     * grouped values
-     */
-    protected Map<String, Collection<Tuple>> groupedValues;
 
     /**
      * fields to group by
@@ -110,12 +102,6 @@ public abstract class AbstractAggregator<T, F> implements Aggregator {
      */
     @Override
     public void added(WindowItem item) {
-        if (groupedValues == null && groupByFields != null) {
-            groupedValues = new HashMap<String, Collection<Tuple>>();
-            for (String group : groupByFields) {
-                groupedValues.put(group, item.getEvent().getAll(group));
-            }
-        }
         if (item.getEvent().get(operatedField) != null) {
             postAddition(((F) item.getEvent().get(operatedField).getValue()));
         }
@@ -147,11 +133,6 @@ public abstract class AbstractAggregator<T, F> implements Aggregator {
     @Override
     public List<AggregatedEvent> aggregate() {
         Event event = new BaseEvent(randomUUID().toString(), currentTimeMillis());
-        if (groupedValues != null && groupByFields != null) {
-            for (Collection<Tuple> tuples : groupedValues.values()) {
-                event.putAll(tuples);
-            }
-        }
         event.put(new Tuple(outputField, aggregateResult()));
         return Collections.singletonList(new AggregatedEvent(event));
     }

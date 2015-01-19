@@ -16,21 +16,21 @@
 package org.calrissian.flowmix.api.aggregator;
 
 /**
- * Simple count calculator, this counts an aggregated tuple window
- * adds and subtracts accordingly (event added or evicted)
+ * Simple sum calculator, this sums an aggregated tuple window adds
+ * and subtracts accordingly (event added or evicted)
  *
  * @author The Calrissian Authors
  * @author Miguel A. Fuentes Buchholtz
  */
-public class CountAggregator extends AbstractAggregator<Long,Object> {
+public class SumAggregator extends AbstractAggregator<Long, Long> {
 
-    public static final String DEFAULT_OUTPUT_FIELD = "count";
+    public static final String DEFAULT_OUTPUT_FIELD = "sum";
 
-    protected long count = 0;
+    protected long sum = 0;
 
     @Override
-    public void evict(Object item) {
-        count--;
+    public void evict(Long value) {
+        sum -= value;
     }
 
     @Override
@@ -39,12 +39,12 @@ public class CountAggregator extends AbstractAggregator<Long,Object> {
     }
 
     @Override
-    public void postAddition(Object item) {
-        count++;
+    public void postAddition(Long value) {
+        sum += value;
     }
 
     @Override
     protected Long aggregateResult() {
-        return count;
+        return sum;
     }
 }

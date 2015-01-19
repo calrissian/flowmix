@@ -18,11 +18,11 @@ package org.calrissian.flowmix.api.aggregator;
 import org.calrissian.flowmix.core.support.window.WindowItem;
 
 /**
+ * TODO: test 
+ * Simple average calculator, this calculates the average on when an
+ * aggregated Tuple is emitted, and just counts and sums on adding/evicting
  *
- * Simple average calculator, this calculates the average on when an aggregated
- * Tuple is emitted, and just counts and sums on adding/evicting
- * 
- * @author Miguel Antonio Fuentes Buchholtz
+ * @author Miguel A. Fuentes Buchholtz
  */
 public class AvgAggregator extends AbstractAggregator<Double> {
 
@@ -36,6 +36,7 @@ public class AvgAggregator extends AbstractAggregator<Double> {
 
     /**
      * The output field for this implementation
+     *
      * @return output field name
      */
     @Override

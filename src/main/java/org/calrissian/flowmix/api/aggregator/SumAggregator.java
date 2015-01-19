@@ -15,25 +15,27 @@
  */
 package org.calrissian.flowmix.api.aggregator;
 
-import org.calrissian.flowmix.core.support.window.WindowItem;
-
 /**
  * TODO: test 
- * Simple count calculator, this counts an aggregated tuple window
+ * Simple sum calculator, this sums an aggregated tuple window
  * adds and subtracts accordingly (event added or evicted)
  *
  * @author The Calrissian Authors
  * @author Miguel A. Fuentes Buchholtz
  */
-public class CountAggregator extends AbstractAggregator<Long> {
+import org.calrissian.flowmix.core.support.window.WindowItem;
 
-    public static final String DEFAULT_OUTPUT_FIELD = "count";
+public class SumAggregator extends AbstractAggregator<Long> {
 
-    protected long count = 0;
+    public static final String DEFAULT_OUTPUT_FIELD = "sum";
+
+    protected long sum = 0;
 
     @Override
     public void evicted(WindowItem item) {
-        count--;
+        if (item.getEvent().get(super.operatedField) != null) {
+            sum -= ((Long) item.getEvent().get(super.operatedField).getValue());
+        }
     }
 
     @Override
@@ -43,11 +45,13 @@ public class CountAggregator extends AbstractAggregator<Long> {
 
     @Override
     public void postAddition(WindowItem item) {
-        count++;
+        if (item.getEvent().get(super.operatedField) != null) {
+            sum += ((Long) item.getEvent().get(super.operatedField).getValue());
+        }
     }
 
     @Override
     protected Long aggregateResult() {
-        return count;
+        return sum;
     }
 }

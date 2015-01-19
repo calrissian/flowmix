@@ -35,9 +35,8 @@ import org.calrissian.mango.domain.event.Event;
 /**
  *
  * Abstract aggregator for simple implementations
- * 
- * @author Miguel Antonio Fuentes Buchholtz
- * 
+ *
+ * @author Miguel A. Fuentes Buchholtz
  * @param <T> Aggregation result type
  */
 public abstract class AbstractAggregator<T> implements Aggregator {
@@ -117,13 +116,13 @@ public abstract class AbstractAggregator<T> implements Aggregator {
         }
         postAddition(item);
     }
-    
+
     /**
      *
      * @return aggregation result provided by implementation
      */
     protected abstract T aggregateResult();
-    
+
     /**
      *
      * @return

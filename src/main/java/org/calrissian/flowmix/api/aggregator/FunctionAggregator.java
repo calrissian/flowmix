@@ -15,6 +15,7 @@
  */
 package org.calrissian.flowmix.api.aggregator;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -61,8 +62,16 @@ public class FunctionAggregator<T, F> extends AbstractGrouplessAggregator<T, F> 
         //This is for keep the sums, counts and everything else needed
         private final Map<String, Object> aggregationData;
 
+        public AggregatorFunction() {
+            this.aggregationData = new HashMap<String,Object>();
+        }
+        
         public AggregatorFunction(Map<String, Object> aggregationData) {
             this.aggregationData = aggregationData;
+        }
+        
+        public Map<String, Object> getData(){
+            return this.aggregationData;
         }
 
         public abstract void add(FV value);

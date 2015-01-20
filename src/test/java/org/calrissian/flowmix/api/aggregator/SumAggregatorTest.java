@@ -22,26 +22,23 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-/**
- * @author Miguel A. Fuentes Buchholtz
- */
 public class SumAggregatorTest {
-    
+
     public SumAggregatorTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
@@ -50,34 +47,32 @@ public class SumAggregatorTest {
     public void test() {
         System.out.println("SumAggregatorTest");
         SumAggregator instance = new SumAggregator();
-        instance.postAddition((long) 1);
-        instance.postAddition((long) 1);
-        instance.postAddition((long) 1);
-        instance.postAddition((long) 3);
-        instance.evict((long)3);
-        instance.postAddition((long) 1);
+        instance.add((long) 1);
+        instance.add((long) 1);
+        instance.add((long) 1);
+        instance.add((long) 3);
+        instance.evict((long) 3);
+        instance.add((long) 1);
         Long result = instance.aggregateResult();
-        Long expectedResult = (long)4;
+        Long expectedResult = (long) 4;
         assertEquals(expectedResult, result);
     }
 
-        
     @Test
     public void testNoItems() {
         System.out.println("SumAggregatorTest - No Items");
         SumAggregator instance = new SumAggregator();
-        instance.postAddition((long)33);
-        instance.postAddition((long)33);
-        instance.postAddition((long)33);
-        instance.postAddition((long)33);
-        instance.evict((long)33);
-        instance.evict((long)33);
-        instance.evict((long)33);
-        instance.evict((long)33);
+        instance.add((long) 33);
+        instance.add((long) 33);
+        instance.add((long) 33);
+        instance.add((long) 33);
+        instance.evict((long) 33);
+        instance.evict((long) 33);
+        instance.evict((long) 33);
+        instance.evict((long) 33);
         Long result = instance.aggregateResult();
-        Long expectedResult = (long)0;
+        Long expectedResult = (long) 0;
         assertEquals(expectedResult, result);
     }
 
-    
 }

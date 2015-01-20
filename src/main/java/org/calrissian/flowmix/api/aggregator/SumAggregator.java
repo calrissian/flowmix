@@ -19,8 +19,6 @@ package org.calrissian.flowmix.api.aggregator;
  * Simple sum calculator, this sums an aggregated tuple window adds and
  * subtracts accordingly (event added or evicted)
  *
- * @author The Calrissian Authors
- * @author Miguel A. Fuentes Buchholtz
  */
 public class SumAggregator extends AbstractAggregator<Long, Long> {
 
@@ -39,7 +37,7 @@ public class SumAggregator extends AbstractAggregator<Long, Long> {
     }
 
     @Override
-    public void postAddition(Long value) {
+    public void add(Long value) {
         sum += value;
     }
 

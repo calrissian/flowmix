@@ -19,7 +19,6 @@ package org.calrissian.flowmix.api.aggregator;
  * Simple average calculator, this calculates the average on when an aggregated
  * Tuple is emitted, and just counts and sums on adding/evicting
  *
- * @author Miguel A. Fuentes Buchholtz
  */
 public class AvgAggregator extends AbstractAggregator<Double, Long> {
 
@@ -42,7 +41,7 @@ public class AvgAggregator extends AbstractAggregator<Double, Long> {
     }
 
     @Override
-    public void postAddition(Long fieldValue) {
+    public void add(Long fieldValue) {
         this.sum += fieldValue;
         this.count++;
     }

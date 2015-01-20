@@ -38,7 +38,6 @@ import org.calrissian.mango.domain.event.Event;
  *
  * Abstract aggregator for simple implementations
  *
- * @author Miguel A. Fuentes Buchholtz
  * @param <T> Aggregation result type
  * @param <F> Field type
  */
@@ -55,7 +54,7 @@ public abstract class AbstractAggregator<T, F> implements Aggregator {
     public static final String OUTPUT_FIELD = "outputField";
 
     /**
-     * grouped values
+     * grouped fields description
      */
     protected Map<String, Collection<Tuple>> groupedValues;
 
@@ -104,7 +103,7 @@ public abstract class AbstractAggregator<T, F> implements Aggregator {
      * @param fieldValue field value to work with after item is added to grouped
      * values
      */
-    public abstract void postAddition(F fieldValue);
+    public abstract void add(F fieldValue);
 
     /**
      *
@@ -120,7 +119,7 @@ public abstract class AbstractAggregator<T, F> implements Aggregator {
         }
         if (item.getEvent().get(operatedField) != null) {
             try {
-                postAddition(((F) item.getEvent().get(operatedField).getValue()));
+                add(((F) item.getEvent().get(operatedField).getValue()));
             } catch (ClassCastException e) {
                 Logger.getLogger(AbstractAggregator.class.getName()).log(Level.SEVERE, "Problem converting value " + item.getEvent().get(operatedField).getValue(), e);
             }

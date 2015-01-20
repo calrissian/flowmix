@@ -19,8 +19,6 @@ package org.calrissian.flowmix.api.aggregator;
  * Simple count calculator, this counts an aggregated tuple window
  * adds and subtracts accordingly (event added or evicted)
  *
- * @author The Calrissian Authors
- * @author Miguel A. Fuentes Buchholtz
  */
 public class CountAggregator extends AbstractAggregator<Long,Object> {
 
@@ -39,7 +37,7 @@ public class CountAggregator extends AbstractAggregator<Long,Object> {
     }
 
     @Override
-    public void postAddition(Object item) {
+    public void add(Object item) {
         count++;
     }
 

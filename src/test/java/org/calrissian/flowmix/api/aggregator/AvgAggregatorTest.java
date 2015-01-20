@@ -22,9 +22,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-/**
- * @author Miguel A. Fuentes Buchholtz
- */
 public class AvgAggregatorTest {
 
     public AvgAggregatorTest() {
@@ -50,9 +47,9 @@ public class AvgAggregatorTest {
     public void test() {
         System.out.println("AvgAggregatorTest");
         AvgAggregator instance = new AvgAggregator();
-        instance.postAddition((long) 1);
-        instance.postAddition((long) 10);
-        instance.postAddition((long) -5);
+        instance.add((long) 1);
+        instance.add((long) 10);
+        instance.add((long) -5);
         instance.evict((long) 1);
         Double result = instance.aggregateResult();
         Double expectedResult = 2.5;
@@ -64,10 +61,10 @@ public class AvgAggregatorTest {
     public void testNoItems() {
         System.out.println("AvgAggregatorTest - No Items");
         AvgAggregator instance = new AvgAggregator();
-        instance.postAddition((long)33);
-        instance.postAddition((long)33);
-        instance.postAddition((long)33);
-        instance.postAddition((long)33);
+        instance.add((long)33);
+        instance.add((long)33);
+        instance.add((long)33);
+        instance.add((long)33);
         instance.evict((long)33);
         instance.evict((long)33);
         instance.evict((long)33);

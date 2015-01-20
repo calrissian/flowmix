@@ -22,26 +22,23 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-/**
- * @author Miguel A. Fuentes Buchholtz
- */
 public class CountAggregatorTest {
-    
+
     public CountAggregatorTest() {
     }
-    
+
     @BeforeClass
     public static void setUpClass() {
     }
-    
+
     @AfterClass
     public static void tearDownClass() {
     }
-    
+
     @Before
     public void setUp() {
     }
-    
+
     @After
     public void tearDown() {
     }
@@ -50,30 +47,30 @@ public class CountAggregatorTest {
     public void test() {
         System.out.println("CountAggregatorTest");
         CountAggregator instance = new CountAggregator();
-        instance.postAddition((long)33);
-        instance.postAddition((long)33);
-        instance.postAddition((long)33);
-        instance.postAddition((long)33);
-        instance.evict((long)1);
+        instance.add((long) 33);
+        instance.add((long) 33);
+        instance.add((long) 33);
+        instance.add((long) 33);
+        instance.evict((long) 1);
         Long result = instance.aggregateResult();
-        Long expectedResult = (long)3;
+        Long expectedResult = (long) 3;
         assertEquals(expectedResult, result);
     }
-    
+
     @Test
     public void testNoItems() {
         System.out.println("CountAggregatorTest - No Items");
         CountAggregator instance = new CountAggregator();
-        instance.postAddition((long)33);
-        instance.postAddition((long)33);
-        instance.postAddition((long)33);
-        instance.postAddition((long)33);
-        instance.evict((long)33);
-        instance.evict((long)33);
-        instance.evict((long)33);
-        instance.evict((long)33);
+        instance.add((long) 33);
+        instance.add((long) 33);
+        instance.add((long) 33);
+        instance.add((long) 33);
+        instance.evict((long) 33);
+        instance.evict((long) 33);
+        instance.evict((long) 33);
+        instance.evict((long) 33);
         Long result = instance.aggregateResult();
-        Long expectedResult = (long)0;
+        Long expectedResult = (long) 0;
         assertEquals(expectedResult, result);
     }
 

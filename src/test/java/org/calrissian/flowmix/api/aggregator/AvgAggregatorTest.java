@@ -59,4 +59,23 @@ public class AvgAggregatorTest {
         assertEquals(expectedResult, result);
     }
 
+        
+    @Test
+    public void testNoItems() {
+        System.out.println("AvgAggregatorTest - No Items");
+        AvgAggregator instance = new AvgAggregator();
+        instance.postAddition((long)33);
+        instance.postAddition((long)33);
+        instance.postAddition((long)33);
+        instance.postAddition((long)33);
+        instance.evict((long)33);
+        instance.evict((long)33);
+        instance.evict((long)33);
+        instance.evict((long)33);
+        Double result = instance.aggregateResult();
+        Double expectedResult = (double)0.0;
+        assertEquals(expectedResult, result);
+    }
+
+    
 }

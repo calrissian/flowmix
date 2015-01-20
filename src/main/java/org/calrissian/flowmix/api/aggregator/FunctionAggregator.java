@@ -15,9 +15,6 @@
  */
 package org.calrissian.flowmix.api.aggregator;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * All purpose function aggregator
  *
@@ -25,7 +22,7 @@ import java.util.Map;
  * @param <T> result type
  * @param <F> Field type
  */
-public class FunctionAggregator<T, F> extends AbstractGrouplessAggregator<T, F> {
+public class FunctionAggregator<T, F> extends AbstractAggregator<T, F> {
 
     private final AggregatorFunction<T, F> function;
 
@@ -36,7 +33,7 @@ public class FunctionAggregator<T, F> extends AbstractGrouplessAggregator<T, F> 
         super.outputField = outputField;
         this.function = function;
     }
-
+  
     @Override
     protected String getOutputField() {
         return null;
@@ -58,21 +55,6 @@ public class FunctionAggregator<T, F> extends AbstractGrouplessAggregator<T, F> 
     }
 
     public static abstract class AggregatorFunction<FT, FV> {
-
-        //This is for keep the sums, counts and everything else needed
-        private final Map<String, Object> aggregationData;
-
-        public AggregatorFunction() {
-            this.aggregationData = new HashMap<String,Object>();
-        }
-        
-        public AggregatorFunction(Map<String, Object> aggregationData) {
-            this.aggregationData = aggregationData;
-        }
-        
-        public Map<String, Object> getData(){
-            return this.aggregationData;
-        }
 
         public abstract void add(FV value);
 

@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import static java.util.UUID.randomUUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.calrissian.flowmix.api.Aggregator;
 import static org.calrissian.flowmix.api.Aggregator.GROUP_BY;
@@ -117,7 +119,11 @@ public abstract class AbstractAggregator<T, F> implements Aggregator {
             }
         }
         if (item.getEvent().get(operatedField) != null) {
-            postAddition(((F) item.getEvent().get(operatedField).getValue()));
+            try {
+                postAddition(((F) item.getEvent().get(operatedField).getValue()));
+            } catch (ClassCastException e) {
+                Logger.getLogger(AbstractAggregator.class.getName()).log(Level.SEVERE, "Problem converting value " + item.getEvent().get(operatedField).getValue(), e);
+            }
         }
     }
 
@@ -128,7 +134,11 @@ public abstract class AbstractAggregator<T, F> implements Aggregator {
     @Override
     public void evicted(WindowItem item) {
         if (item.getEvent().get(operatedField) != null) {
-            evict((F) item.getEvent().get(operatedField).getValue());
+            try {
+                evict((F) item.getEvent().get(operatedField).getValue());
+            } catch (ClassCastException e) {
+                Logger.getLogger(AbstractAggregator.class.getName()).log(Level.SEVERE, "Problem converting value " + item.getEvent().get(operatedField).getValue(), e);
+            }
         }
     }
 

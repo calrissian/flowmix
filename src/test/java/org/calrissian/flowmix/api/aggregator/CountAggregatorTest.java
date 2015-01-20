@@ -59,5 +59,22 @@ public class CountAggregatorTest {
         Long expectedResult = (long)3;
         assertEquals(expectedResult, result);
     }
+    
+    @Test
+    public void testNoItems() {
+        System.out.println("CountAggregatorTest - No Items");
+        CountAggregator instance = new CountAggregator();
+        instance.postAddition((long)33);
+        instance.postAddition((long)33);
+        instance.postAddition((long)33);
+        instance.postAddition((long)33);
+        instance.evict((long)33);
+        instance.evict((long)33);
+        instance.evict((long)33);
+        instance.evict((long)33);
+        Long result = instance.aggregateResult();
+        Long expectedResult = (long)0;
+        assertEquals(expectedResult, result);
+    }
 
 }

@@ -16,8 +16,8 @@
 package org.calrissian.flowmix.api.aggregator;
 
 /**
- * Simple sum calculator, this sums an aggregated tuple window adds
- * and subtracts accordingly (event added or evicted)
+ * Simple sum calculator, this sums an aggregated tuple window adds and
+ * subtracts accordingly (event added or evicted)
  *
  * @author The Calrissian Authors
  * @author Miguel A. Fuentes Buchholtz
@@ -26,7 +26,7 @@ public class SumAggregator extends AbstractAggregator<Long, Long> {
 
     public static final String DEFAULT_OUTPUT_FIELD = "sum";
 
-    protected long sum = 0;
+    protected long sum;
 
     @Override
     public void evict(Long value) {
@@ -47,4 +47,5 @@ public class SumAggregator extends AbstractAggregator<Long, Long> {
     protected Long aggregateResult() {
         return sum;
     }
+
 }

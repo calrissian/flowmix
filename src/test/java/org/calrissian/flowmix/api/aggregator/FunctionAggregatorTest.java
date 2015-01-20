@@ -55,8 +55,8 @@ public class FunctionAggregatorTest {
         System.out.println("FunctionAggregatorTest");
         FunctionAggregator<Double, Long> instance = new FunctionAggregator<Double, Long>("stnd", new FunctionAggregator.AggregatorFunction<Double, Long>() {
 
-            private static final String VALUES = "values";
-            private static final String MEAN = "mean";
+            private final List<Long> values = new ArrayList<Long>();
+            private double mean = 0.0;
 
             private Double calculateAverage(List<Long> marks) {
                 Long sum = (long) 0;
@@ -71,29 +71,30 @@ public class FunctionAggregatorTest {
 
             @Override
             public void add(Long value) {
-                if (value == null || !getData().containsKey(VALUES)) {
-                    getData().put(VALUES, new ArrayList<Long>());
+                if (value != null) {
+                    this.values.add(value);
+                    this.mean = calculateAverage(values);
                 }
-                ((ArrayList<Long>) getData().get(VALUES)).add(value);
-                getData().put(MEAN, calculateAverage((ArrayList<Long>) getData().get(VALUES)));
             }
 
             @Override
             public void evict(Long value) {
-                if (value == null || !getData().containsKey(VALUES) || ((ArrayList<Long>) getData().get(VALUES)).isEmpty()) {
-                    return;
+                if (value != null) {
+                    this.values.remove(value);
+                    this.mean = calculateAverage(values);
                 }
-                ((ArrayList<Long>) getData().get(VALUES)).remove(value);
-                getData().put(MEAN, calculateAverage((ArrayList<Long>) getData().get(VALUES)));
             }
 
             @Override
             public Double aggregate() {
-                Long[] sq = new Long[((ArrayList<Long>) getData().get(VALUES)).size()];
-                ((ArrayList<Long>) getData().get(VALUES)).toArray(sq);
+                if (this.values.isEmpty()) {
+                    return 0.0;
+                }
+                Long[] sq = new Long[this.values.size()];
+                this.values.toArray(sq);
                 Double sum = 0.0;
                 for (Long e : sq) {
-                    Double e2 = (e - (Double) getData().get(MEAN));
+                    Double e2 = (e - (Double) this.mean);
                     sum = sum + (e2 * e2);
                 }
                 return Math.sqrt((sum / sq.length));

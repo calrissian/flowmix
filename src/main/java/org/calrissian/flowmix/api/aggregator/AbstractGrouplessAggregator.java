@@ -32,11 +32,14 @@ import org.calrissian.mango.domain.event.Event;
  *
  * This abstract Aggregator doesn't mantain the whole group, you need to add and
  * evict the tuples with simple operations and emit them with complex ones.
+ * 
+ * Currently under discussion
  *
  * @author Miguel A. Fuentes Buchholtz
  * @param <T> Aggregation result type
  * @param <F> Field type
  */
+@Deprecated
 public abstract class AbstractGrouplessAggregator<T, F> implements Aggregator {
 
     /**

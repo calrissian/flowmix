@@ -24,10 +24,13 @@ import javax.script.ScriptException;
 
 /**
  *
+ * Awesome Javascript Function Aggregator. This is going to move somewhere over the rainbow
+ * 
  * @author Miguel A. Fuentes Buchholtz
  * @param <T> Aggregation result type
  * @param <F> Field type
  */
+@Deprecated
 public class JavascriptFunctionAggregator<T,F> extends AbstractGrouplessAggregator<T,F> {
 
     private final ScriptEngineManager manager = new ScriptEngineManager();

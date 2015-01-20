@@ -61,4 +61,23 @@ public class SumAggregatorTest {
         assertEquals(expectedResult, result);
     }
 
+        
+    @Test
+    public void testNoItems() {
+        System.out.println("SumAggregatorTest - No Items");
+        SumAggregator instance = new SumAggregator();
+        instance.postAddition((long)33);
+        instance.postAddition((long)33);
+        instance.postAddition((long)33);
+        instance.postAddition((long)33);
+        instance.evict((long)33);
+        instance.evict((long)33);
+        instance.evict((long)33);
+        instance.evict((long)33);
+        Long result = instance.aggregateResult();
+        Long expectedResult = (long)0;
+        assertEquals(expectedResult, result);
+    }
+
+    
 }

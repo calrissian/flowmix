@@ -22,14 +22,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import static java.util.UUID.randomUUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.calrissian.flowmix.api.Aggregator;
 import static org.calrissian.flowmix.api.Aggregator.GROUP_BY;
 import static org.calrissian.flowmix.api.Aggregator.GROUP_BY_DELIM;
 import org.calrissian.flowmix.core.model.event.AggregatedEvent;
 import org.calrissian.flowmix.core.support.window.WindowItem;
+import org.calrissian.flowmix.exceptions.FlowmixException;
 import org.calrissian.mango.domain.Tuple;
 import org.calrissian.mango.domain.event.BaseEvent;
 import org.calrissian.mango.domain.event.Event;
@@ -108,9 +107,10 @@ public abstract class AbstractAggregator<T, F> implements Aggregator {
     /**
      *
      * @param item
+     * @throws org.calrissian.flowmix.exceptions.FlowmixException
      */
     @Override
-    public void added(WindowItem item) {
+    public void added(WindowItem item) throws FlowmixException {
         if (groupedValues == null && groupByFields != null) {
             groupedValues = new HashMap<String, Collection<Tuple>>();
             for (String group : groupByFields) {
@@ -121,7 +121,7 @@ public abstract class AbstractAggregator<T, F> implements Aggregator {
             try {
                 add(((F) item.getEvent().get(operatedField).getValue()));
             } catch (ClassCastException e) {
-                Logger.getLogger(AbstractAggregator.class.getName()).log(Level.SEVERE, "Problem converting value " + item.getEvent().get(operatedField).getValue(), e);
+                throw new FlowmixException("Problem converting value " + item.getEvent().get(operatedField).getValue(), e);
             }
         }
     }
@@ -129,14 +129,15 @@ public abstract class AbstractAggregator<T, F> implements Aggregator {
     /**
      *
      * @param item item to evict
+     * @throws org.calrissian.flowmix.exceptions.FlowmixException
      */
     @Override
-    public void evicted(WindowItem item) {
+    public void evicted(WindowItem item) throws FlowmixException {
         if (item.getEvent().get(operatedField) != null) {
             try {
                 evict((F) item.getEvent().get(operatedField).getValue());
             } catch (ClassCastException e) {
-                Logger.getLogger(AbstractAggregator.class.getName()).log(Level.SEVERE, "Problem converting value " + item.getEvent().get(operatedField).getValue(), e);
+                throw new FlowmixException("Problem converting value " + item.getEvent().get(operatedField).getValue(), e);
             }
         }
     }

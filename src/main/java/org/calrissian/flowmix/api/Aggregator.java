@@ -44,9 +44,9 @@ public interface Aggregator extends Serializable {
 
     void configure(Map<String, String> configuration);
 
-    void added(WindowItem item) throws FlowmixException;
+    void added(WindowItem item);
 
-    void evicted(WindowItem item) throws FlowmixException;
+    void evicted(WindowItem item);
 
     List<AggregatedEvent> aggregate();
 }

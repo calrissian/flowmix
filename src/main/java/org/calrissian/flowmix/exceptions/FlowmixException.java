@@ -15,7 +15,7 @@
  */
 package org.calrissian.flowmix.exceptions;
 
-public class FlowmixException extends Exception {
+public class FlowmixException extends RuntimeException {
 
     public FlowmixException(String msg, Throwable t) {
         super(msg, t);

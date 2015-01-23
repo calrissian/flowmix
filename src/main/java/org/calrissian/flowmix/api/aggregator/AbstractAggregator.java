@@ -110,7 +110,7 @@ public abstract class AbstractAggregator<T, F> implements Aggregator {
      * @throws org.calrissian.flowmix.exceptions.FlowmixException
      */
     @Override
-    public void added(WindowItem item) throws FlowmixException {
+    public void added(WindowItem item){
         if (groupedValues == null && groupByFields != null) {
             groupedValues = new HashMap<String, Collection<Tuple>>();
             for (String group : groupByFields) {
@@ -132,7 +132,7 @@ public abstract class AbstractAggregator<T, F> implements Aggregator {
      * @throws org.calrissian.flowmix.exceptions.FlowmixException
      */
     @Override
-    public void evicted(WindowItem item) throws FlowmixException {
+    public void evicted(WindowItem item){
         if (item.getEvent().get(operatedField) != null) {
             try {
                 evict((F) item.getEvent().get(operatedField).getValue());
